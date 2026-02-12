@@ -34,3 +34,23 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_APP_SANDBOX: NO
         INFOPLIST_KEY_LSUIElement: YES
+  FocusYouTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: FocusYouTests
+    settings:
+      base:
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Focus You.app/Contents/MacOS/Focus You"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: FocusYou
+
+schemes:
+  FocusYou:
+    build:
+      targets:
+        FocusYou: all
+    test:
+      targets:
+        - FocusYouTests

@@ -25,10 +25,12 @@
 		65FBB5EEECD9E840423E5BEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7E4D50889113C0AF74856AAA /* Assets.xcassets */; };
 		6A48F1066BB7DE23C8AE1CA6 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EE6B94F7670ED50E3DC9810 /* Date+Extensions.swift */; };
 		6B1FC13D5AB53344E630A40D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */; };
+		6E82E0928C9BA2B277CE68F6 /* NotificationServiceSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */; };
 		70038CDA6EF81B3835DEDD0B /* FocusYouError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F2CB15F782CE21EADE32A0B /* FocusYouError.swift */; };
 		701555BB2CBB865246E9B5C6 /* WebsiteBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D9E20C91ECBDB7EABC9A77 /* WebsiteBlocker.swift */; };
 		73628EED32AED64A1B16570F /* AppBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A54D40EAA9967B9F83E5F6 /* AppBlockView.swift */; };
 		737B7A6312188CA855F31CCB /* BlockedSite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72EA9A639375CA3DDA78D63E /* BlockedSite.swift */; };
+		75702BCEE3D87EF47532D34D /* StringExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */; };
 		787CCC5E00EDE1AE5AE0B3A5 /* news.json in Resources */ = {isa = PBXBuildFile; fileRef = 4F58DB33317CAE79DDDDF6FA /* news.json */; };
 		8A236F8CC3E7A19605EC8888 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9AD64C24178ABFA2FB00F5B /* Color+Theme.swift */; };
 		8ACB0836E7785E748C06AEFD /* HostsFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A6E1949B015C2817CE009 /* HostsFileManager.swift */; };
@@ -45,7 +47,18 @@
 		EAE4C81A07549C1F4990A15A /* BlockedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */; };
 		EBBE4690B5997DA436CC2E71 /* BlockListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F591BC59259AC45E8F15287 /* BlockListView.swift */; };
 		F2FD603D4559E67260548B5F /* FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E26060BA507E42D48663C /* FocusSession.swift */; };
+		F50384EFF52B64498DA2426D /* HostsFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		99412CFB162F429DC567E5A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 997BDCD8634622E1B547779B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 11C2220FF5EA37B4F5D3C6D1;
+			remoteInfo = FocusYou;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		03355D227440BC47048DC646 /* FocusYouApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouApp.swift; sourceTree = "<group>"; };
@@ -56,6 +69,7 @@
 		16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePickerView.swift; sourceTree = "<group>"; };
 		1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		2B3E26060BA507E42D48663C /* FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSession.swift; sourceTree = "<group>"; };
+		2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceSettingsTests.swift; sourceTree = "<group>"; };
 		2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListViewModel.swift; sourceTree = "<group>"; };
 		38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedApp.swift; sourceTree = "<group>"; };
 		3ED328A26A0F4A52077A5791 /* FreeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTimer.swift; sourceTree = "<group>"; };
@@ -67,15 +81,18 @@
 		57394063463AFF1878042D5B /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		5F591BC59259AC45E8F15287 /* BlockListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListView.swift; sourceTree = "<group>"; };
 		6815114D2A30CB27EED1B552 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensionsTests.swift; sourceTree = "<group>"; };
 		72EA9A639375CA3DDA78D63E /* BlockedSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedSite.swift; sourceTree = "<group>"; };
 		7E4D50889113C0AF74856AAA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		85112EB9686823A2B6122971 /* BlockingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockingCoordinator.swift; sourceTree = "<group>"; };
 		883DE0F6C198BD475B72202C /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
+		8B18D5DD185752CC322ECABF /* FocusYouTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusYouTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		923F7679B21AE4E12016F775 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		944A6E1949B015C2817CE009 /* HostsFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManager.swift; sourceTree = "<group>"; };
 		946DE288441FC826623C09C6 /* PrivilegedHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedHelper.swift; sourceTree = "<group>"; };
 		9CAB90BC89992273FD36466F /* FocusYou.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYou.entitlements; sourceTree = "<group>"; };
 		A40C05F58859F3BA919A7989 /* CategoryPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerView.swift; sourceTree = "<group>"; };
+		A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManagerTests.swift; sourceTree = "<group>"; };
 		A4BC8344A9F092E59A1ADDE6 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileBlocker.swift; sourceTree = "<group>"; };
 		B87999382957A62F387E43D2 /* FocusYou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusYou.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -178,6 +195,7 @@
 			isa = PBXGroup;
 			children = (
 				DADE62522368ED32B33C12BF /* FocusYou */,
+				75E9FC3F0D99B7062021B117 /* FocusYouTests */,
 				9772FF4E521F20AC894D4862 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -188,6 +206,16 @@
 				16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		75E9FC3F0D99B7062021B117 /* FocusYouTests */ = {
+			isa = PBXGroup;
+			children = (
+				A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */,
+				2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */,
+				7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */,
+			);
+			path = FocusYouTests;
 			sourceTree = "<group>";
 		};
 		7F23B90A85A7251054A73E04 /* Helpers */ = {
@@ -211,6 +239,7 @@
 			isa = PBXGroup;
 			children = (
 				B87999382957A62F387E43D2 /* FocusYou.app */,
+				8B18D5DD185752CC322ECABF /* FocusYouTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -318,6 +347,24 @@
 			productReference = B87999382957A62F387E43D2 /* FocusYou.app */;
 			productType = "com.apple.product-type.application";
 		};
+		F7DC7D451DB8CA8E2EA3303C /* FocusYouTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5956D527ED9BB60002093308 /* Build configuration list for PBXNativeTarget "FocusYouTests" */;
+			buildPhases = (
+				AC48BEC66FBEA8D57F668E8E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B074A9B971226E447E053A2A /* PBXTargetDependency */,
+			);
+			name = FocusYouTests;
+			packageProductDependencies = (
+			);
+			productName = FocusYouTests;
+			productReference = 8B18D5DD185752CC322ECABF /* FocusYouTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -342,6 +389,7 @@
 			projectRoot = "";
 			targets = (
 				11C2220FF5EA37B4F5D3C6D1 /* FocusYou */,
+				F7DC7D451DB8CA8E2EA3303C /* FocusYouTests */,
 			);
 		};
 /* End PBXProject section */
@@ -362,6 +410,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AC48BEC66FBEA8D57F668E8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F50384EFF52B64498DA2426D /* HostsFileManagerTests.swift in Sources */,
+				6E82E0928C9BA2B277CE68F6 /* NotificationServiceSettingsTests.swift in Sources */,
+				75702BCEE3D87EF47532D34D /* StringExtensionsTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E66F2D9631CAD08E293838E9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -403,6 +461,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B074A9B971226E447E053A2A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 11C2220FF5EA37B4F5D3C6D1 /* FocusYou */;
+			targetProxy = 99412CFB162F429DC567E5A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		07F4D6E56B84B3439CF3849C /* Release */ = {
@@ -508,6 +574,21 @@
 			};
 			name = Debug;
 		};
+		60A7F95FE30294F1290786E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Focus You.app/Contents/MacOS/Focus You";
+			};
+			name = Debug;
+		};
 		8AB5D25AD185A0878A169E1A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -572,6 +653,21 @@
 			};
 			name = Release;
 		};
+		ABEE1BE6C51505BFE993DB0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Focus You.app/Contents/MacOS/Focus You";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -580,6 +676,15 @@
 			buildConfigurations = (
 				51CC6E711F0EC4431753A2B2 /* Debug */,
 				8AB5D25AD185A0878A169E1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5956D527ED9BB60002093308 /* Build configuration list for PBXNativeTarget "FocusYouTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60A7F95FE30294F1290786E4 /* Debug */,
+				ABEE1BE6C51505BFE993DB0D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
