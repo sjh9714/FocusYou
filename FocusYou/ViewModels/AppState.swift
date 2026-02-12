@@ -27,6 +27,7 @@ final class AppState {
     /// 에러 메시지 (alert용)
     var errorMessage: String?
     var showError = false
+    var canRetryBlockingDeactivation = false
 
     // MARK: - 타이머
 
@@ -62,8 +63,17 @@ final class AppState {
         }
 
         // 앱 시작 시 긴급 정리 확인
-        Task {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             await BlockingCoordinator.shared.emergencyCleanup()
+
+            if case .error(let cleanupError) = await BlockingCoordinator.shared.state {
+                self.logger.error("앱 시작 시 긴급 정리 실패: \(cleanupError.localizedDescription)")
+                self.presentError(
+                    "앱 시작 시 차단 복구에 실패했습니다. \(cleanupError.localizedDescription)",
+                    canRetryDeactivation: true
+                )
+            }
         }
     }
 
@@ -122,12 +132,10 @@ final class AppState {
                 return
             }
 
-            errorMessage = error.localizedDescription
-            showError = true
+            presentError(error.localizedDescription)
         } catch {
             logger.error("세션 시작 실패 (알 수 없는 에러): \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
-            showError = true
+            presentError(error.localizedDescription)
         }
     }
 
@@ -152,6 +160,7 @@ final class AppState {
     func stopSession(modelContext: ModelContext) async {
         guard focusState == .focusing || focusState == .paused else { return }
         logger.info("세션 중지 (사용자 취소)")
+        let wasBlockingActive = isBlockingActive
 
         // 타이머 정지
         let elapsed = Int(timer.elapsedTime)
@@ -160,11 +169,18 @@ final class AppState {
         // 차단 해제
         do {
             try await BlockingCoordinator.shared.deactivateBlocking()
+            if wasBlockingActive {
+                await NotificationService.shared.sendBlockingDeactivated()
+            }
+            isBlockingActive = false
         } catch {
             logger.error("차단 해제 실패: \(error.localizedDescription)")
+            isBlockingActive = wasBlockingActive
+            presentError(
+                "차단 해제에 실패했습니다. \(error.localizedDescription)",
+                canRetryDeactivation: true
+            )
         }
-
-        isBlockingActive = false
 
         // 세션 기록 업데이트
         currentSession?.cancel(actualDuration: elapsed)
@@ -177,6 +193,7 @@ final class AppState {
 
     private func handleTimerComplete() async {
         logger.info("타이머 완료 → 세션 종료 처리")
+        let wasBlockingActive = isBlockingActive
 
         // 1. 완료 알림
         await NotificationService.shared.sendTimerCompleted(
@@ -186,11 +203,18 @@ final class AppState {
         // 2. 차단 해제
         do {
             try await BlockingCoordinator.shared.deactivateBlocking()
+            if wasBlockingActive {
+                await NotificationService.shared.sendBlockingDeactivated()
+            }
+            isBlockingActive = false
         } catch {
             logger.error("타이머 완료 후 차단 해제 실패: \(error.localizedDescription)")
+            isBlockingActive = wasBlockingActive
+            presentError(
+                "타이머 완료 후 차단 해제에 실패했습니다. \(error.localizedDescription)",
+                canRetryDeactivation: true
+            )
         }
-
-        isBlockingActive = false
 
         // 3. 세션 기록
         currentSession?.complete(actualDuration: Int(timer.totalDuration))
@@ -204,5 +228,37 @@ final class AppState {
     func resetToIdle() {
         timer.reset()
         focusState = .idle
+    }
+
+    /// 차단 해제 재시도 (alert의 재시도 버튼에서 호출)
+    func retryBlockingDeactivation() async {
+        guard canRetryBlockingDeactivation else { return }
+
+        do {
+            try await BlockingCoordinator.shared.deactivateBlocking()
+            if isBlockingActive {
+                await NotificationService.shared.sendBlockingDeactivated()
+            }
+            isBlockingActive = false
+            canRetryBlockingDeactivation = false
+            errorMessage = nil
+        } catch {
+            logger.error("차단 해제 재시도 실패: \(error.localizedDescription)")
+            isBlockingActive = true
+            presentError(
+                "차단 해제 재시도에 실패했습니다. \(error.localizedDescription)",
+                canRetryDeactivation: true
+            )
+        }
+    }
+
+    /// 공통 에러 표시 헬퍼
+    private func presentError(
+        _ message: String,
+        canRetryDeactivation: Bool = false
+    ) {
+        errorMessage = message
+        canRetryBlockingDeactivation = canRetryDeactivation
+        showError = true
     }
 }

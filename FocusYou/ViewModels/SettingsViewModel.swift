@@ -8,13 +8,16 @@ import SwiftUI
 final class SettingsViewModel {
     /// 메뉴바에 남은 시간 표시
     @ObservationIgnored
-    @AppStorage("showMenuBarTime") var showMenuBarTime = true
+    @AppStorage(Constants.Settings.showMenuBarTimeKey)
+    var showMenuBarTime = Constants.Settings.showMenuBarTimeDefault
 
     /// 완료 시 사운드 재생
     @ObservationIgnored
-    @AppStorage("playCompletionSound") var playCompletionSound = true
+    @AppStorage(Constants.Settings.playCompletionSoundKey)
+    var playCompletionSound = Constants.Settings.playCompletionSoundDefault
 
     /// 차단된 앱 알림 표시
     @ObservationIgnored
-    @AppStorage("showBlockedAppNotification") var showBlockedAppNotification = true
+    @AppStorage(Constants.Settings.showBlockedAppNotificationKey)
+    var showBlockedAppNotification = Constants.Settings.showBlockedAppNotificationDefault
 }

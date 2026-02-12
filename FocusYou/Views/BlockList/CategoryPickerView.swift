@@ -1,11 +1,13 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - 카테고리 프리셋 선택
 
 struct CategoryPickerView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var sites: [BlockedSite]
+    @Query private var apps: [BlockedApp]
     @State private var viewModel = BlockListViewModel()
-    @State private var appliedCategories: Set<String> = []
     @State private var failedCategory: String?
 
     var body: some View {
@@ -45,9 +47,7 @@ struct CategoryPickerView: View {
                     category: category,
                     modelContext: modelContext
                 )
-                withAnimation(.spring(duration: 0.3)) {
-                    appliedCategories.remove(category)
-                }
+                failedCategory = nil
             } else {
                 // 토글: 추가
                 if viewModel.loadPreset(category: category) != nil {
@@ -55,9 +55,6 @@ struct CategoryPickerView: View {
                         category: category,
                         modelContext: modelContext
                     )
-                    withAnimation(.spring(duration: 0.3)) {
-                        appliedCategories.insert(category)
-                    }
                     failedCategory = nil
                 } else {
                     failedCategory = category
@@ -101,6 +98,13 @@ struct CategoryPickerView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(category) 카테고리 프리셋")
+    }
+
+    private var appliedCategories: Set<String> {
+        let modelCategories = Set(
+            sites.compactMap(\.category) + apps.compactMap(\.category)
+        )
+        return Set(Constants.Category.all.filter { modelCategories.contains($0) })
     }
 }
 

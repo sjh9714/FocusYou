@@ -7,16 +7,30 @@ import os
 actor HostsFileManager {
     static let shared = HostsFileManager()
 
-    private let hostsPath = Constants.Blocking.hostsFilePath
-    private let backupPath = Constants.Blocking.hostsBackupPath
-    private let beginMarker = Constants.Blocking.beginMarker
-    private let endMarker = Constants.Blocking.endMarker
-    private let redirectIP = Constants.Blocking.redirectIP
+    private let hostsPath: String
+    private let backupPath: String
+    private let beginMarker: String
+    private let endMarker: String
+    private let redirectIP: String
 
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
         category: "HostsFile"
     )
+
+    init(
+        hostsPath: String = Constants.Blocking.hostsFilePath,
+        backupPath: String = Constants.Blocking.hostsBackupPath,
+        beginMarker: String = Constants.Blocking.beginMarker,
+        endMarker: String = Constants.Blocking.endMarker,
+        redirectIP: String = Constants.Blocking.redirectIP
+    ) {
+        self.hostsPath = hostsPath
+        self.backupPath = backupPath
+        self.beginMarker = beginMarker
+        self.endMarker = endMarker
+        self.redirectIP = redirectIP
+    }
 
     // MARK: - 읽기 (권한 불필요)
 
@@ -42,8 +56,16 @@ actor HostsFileManager {
     /// hosts 파일 백업 (차단 시작 전 호출)
     func backupHostsFile() throws {
         logger.info("hosts 파일 백업 시작")
-        let content = try readHostsFile()
-        try content.write(toFile: backupPath, atomically: true, encoding: .utf8)
+
+        // stale 마커가 있어도 항상 "클린 상태"를 백업한다.
+        let cleanContent = try buildCleanContent()
+        let backupDirectory = (backupPath as NSString).deletingLastPathComponent
+
+        try FileManager.default.createDirectory(
+            atPath: backupDirectory,
+            withIntermediateDirectories: true
+        )
+        try cleanContent.write(toFile: backupPath, atomically: true, encoding: .utf8)
         logger.info("hosts 파일 백업 완료: \(self.backupPath)")
     }
 

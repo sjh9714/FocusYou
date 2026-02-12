@@ -45,6 +45,13 @@ struct MenuBarView: View {
         .padding()
         .frame(width: Constants.UI.popoverWidth)
         .alert("오류", isPresented: Bindable(appState).showError) {
+            if appState.canRetryBlockingDeactivation {
+                Button("다시 시도") {
+                    Task {
+                        await appState.retryBlockingDeactivation()
+                    }
+                }
+            }
             Button("확인", role: .cancel) {}
         } message: {
             Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")

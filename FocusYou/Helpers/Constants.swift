@@ -24,8 +24,15 @@ enum Constants {
     enum Blocking {
         /// hosts 파일 경로
         static let hostsFilePath = "/etc/hosts"
-        /// hosts 파일 백업 경로
-        static let hostsBackupPath = "/tmp/focusyou_hosts_backup"
+        /// 앱 내부 상태 파일 디렉터리
+        private static var appStateDirectory: String {
+            let home = FileManager.default.homeDirectoryForCurrentUser.path
+            return "\(home)/Library/Application Support/FocusYou"
+        }
+        /// hosts 파일 백업 경로 (재부팅 이후에도 유지)
+        static var hostsBackupPath: String {
+            "\(appStateDirectory)/hosts.backup"
+        }
         /// 차단 시작 마커
         static let beginMarker = "# === Focus You BEGIN ==="
         /// 차단 종료 마커
@@ -36,8 +43,10 @@ enum Constants {
         static let redirectIPv6 = "::1"
         /// 리다이렉트 IP (IPv6 link-local)
         static let redirectIPv6LinkLocal = "fe80::1%lo0"
-        /// 활성 상태 표시 파일
-        static let activeIndicatorPath = "/tmp/focusyou.active"
+        /// 활성 상태 표시 파일 (재부팅 이후에도 유지)
+        static var activeIndicatorPath: String {
+            "\(appStateDirectory)/blocking.active"
+        }
         /// 영구 헬퍼 스크립트 (비밀번호 없는 hosts 변경용)
         static let helperPath = "/usr/local/bin/focusyou-helper"
         /// sudoers 엔트리 (헬퍼 NOPASSWD 허용)
@@ -70,6 +79,18 @@ enum Constants {
         static let menuBarIconIdle = "shield.fill"
         /// 메뉴바 아이콘 (활성)
         static let menuBarIconActive = "shield.checkered"
+    }
+
+    // MARK: - 설정
+
+    enum Settings {
+        static let showMenuBarTimeKey = "showMenuBarTime"
+        static let playCompletionSoundKey = "playCompletionSound"
+        static let showBlockedAppNotificationKey = "showBlockedAppNotification"
+
+        static let showMenuBarTimeDefault = true
+        static let playCompletionSoundDefault = true
+        static let showBlockedAppNotificationDefault = true
     }
 
     // MARK: - 카테고리
