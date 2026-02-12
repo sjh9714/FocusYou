@@ -16,17 +16,24 @@ actor BlockingCoordinator {
     }
 
     private(set) var state: State = .idle
+    private var isWebsiteBlockingActive = false
+    private var isAppBlockingActive = false
 
     // MARK: - Dependencies
 
     private let websiteBlocker: any WebsiteBlocker
+    private let managesSafetyNet: Bool
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
         category: "BlockingCoordinator"
     )
 
-    init(websiteBlocker: any WebsiteBlocker = HostsFileBlocker()) {
+    init(
+        websiteBlocker: any WebsiteBlocker = HostsFileBlocker(),
+        managesSafetyNet: Bool = true
+    ) {
         self.websiteBlocker = websiteBlocker
+        self.managesSafetyNet = managesSafetyNet
     }
 
     // MARK: - Public
@@ -38,10 +45,22 @@ actor BlockingCoordinator {
     ) async throws {
         logger.info("차단 활성화 시작: 사이트 \(domains.count)개, 앱 \(appBundleIds.count)개")
 
+        guard !domains.isEmpty || !appBundleIds.isEmpty else {
+            logger.info("차단 대상이 없어 활성화 건너뜀")
+            isWebsiteBlockingActive = false
+            isAppBlockingActive = false
+            state = .idle
+            return
+        }
+
+        isWebsiteBlockingActive = false
+        isAppBlockingActive = false
+
         // 웹사이트 차단
         if !domains.isEmpty {
             do {
                 try await websiteBlocker.activate(domains: domains)
+                isWebsiteBlockingActive = true
             } catch {
                 logger.error("웹사이트 차단 실패: \(error.localizedDescription)")
                 state = .error(error as? FocusYouError ?? .hostsFileWriteFailed)
@@ -54,10 +73,13 @@ actor BlockingCoordinator {
             await MainActor.run {
                 AppBlocker.shared.activate(bundleIds: appBundleIds)
             }
+            isAppBlockingActive = true
         }
 
-        // 안전장치 활성화
-        installSafetyNet()
+        // hosts 차단 활성 시에만 안전장치 설치
+        if isWebsiteBlockingActive, managesSafetyNet {
+            installSafetyNet()
+        }
 
         state = .blocking
         logger.info("차단 활성화 완료")
@@ -67,21 +89,39 @@ actor BlockingCoordinator {
     func deactivateBlocking() async throws {
         logger.info("차단 해제 시작")
 
-        // 웹사이트 차단 해제
-        do {
-            try await websiteBlocker.deactivate()
-        } catch {
-            logger.error("웹사이트 차단 해제 실패: \(error.localizedDescription)")
-            // 실패해도 앱 차단은 해제 시도
+        var websiteDeactivationError: Error?
+        let websiteIsActive = await websiteBlocker.isActive()
+        let shouldDeactivateWebsite = isWebsiteBlockingActive || websiteIsActive
+
+        // 웹사이트 차단 해제 (실제 활성 상태일 때만)
+        if shouldDeactivateWebsite {
+            do {
+                try await websiteBlocker.deactivate()
+                isWebsiteBlockingActive = false
+            } catch {
+                logger.error("웹사이트 차단 해제 실패: \(error.localizedDescription)")
+                websiteDeactivationError = error
+            }
+        } else {
+            logger.debug("웹사이트 차단 비활성 상태, hosts 해제 건너뜀")
         }
 
-        // 앱 차단 해제
+        // 앱 차단 해제 (idempotent)
         await MainActor.run {
             AppBlocker.shared.deactivate()
         }
+        isAppBlockingActive = false
+
+        // hosts 해제 실패 시 안전장치 보존 + 에러 전파
+        if let websiteDeactivationError {
+            state = .error(websiteDeactivationError as? FocusYouError ?? .hostsFileWriteFailed)
+            throw websiteDeactivationError
+        }
 
         // 안전장치 해제
-        removeSafetyNet()
+        if managesSafetyNet {
+            removeSafetyNet()
+        }
 
         state = .idle
         logger.info("차단 해제 완료")
@@ -91,37 +131,79 @@ actor BlockingCoordinator {
     /// 활성 표시 파일이 있을 때만 실행
     /// 헬퍼를 통해 비밀번호 없이 복구 시도, 실패 시 admin fallback
     func emergencyCleanup() async {
-        guard FileManager.default.fileExists(atPath: Constants.Blocking.activeIndicatorPath) else {
+        let indicatorExists = FileManager.default.fileExists(atPath: Constants.Blocking.activeIndicatorPath)
+        let hasActiveBlocking = await HostsFileManager.shared.hasActiveBlocking()
+        let backupExists = FileManager.default.fileExists(atPath: Constants.Blocking.hostsBackupPath)
+        let launchAgentExists = FileManager.default.fileExists(atPath: Constants.App.launchAgentPath)
+
+        guard indicatorExists || hasActiveBlocking || backupExists || launchAgentExists else {
             return
         }
 
-        logger.warning("긴급 정리 수행 (활성 표시 파일 감지)")
+        logger.warning(
+            """
+            긴급 정리 수행 (indicator: \(indicatorExists ? "true" : "false"), \
+            hosts marker: \(hasActiveBlocking ? "true" : "false"), \
+            backup: \(backupExists ? "true" : "false"), \
+            launchAgent: \(launchAgentExists ? "true" : "false"))
+            """
+        )
 
-        // hosts 파일에 차단 마커가 있는 경우에만 복구
-        guard await HostsFileManager.shared.hasActiveBlocking() else {
-            logger.info("긴급 정리: 차단 마커 없음, 표시 파일만 제거")
-            removeSafetyNet()
+        // hosts 차단 마커/indicator 없이 안전장치 파일만 남았으면 정리
+        if !indicatorExists && !hasActiveBlocking {
+            logger.info("긴급 정리: stale 안전장치 파일만 존재, 정리 수행")
+            if managesSafetyNet {
+                removeSafetyNet()
+            }
+            isWebsiteBlockingActive = false
+            isAppBlockingActive = false
+            state = .idle
+            return
+        }
+
+        // hosts 차단이 없으면 안전장치 파일만 정리
+        guard hasActiveBlocking else {
+            logger.info("긴급 정리: hosts 차단 없음, 안전장치 파일만 제거")
+            if managesSafetyNet {
+                removeSafetyNet()
+            }
+            isWebsiteBlockingActive = false
+            isAppBlockingActive = false
             state = .idle
             return
         }
 
         // 헬퍼를 통해 비밀번호 없이 복구 시도
+        var cleanupError: Error?
         do {
             let cleanContent = try await HostsFileManager.shared.buildCleanContent()
             try await PrivilegedHelper.shared.writeHostsViaHelper(content: cleanContent)
             logger.info("긴급 정리: 헬퍼를 통해 복원 완료")
+            cleanupError = nil
         } catch {
             logger.warning("헬퍼 복구 실패, admin fallback 시도: \(error.localizedDescription)")
             // Fallback: 기존 방식 (비밀번호 필요)
             do {
                 try await websiteBlocker.deactivate()
                 logger.info("긴급 정리: hosts 파일 복원 완료 (admin)")
+                cleanupError = nil
             } catch {
                 logger.error("긴급 정리 실패: \(error.localizedDescription)")
+                cleanupError = error
             }
         }
 
-        removeSafetyNet()
+        if let cleanupError {
+            state = .error(cleanupError as? FocusYouError ?? .hostsFileWriteFailed)
+            logger.error("긴급 정리 미완료 - 안전장치 유지")
+            return
+        }
+
+        if managesSafetyNet {
+            removeSafetyNet()
+        }
+        isWebsiteBlockingActive = false
+        isAppBlockingActive = false
         state = .idle
     }
 
@@ -131,17 +213,31 @@ actor BlockingCoordinator {
     private func installSafetyNet() {
         logger.debug("안전장치 설치")
 
+        // 상태 파일 디렉터리 생성
+        let stateDirectory = (Constants.Blocking.activeIndicatorPath as NSString).deletingLastPathComponent
+        try? FileManager.default.createDirectory(
+            atPath: stateDirectory,
+            withIntermediateDirectories: true
+        )
+
         // 활성 상태 표시 파일 생성
-        FileManager.default.createFile(
+        if !FileManager.default.createFile(
             atPath: Constants.Blocking.activeIndicatorPath,
             contents: Date().description.data(using: .utf8)
-        )
+        ) {
+            logger.error("활성 상태 표시 파일 생성 실패: \(Constants.Blocking.activeIndicatorPath)")
+        }
 
         // LaunchAgent plist 생성
         // 부팅 시 활성 표시 파일이 있으면 헬퍼로 hosts 복구 시도
         let helperPath = Constants.Blocking.helperPath
         let backupPath = Constants.Blocking.hostsBackupPath
         let activeIndicatorPath = Constants.Blocking.activeIndicatorPath
+        let launchAgentPath = Constants.App.launchAgentPath
+        let quotedHelperPath = shellQuoted(helperPath)
+        let quotedBackupPath = shellQuoted(backupPath)
+        let quotedActiveIndicatorPath = shellQuoted(activeIndicatorPath)
+        let quotedLaunchAgentPath = shellQuoted(launchAgentPath)
         let plistContent = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -153,7 +249,7 @@ actor BlockingCoordinator {
             <array>
                 <string>/bin/bash</string>
                 <string>-c</string>
-                <string>if [ -f \(activeIndicatorPath) ] &amp;&amp; [ -f \(backupPath) ]; then sudo -n \(helperPath) \(backupPath) 2>/dev/null; fi; rm -f \(activeIndicatorPath)</string>
+                <string>if [ -f \(quotedActiveIndicatorPath) ] &amp;&amp; [ -f \(quotedBackupPath) ]; then if sudo -n \(quotedHelperPath) \(quotedBackupPath) 2>/dev/null; then rm -f \(quotedActiveIndicatorPath) \(quotedBackupPath) \(quotedLaunchAgentPath); fi; fi</string>
             </array>
             <key>RunAtLoad</key>
             <true/>
@@ -179,5 +275,12 @@ actor BlockingCoordinator {
         logger.debug("안전장치 제거")
         try? FileManager.default.removeItem(atPath: Constants.Blocking.activeIndicatorPath)
         try? FileManager.default.removeItem(atPath: Constants.App.launchAgentPath)
+        try? FileManager.default.removeItem(atPath: Constants.Blocking.hostsBackupPath)
+    }
+
+    /// 쉘 명령 인자용 단일 인용부호 이스케이프
+    private func shellQuoted(_ value: String) -> String {
+        let escaped = value.replacingOccurrences(of: "'", with: "'\"'\"'")
+        return "'\(escaped)'"
     }
 }

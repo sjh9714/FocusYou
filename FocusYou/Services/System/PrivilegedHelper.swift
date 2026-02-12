@@ -90,26 +90,25 @@ actor PrivilegedHelper {
         // hosts 파일 쓰기 + DNS 플러시를 하나의 admin 스크립트로 통합
         // → 비밀번호 다이얼로그 1회만 등장
         // macOS 26+: HUP 후 SIGTERM으로 mDNSResponder 완전 재시작 (launchd 자동 복구)
-        let script = "cp \"\(tempPath)\" \"\(path)\" && chmod 644 \"\(path)\" && dscacheutil -flushcache && killall -HUP mDNSResponder && sleep 1 && killall mDNSResponder 2>/dev/null; true"
+        let script = "cp \"\(tempPath)\" \"\(path)\" && chmod 644 \"\(path)\" && dscacheutil -flushcache && killall -HUP mDNSResponder && sleep 1 && (killall mDNSResponder 2>/dev/null || true)"
         _ = try await executeAsAdmin(script: script)
     }
 
     // MARK: - 영구 헬퍼 (비밀번호 최초 1회)
 
-    /// 헬퍼 스크립트 + sudoers 엔트리 존재 확인 → 없으면 admin 호출로 설치
+    /// 헬퍼 스크립트 + sudoers 엔트리 유효성 검증 → 실패 시 admin 호출로 설치
     /// 최초 1회만 비밀번호 필요, 이후 영구 사용
     func ensureHelperInstalled() async throws {
         let helperPath = Constants.Blocking.helperPath
         let sudoersPath = Constants.Blocking.sudoersPath
 
-        // 이미 설치된 경우 스킵
-        if FileManager.default.fileExists(atPath: helperPath),
-           FileManager.default.fileExists(atPath: sudoersPath) {
-            logger.info("헬퍼 이미 설치됨, 스킵")
+        // 설치/권한/비밀번호 없는 실행 가능 여부까지 확인
+        if isHelperInstallationValid(helperPath: helperPath, sudoersPath: sudoersPath) {
+            logger.info("헬퍼 설치 검증 통과, 스킵")
             return
         }
 
-        logger.info("헬퍼 미설치 → admin 권한으로 설치 시작")
+        logger.info("헬퍼 미설치/손상 감지 → admin 권한으로 설치 시작")
 
         let username = ProcessInfo.processInfo.userName
 
@@ -122,7 +121,7 @@ actor PrivilegedHelper {
         dscacheutil -flushcache
         killall -HUP mDNSResponder
         sleep 1
-        killall mDNSResponder 2>/dev/null; true
+        killall mDNSResponder 2>/dev/null || true
         """
         guard let tempHelperPath = writeTempFile(content: helperScript) else {
             throw FocusYouError.hostsFileWriteFailed
@@ -149,10 +148,16 @@ actor PrivilegedHelper {
             "cp \"\(tempSudoersPath)\" \"\(sudoersPath)\"",
             "chmod 440 \"\(sudoersPath)\"",
             "chown root:wheel \"\(sudoersPath)\"",
-            "visudo -c -f \"\(sudoersPath)\" || rm -f \"\(sudoersPath)\"",
+            "visudo -c -f \"\(sudoersPath)\" || (rm -f \"\(sudoersPath)\" && exit 1)",
         ].joined(separator: " && ")
 
         _ = try await executeAsAdmin(script: script)
+
+        guard isHelperInstallationValid(helperPath: helperPath, sudoersPath: sudoersPath) else {
+            logger.error("헬퍼 설치 후 검증 실패")
+            throw FocusYouError.authorizationFailed
+        }
+
         logger.info("헬퍼 설치 완료 (이후 비밀번호 불필요)")
     }
 
@@ -212,6 +217,54 @@ actor PrivilegedHelper {
     }
 
     // MARK: - Private
+
+    /// 헬퍼 설치 상태 검증
+    private func isHelperInstallationValid(helperPath: String, sudoersPath: String) -> Bool {
+        guard FileManager.default.fileExists(atPath: helperPath),
+              FileManager.default.fileExists(atPath: sudoersPath) else {
+            return false
+        }
+
+        guard FileManager.default.isExecutableFile(atPath: helperPath) else {
+            logger.warning("헬퍼 실행 권한 없음: \(helperPath)")
+            return false
+        }
+
+        guard canRunHelperWithoutPassword(helperPath: helperPath) else {
+            logger.warning("헬퍼 NOPASSWD 검증 실패")
+            return false
+        }
+
+        return true
+    }
+
+    /// `sudo -n -l <helperPath>`로 비밀번호 없는 실행 권한 확인
+    private func canRunHelperWithoutPassword(helperPath: String) -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/sudo")
+        process.arguments = ["-n", "-l", helperPath]
+        process.standardOutput = FileHandle.nullDevice
+
+        let errorPipe = Pipe()
+        process.standardError = errorPipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            logger.warning("헬퍼 권한 검증 실행 실패: \(error.localizedDescription)")
+            return false
+        }
+
+        guard process.terminationStatus == 0 else {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorString = String(data: errorData, encoding: .utf8) ?? ""
+            logger.warning("헬퍼 권한 검증 실패 (종료 코드: \(process.terminationStatus)): \(errorString)")
+            return false
+        }
+
+        return true
+    }
 
     /// 임시 파일 생성 헬퍼
     private func writeTempFile(content: String) -> String? {

@@ -1,9 +1,9 @@
 name: FocusYou
 options:
-  bundleIdPrefix: com.yourname
+  bundleIdPrefix: com.sungjh
   deploymentTarget:
     macOS: "14.0"
-  xcodeVersion: "16.0"
+  xcodeVersion: "26.2"
   createIntermediateGroups: true
   defaultConfig: Debug
 
@@ -11,9 +11,9 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
-    PRODUCT_BUNDLE_IDENTIFIER: com.yourname.focusyou
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    PRODUCT_BUNDLE_IDENTIFIER: com.sungjh.focusyou
+    MARKETING_VERSION: "0.3.0"
+    CURRENT_PROJECT_VERSION: "3"
     GENERATE_INFOPLIST_FILE: YES
     INFOPLIST_KEY_LSUIElement: YES
     INFOPLIST_KEY_CFBundleDisplayName: "Focus You"
@@ -34,3 +34,23 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_APP_SANDBOX: NO
         INFOPLIST_KEY_LSUIElement: YES
+  FocusYouTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: FocusYouTests
+    settings:
+      base:
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Focus You.app/Contents/MacOS/Focus You"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: FocusYou
+
+schemes:
+  FocusYou:
+    build:
+      targets:
+        FocusYou: all
+    test:
+      targets:
+        - FocusYouTests

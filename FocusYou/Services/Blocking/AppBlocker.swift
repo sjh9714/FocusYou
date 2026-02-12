@@ -72,7 +72,6 @@ final class AppBlocker {
         guard !isMonitoring else { return }
         isMonitoring = true
 
-        let blockedIds = blockedBundleIds
         launchObservation = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didLaunchApplicationNotification,
             object: nil,
@@ -82,7 +81,7 @@ final class AppBlocker {
                   let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey]
                     as? NSRunningApplication,
                   let bundleId = app.bundleIdentifier,
-                  blockedIds.contains(bundleId) else {
+                  self.blockedBundleIds.contains(bundleId) else {
                 return
             }
 

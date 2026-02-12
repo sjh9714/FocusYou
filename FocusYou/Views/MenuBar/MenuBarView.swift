@@ -19,6 +19,10 @@ struct MenuBarView: View {
             // 상단 헤더
             headerView
 
+            if appState.showError {
+                inlineErrorPanel
+            }
+
             Divider()
 
             // 상태별 메인 콘텐츠
@@ -44,11 +48,7 @@ struct MenuBarView: View {
         }
         .padding()
         .frame(width: Constants.UI.popoverWidth)
-        .alert("오류", isPresented: Bindable(appState).showError) {
-            Button("확인", role: .cancel) {}
-        } message: {
-            Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
-        }
+        .animation(.easeInOut(duration: 0.2), value: appState.showError)
     }
 
     // MARK: - 헤더
@@ -76,6 +76,44 @@ struct MenuBarView: View {
                 .background(ThemeManager.shared.primary.opacity(0.2))
                 .clipShape(Capsule())
         }
+    }
+
+    private var inlineErrorPanel: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("오류", systemImage: "exclamationmark.triangle.fill")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(ThemeManager.shared.stopButton)
+
+            Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 8) {
+                if appState.canRetryBlockingDeactivation {
+                    Button {
+                        Task {
+                            await appState.retryBlockingDeactivation()
+                        }
+                    } label: {
+                        Text("다시 시도")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(ThemeManager.shared.stopButton)
+                }
+
+                Button {
+                    appState.dismissError()
+                } label: {
+                    Text("닫기")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .padding(12)
+        .background(ThemeManager.shared.stopButton.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     // MARK: - 푸터

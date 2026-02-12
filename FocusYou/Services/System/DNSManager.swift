@@ -18,7 +18,7 @@ actor DNSManager {
         logger.info("DNS 캐시 플러시 시작")
 
         // macOS 26+: HUP 후 SIGTERM으로 mDNSResponder 완전 재시작 (launchd 자동 복구)
-        let script = "dscacheutil -flushcache && killall -HUP mDNSResponder && sleep 1 && killall mDNSResponder 2>/dev/null; true"
+        let script = "dscacheutil -flushcache && killall -HUP mDNSResponder && sleep 1 && (killall mDNSResponder 2>/dev/null || true)"
 
         do {
             _ = try await PrivilegedHelper.shared.executeAsAdmin(script: script)

@@ -13,21 +13,75 @@ struct IdleContentView: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            modePicker
             timerDisplay
-            presetButtons
-            customSlider
+            timerOptions
             blockSummary
             startButton
+        }
+    }
+
+    private var modePicker: some View {
+        HStack(spacing: 8) {
+            ForEach(TimerViewModel.TimerMode.allCases, id: \.self) { mode in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.selectMode(mode)
+                    }
+                } label: {
+                    Text(mode.displayName)
+                        .font(.callout.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(
+                            viewModel.selectedMode == mode
+                                ? ThemeManager.shared.primary
+                                : Color.secondary.opacity(0.15)
+                        )
+                        .foregroundStyle(
+                            viewModel.selectedMode == mode
+                                ? .white
+                                : ThemeManager.shared.textPrimary
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 
     // MARK: - 시간 표시
 
     private var timerDisplay: some View {
-        Text(TimeInterval(viewModel.selectedDurationMinutes * 60).formattedAsTimer)
+        Text(viewModel.initialDurationSeconds.formattedAsTimer)
             .font(.system(size: 48, weight: .light, design: .monospaced))
             .foregroundStyle(ThemeManager.shared.textPrimary)
-            .accessibilityLabel("\(viewModel.selectedDurationMinutes)분 타이머")
+            .accessibilityLabel(
+                viewModel.selectedMode == .free
+                    ? "\(viewModel.selectedDurationMinutes)분 타이머"
+                    : "뽀모도로 집중 \(viewModel.pomodoroConfiguration.focusMinutes)분"
+            )
+    }
+
+    @ViewBuilder
+    private var timerOptions: some View {
+        switch viewModel.selectedMode {
+        case .free:
+            presetButtons
+            customSlider
+        case .pomodoro:
+            VStack(spacing: 8) {
+                Text(viewModel.pomodoroSummaryText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                PomodoroConfigView(
+                    configuration: Binding(
+                        get: { viewModel.pomodoroConfiguration },
+                        set: { viewModel.pomodoroConfiguration = $0 }
+                    )
+                )
+            }
+        }
     }
 
     // MARK: - 프리셋 버튼
@@ -110,10 +164,12 @@ struct IdleContentView: View {
         Button {
             Task {
                 await appState.startFocusSession(
-                    duration: viewModel.selectedDurationSeconds,
+                    duration: viewModel.initialDurationSeconds,
                     sites: sites,
                     apps: apps,
-                    modelContext: modelContext
+                    modelContext: modelContext,
+                    mode: viewModel.selectedMode == .pomodoro ? .pomodoro : .free,
+                    pomodoroConfiguration: viewModel.pomodoroConfiguration
                 )
             }
         } label: {
@@ -137,6 +193,7 @@ struct FocusingContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = TimerViewModel()
+    @State private var phaseBadgeScale: CGFloat = 1.0
 
     var body: some View {
         VStack(spacing: 20) {
@@ -150,6 +207,10 @@ struct FocusingContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showCancelConfirmation)
+        .onChange(of: appState.currentPomodoroPhase?.type) { _, newValue in
+            guard appState.timerMode == .pomodoro, newValue != nil else { return }
+            animatePhaseBadge()
+        }
     }
 
     // MARK: - 중지 확인 (인라인)
@@ -200,33 +261,69 @@ struct FocusingContentView: View {
     }
 
     private var countdownDisplay: some View {
-        Text(appState.timer.remainingTime.formattedAsTimer)
-            .font(.system(size: 56, weight: .light, design: .monospaced))
-            .foregroundStyle(
-                appState.focusState == .paused
-                    ? ThemeManager.shared.textSecondary
-                    : ThemeManager.shared.primary
-            )
-            .accessibilityLabel("남은 시간 \(appState.timer.remainingTime.formattedAsTimer)")
+        PieChartTimerView(
+            progress: appState.timer.progress,
+            remainingTimeText: appState.timer.remainingTime.formattedAsTimer,
+            isPaused: appState.focusState == .paused,
+            activeColor: phaseAccentColor
+        )
     }
 
     private var progressBar: some View {
         ProgressView(value: appState.timer.progress)
-            .tint(ThemeManager.shared.progress)
+            .tint(phaseAccentColor)
             .animation(.easeInOut, value: appState.timer.progress)
     }
 
     private var statusText: some View {
-        Group {
-            if appState.focusState == .paused {
+        VStack(spacing: 4) {
+            if appState.timerMode == .pomodoro, let phase = appState.currentPomodoroPhase {
+                HStack(spacing: 6) {
+                    Image(systemName: phase.type == .focus ? "bolt.fill" : "cup.and.saucer.fill")
+                    Text(phase.type.displayName)
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(phaseAccentColor.opacity(0.16))
+                    .foregroundStyle(
+                        phaseAccentColor
+                    )
+                .clipShape(Capsule())
+                .scaleEffect(phaseBadgeScale)
+                Text(appState.pomodoroCycleProgressText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else if appState.focusState == .paused {
                 Text("일시정지됨")
+                    .font(.callout)
                     .foregroundStyle(ThemeManager.shared.pauseButton)
             } else {
                 Text("집중 중...")
+                    .font(.callout)
                     .foregroundStyle(.secondary)
             }
         }
-        .font(.callout)
+    }
+
+    private var phaseAccentColor: Color {
+        guard appState.timerMode == .pomodoro,
+              let phase = appState.currentPomodoroPhase else {
+            return ThemeManager.shared.progress
+        }
+        return phase.type == .focus ? ThemeManager.shared.primary : ThemeManager.shared.secondary
+    }
+
+    private func animatePhaseBadge() {
+        phaseBadgeScale = 0.9
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.65, blendDuration: 0.1)) {
+            phaseBadgeScale = 1.08
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            withAnimation(.easeOut(duration: 0.18)) {
+                phaseBadgeScale = 1.0
+            }
+        }
     }
 
     private var controlButtons: some View {
@@ -284,9 +381,15 @@ struct CompletedContentView: View {
             Text("집중 완료!")
                 .font(.title2.bold())
 
-            Text(appState.timer.totalDuration.formattedAsReadable + " 집중했습니다")
+            Text(appState.completedSummaryText)
                 .font(.callout)
                 .foregroundStyle(.secondary)
+
+            if let completedDetailText = appState.completedDetailText {
+                Text(completedDetailText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             Button {
                 withAnimation(.spring(duration: 0.3)) {

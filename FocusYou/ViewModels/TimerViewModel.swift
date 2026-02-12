@@ -7,11 +7,31 @@ import os
 @MainActor
 @Observable
 final class TimerViewModel {
+    enum TimerMode: String, CaseIterable {
+        case free
+        case pomodoro
+
+        var displayName: String {
+            switch self {
+            case .free:
+                return "자유"
+            case .pomodoro:
+                return "뽀모도로"
+            }
+        }
+    }
+
+    /// 타이머 모드
+    var selectedMode: TimerMode = .free
+
     /// 선택된 프리셋 (분), nil이면 커스텀
     var selectedPreset: Int? = 25
 
     /// 커스텀 시간 (분)
     var customMinutes: Double = 25
+
+    /// 뽀모도로 설정
+    var pomodoroConfiguration: PomodoroConfiguration = .default
 
     /// 취소 확인 다이얼로그 표시 여부
     var showCancelConfirmation = false
@@ -31,6 +51,21 @@ final class TimerViewModel {
     /// 선택된 시간 (초)
     var selectedDurationSeconds: TimeInterval {
         TimeInterval(selectedDurationMinutes * 60)
+    }
+
+    /// 현재 모드에서 시작 시 사용할 첫 세션 시간 (초)
+    var initialDurationSeconds: TimeInterval {
+        switch selectedMode {
+        case .free:
+            return selectedDurationSeconds
+        case .pomodoro:
+            return TimeInterval(pomodoroConfiguration.focusMinutes * 60)
+        }
+    }
+
+    var pomodoroSummaryText: String {
+        let config = pomodoroConfiguration
+        return "집중 \(config.focusMinutes) / 짧휴 \(config.shortBreakMinutes) / 긴휴 \(config.longBreakMinutes) · \(config.cycles)회"
     }
 
     // MARK: - Methods
@@ -55,5 +90,9 @@ final class TimerViewModel {
     /// 중지 요청 (확인 다이얼로그 표시)
     func requestStop() {
         showCancelConfirmation = true
+    }
+
+    func selectMode(_ mode: TimerMode) {
+        selectedMode = mode
     }
 }
