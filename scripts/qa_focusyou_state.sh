@@ -8,7 +8,7 @@ END_MARKER="# === Focus You END ==="
 STATE_DIR="$HOME/Library/Application Support/FocusYou"
 INDICATOR_PATH="$STATE_DIR/blocking.active"
 BACKUP_PATH="$STATE_DIR/hosts.backup"
-LAUNCH_AGENT_PATH="$HOME/Library/LaunchAgents/com.yourname.focusyou.cleanup.plist"
+LAUNCH_AGENT_PATH="$HOME/Library/LaunchAgents/com.sungjh.focusyou.cleanup.plist"
 HELPER_PATH="/usr/local/bin/focusyou-helper"
 HOSTS_PATH="/etc/hosts"
 
@@ -60,6 +60,10 @@ helper_sudo_state() {
   else
     echo "sudo NOPASSWD check: FAILED"
   fi
+}
+
+helper_nopasswd_ok() {
+  [ -x "$HELPER_PATH" ] && sudo -n -l "$HELPER_PATH" >/dev/null 2>&1
 }
 
 app_process_state() {
@@ -191,6 +195,50 @@ assert_recovered() {
   echo "PASS: recovered state"
 }
 
+assert_helper_ready() {
+  if [ ! -x "$HELPER_PATH" ]; then
+    echo "FAIL: helper missing or not executable ($HELPER_PATH)"
+    return 1
+  fi
+
+  if ! helper_nopasswd_ok; then
+    echo "FAIL: helper sudo NOPASSWD is not configured"
+    return 1
+  fi
+
+  echo "PASS: helper is ready"
+}
+
+assert_recovery_pending() {
+  local markers
+  local indicator_exists=0
+  local backup_exists=0
+  local launch_agent_exists=0
+
+  markers="$(hosts_marker_count)"
+  if [[ "$markers" != *"begin=1 end=1"* ]]; then
+    echo "FAIL: expected blocked hosts markers for pending recovery ($markers)"
+    return 1
+  fi
+
+  if [ -e "$INDICATOR_PATH" ]; then
+    indicator_exists=1
+  fi
+  if [ -e "$BACKUP_PATH" ]; then
+    backup_exists=1
+  fi
+  if [ -e "$LAUNCH_AGENT_PATH" ]; then
+    launch_agent_exists=1
+  fi
+
+  if [ "$indicator_exists" -ne 1 ] || [ "$backup_exists" -ne 1 ] || [ "$launch_agent_exists" -ne 1 ]; then
+    echo "FAIL: recovery retry signals missing (indicator=$indicator_exists backup=$backup_exists launchAgent=$launch_agent_exists)"
+    return 1
+  fi
+
+  echo "PASS: recovery is pending with retry signals intact"
+}
+
 watch_loop() {
   local interval="$1"
   while true; do
@@ -206,6 +254,8 @@ Usage:
   $(basename "$0") assert-clean
   $(basename "$0") assert-blocked
   $(basename "$0") assert-safetynet-armed
+  $(basename "$0") assert-helper-ready
+  $(basename "$0") assert-recovery-pending
   $(basename "$0") assert-recovered
   $(basename "$0") watch [interval_seconds]
 EOF
@@ -224,6 +274,12 @@ case "$cmd" in
     ;;
   assert-safetynet-armed)
     assert_safetynet_armed
+    ;;
+  assert-helper-ready)
+    assert_helper_ready
+    ;;
+  assert-recovery-pending)
+    assert_recovery_pending
     ;;
   assert-recovered)
     assert_recovered

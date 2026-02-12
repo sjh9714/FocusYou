@@ -33,6 +33,14 @@ xcodebuild -scheme FocusYou -configuration Debug build
 
 또는 Xcode에서 `FocusYou.xcodeproj`를 열고 Run (Cmd+R).
 
+## CI
+
+GitHub Actions에서 macOS 테스트를 자동 실행합니다:
+
+- workflow: `.github/workflows/macos-tests.yml`
+- trigger: `push`, `pull_request` (`develop`, `main`)
+- command: `xcodegen generate` + `xcodebuild ... test`
+
 ## 기술 스택
 
 | 영역 | 기술 |
@@ -80,6 +88,8 @@ FocusYou/
 ```bash
 ./scripts/qa_focusyou_state.sh assert-blocked
 ./scripts/qa_focusyou_state.sh assert-safetynet-armed
+./scripts/qa_focusyou_state.sh assert-helper-ready
+./scripts/qa_focusyou_state.sh assert-recovery-pending
 ./scripts/qa_focusyou_state.sh assert-recovered
 ```
 

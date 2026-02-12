@@ -56,11 +56,11 @@ enum Constants {
     // MARK: - 앱 정보
 
     enum App {
-        static let bundleIdentifier = "com.yourname.focusyou"
+        static let bundleIdentifier = "com.sungjh.focusyou"
         /// os.Logger subsystem
-        static let subsystem = "com.yourname.focusyou"
+        static let subsystem = "com.sungjh.focusyou"
         /// LaunchAgent 라벨
-        static let launchAgentLabel = "com.yourname.focusyou.cleanup"
+        static let launchAgentLabel = "com.sungjh.focusyou.cleanup"
         /// LaunchAgent plist 경로
         static var launchAgentPath: String {
             let home = FileManager.default.homeDirectoryForCurrentUser.path

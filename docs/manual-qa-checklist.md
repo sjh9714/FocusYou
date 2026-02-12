@@ -16,6 +16,7 @@ This checklist verifies the critical recovery and blocking flows after recent st
 
 ```bash
 ./scripts/qa_focusyou_state.sh assert-clean
+./scripts/qa_focusyou_state.sh assert-helper-ready
 ```
 
 Expected:
@@ -110,6 +111,49 @@ Expected:
 - Reboot 직후에는 LaunchAgent가 먼저 복구를 시도해 clean 상태가 될 수 있음.
 - LaunchAgent 복구가 실패한 경우 앱 시작 시 startup cleanup이 복구를 완료해야 함.
 - Failed cleanup must not silently clear the retry signals.
+
+## Scenario 5: Recovery Failure Path (Signals Must Stay)
+
+Goal:
+- 복구가 실패해도 재시도 신호(`blocking.active`, `hosts.backup`, LaunchAgent plist)가 지워지지 않아야 함.
+
+1. Start a focus session and confirm safety net is armed:
+
+```bash
+./scripts/qa_focusyou_state.sh assert-safetynet-armed
+```
+
+2. Force a helper failure (temporary) in another terminal:
+
+```bash
+sudo mv /usr/local/bin/focusyou-helper /usr/local/bin/focusyou-helper.disabled
+```
+
+3. Force-quit FocusYou, then relaunch FocusYou.
+4. When admin prompt appears for cleanup fallback, click `Cancel`.
+5. Verify pending recovery state:
+
+```bash
+./scripts/qa_focusyou_state.sh snapshot
+./scripts/qa_focusyou_state.sh assert-recovery-pending
+```
+
+6. Restore helper and retry cleanup:
+
+```bash
+sudo mv /usr/local/bin/focusyou-helper.disabled /usr/local/bin/focusyou-helper
+./scripts/qa_focusyou_state.sh assert-helper-ready
+```
+
+7. In app alert, click `다시 시도`, then verify:
+
+```bash
+./scripts/qa_focusyou_state.sh assert-recovered
+```
+
+Expected:
+- 실패 시점에는 `assert-recovery-pending`가 PASS여야 함.
+- 복구 재시도 성공 후 `assert-recovered`가 PASS여야 함.
 
 ## Optional Live Monitor
 
