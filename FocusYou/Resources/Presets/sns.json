@@ -1,0 +1,16 @@
+{
+    "category": "SNS",
+    "sites": [
+        "facebook.com",
+        "twitter.com",
+        "x.com",
+        "instagram.com",
+        "tiktok.com",
+        "reddit.com",
+        "threads.net"
+    ],
+    "apps": [
+        {"bundleId": "com.facebook.Facebook", "name": "Facebook"},
+        {"bundleId": "com.atebits.Tweetie2", "name": "Twitter"}
+    ]
+}

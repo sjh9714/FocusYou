@@ -1,0 +1,14 @@
+{
+    "category": "동영상",
+    "sites": [
+        "youtube.com",
+        "netflix.com",
+        "twitch.tv",
+        "vimeo.com",
+        "disneyplus.com"
+    ],
+    "apps": [
+        {"bundleId": "com.google.Chrome.app.Default.lfjidkdncfgjhipjnbkflcogmjbdlkme", "name": "YouTube (PWA)"},
+        {"bundleId": "com.netflix.Netflix", "name": "Netflix"}
+    ]
+}

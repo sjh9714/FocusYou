@@ -1,0 +1,13 @@
+{
+    "category": "게임",
+    "sites": [
+        "store.steampowered.com",
+        "epicgames.com",
+        "itch.io",
+        "twitch.tv"
+    ],
+    "apps": [
+        {"bundleId": "com.valvesoftware.steam", "name": "Steam"},
+        {"bundleId": "com.epicgames.EpicGamesLauncher", "name": "Epic Games"}
+    ]
+}

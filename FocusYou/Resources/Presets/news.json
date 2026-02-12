@@ -1,0 +1,12 @@
+{
+    "category": "뉴스",
+    "sites": [
+        "news.naver.com",
+        "news.daum.net",
+        "cnn.com",
+        "bbc.com",
+        "nytimes.com",
+        "news.google.com"
+    ],
+    "apps": []
+}
