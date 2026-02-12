@@ -31,6 +31,7 @@ final class AppState {
     private(set) var lastCompletedMode: TimerMode = .free
     private(set) var lastCompletedFocusDuration: TimeInterval = 0
     private(set) var lastCompletedPomodoroCycles = 0
+    private(set) var lastCompletedPomodoroBreakDuration: TimeInterval = 0
 
     /// 현재 세션
     private(set) var currentSession: FocusSession?
@@ -64,6 +65,11 @@ final class AppState {
             return "\(lastCompletedFocusDuration.formattedAsReadable) 집중했습니다"
         }
         return "\(lastCompletedFocusDuration.formattedAsReadable) 집중 · \(lastCompletedPomodoroCycles)사이클 완료"
+    }
+
+    var completedDetailText: String? {
+        guard lastCompletedMode == .pomodoro else { return nil }
+        return "휴식 \(lastCompletedPomodoroBreakDuration.formattedAsReadable)"
     }
 
     // MARK: - Private
@@ -324,6 +330,9 @@ final class AppState {
         let wasBlockingActive = isBlockingActive
         let completedMode = timerMode
         let completedPomodoroCycles = pomodoroEngine.configuration.cycles
+        let completedPomodoroBreakDuration = pomodoroBreakDuration(
+            configuration: pomodoroEngine.configuration
+        )
 
         // 1. 완료 알림
         await NotificationService.shared.sendTimerCompleted(
@@ -353,6 +362,9 @@ final class AppState {
         lastCompletedMode = completedMode
         lastCompletedFocusDuration = TimeInterval(actualDuration)
         lastCompletedPomodoroCycles = completedMode == .pomodoro ? completedPomodoroCycles : 0
+        lastCompletedPomodoroBreakDuration = completedMode == .pomodoro
+            ? completedPomodoroBreakDuration
+            : 0
 
         endPomodoroIfNeeded()
 
@@ -421,6 +433,14 @@ final class AppState {
         sessionBlockedAppBundleIds = []
     }
 
+    private func pomodoroBreakDuration(configuration: PomodoroConfiguration) -> TimeInterval {
+        guard configuration.cycles > 0 else { return 0 }
+
+        let shortBreakCount = max(configuration.cycles - 1, 0)
+        let totalBreakMinutes = (shortBreakCount * configuration.shortBreakMinutes) + configuration.longBreakMinutes
+        return TimeInterval(totalBreakMinutes * 60)
+    }
+
     /// 완료 상태에서 유휴로 복귀
     func resetToIdle() {
         timer.reset()
@@ -428,6 +448,7 @@ final class AppState {
         lastCompletedMode = .free
         lastCompletedFocusDuration = 0
         lastCompletedPomodoroCycles = 0
+        lastCompletedPomodoroBreakDuration = 0
         focusState = .idle
     }
 

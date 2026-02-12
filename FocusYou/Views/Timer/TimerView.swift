@@ -193,6 +193,7 @@ struct FocusingContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = TimerViewModel()
+    @State private var phaseBadgeScale: CGFloat = 1.0
 
     var body: some View {
         VStack(spacing: 20) {
@@ -206,6 +207,10 @@ struct FocusingContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showCancelConfirmation)
+        .onChange(of: appState.currentPomodoroPhase?.type) { _, newValue in
+            guard appState.timerMode == .pomodoro, newValue != nil else { return }
+            animatePhaseBadge()
+        }
     }
 
     // MARK: - 중지 확인 (인라인)
@@ -259,26 +264,33 @@ struct FocusingContentView: View {
         PieChartTimerView(
             progress: appState.timer.progress,
             remainingTimeText: appState.timer.remainingTime.formattedAsTimer,
-            isPaused: appState.focusState == .paused
+            isPaused: appState.focusState == .paused,
+            activeColor: phaseAccentColor
         )
     }
 
     private var progressBar: some View {
         ProgressView(value: appState.timer.progress)
-            .tint(ThemeManager.shared.progress)
+            .tint(phaseAccentColor)
             .animation(.easeInOut, value: appState.timer.progress)
     }
 
     private var statusText: some View {
         VStack(spacing: 4) {
             if appState.timerMode == .pomodoro, let phase = appState.currentPomodoroPhase {
-                Text(phase.type.displayName)
-                    .font(.callout.weight(.semibold))
+                HStack(spacing: 6) {
+                    Image(systemName: phase.type == .focus ? "bolt.fill" : "cup.and.saucer.fill")
+                    Text(phase.type.displayName)
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(phaseAccentColor.opacity(0.16))
                     .foregroundStyle(
-                        phase.type == .focus
-                            ? ThemeManager.shared.primary
-                            : ThemeManager.shared.secondary
+                        phaseAccentColor
                     )
+                .clipShape(Capsule())
+                .scaleEffect(phaseBadgeScale)
                 Text(appState.pomodoroCycleProgressText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -290,6 +302,26 @@ struct FocusingContentView: View {
                 Text("집중 중...")
                     .font(.callout)
                     .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var phaseAccentColor: Color {
+        guard appState.timerMode == .pomodoro,
+              let phase = appState.currentPomodoroPhase else {
+            return ThemeManager.shared.progress
+        }
+        return phase.type == .focus ? ThemeManager.shared.primary : ThemeManager.shared.secondary
+    }
+
+    private func animatePhaseBadge() {
+        phaseBadgeScale = 0.9
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.65, blendDuration: 0.1)) {
+            phaseBadgeScale = 1.08
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            withAnimation(.easeOut(duration: 0.18)) {
+                phaseBadgeScale = 1.0
             }
         }
     }
@@ -352,6 +384,12 @@ struct CompletedContentView: View {
             Text(appState.completedSummaryText)
                 .font(.callout)
                 .foregroundStyle(.secondary)
+
+            if let completedDetailText = appState.completedDetailText {
+                Text(completedDetailText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             Button {
                 withAnimation(.spring(duration: 0.3)) {

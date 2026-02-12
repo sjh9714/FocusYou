@@ -6,6 +6,7 @@ struct PieChartTimerView: View {
     let progress: Double
     let remainingTimeText: String
     let isPaused: Bool
+    let activeColor: Color
 
     var body: some View {
         ZStack {
@@ -15,7 +16,7 @@ struct PieChartTimerView: View {
             Circle()
                 .trim(from: 0, to: max(0, min(progress, 1)))
                 .stroke(
-                    isPaused ? ThemeManager.shared.textSecondary : ThemeManager.shared.primary,
+                    isPaused ? ThemeManager.shared.textSecondary : activeColor,
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
@@ -37,7 +38,8 @@ struct PieChartTimerView: View {
     PieChartTimerView(
         progress: 0.42,
         remainingTimeText: "14:30",
-        isPaused: false
+        isPaused: false,
+        activeColor: ThemeManager.shared.primary
     )
     .padding()
 }
