@@ -28,6 +28,9 @@ final class AppState {
     private(set) var timerMode: TimerMode = .free
     private(set) var currentPomodoroPhase: PomodoroEngine.Phase?
     private(set) var pomodoroCycleProgressText = ""
+    private(set) var lastCompletedMode: TimerMode = .free
+    private(set) var lastCompletedFocusDuration: TimeInterval = 0
+    private(set) var lastCompletedPomodoroCycles = 0
 
     /// 현재 세션
     private(set) var currentSession: FocusSession?
@@ -54,6 +57,13 @@ final class AppState {
     var pomodoroPhaseTitle: String {
         guard timerMode == .pomodoro, let phase = currentPomodoroPhase else { return "" }
         return phase.type.displayName
+    }
+
+    var completedSummaryText: String {
+        guard lastCompletedMode == .pomodoro else {
+            return "\(lastCompletedFocusDuration.formattedAsReadable) 집중했습니다"
+        }
+        return "\(lastCompletedFocusDuration.formattedAsReadable) 집중 · \(lastCompletedPomodoroCycles)사이클 완료"
     }
 
     // MARK: - Private
@@ -312,6 +322,8 @@ final class AppState {
         actualDuration: Int
     ) async {
         let wasBlockingActive = isBlockingActive
+        let completedMode = timerMode
+        let completedPomodoroCycles = pomodoroEngine.configuration.cycles
 
         // 1. 완료 알림
         await NotificationService.shared.sendTimerCompleted(
@@ -337,6 +349,11 @@ final class AppState {
         // 3. 세션 기록
         currentSession?.complete(actualDuration: actualDuration)
         currentSession = nil
+
+        lastCompletedMode = completedMode
+        lastCompletedFocusDuration = TimeInterval(actualDuration)
+        lastCompletedPomodoroCycles = completedMode == .pomodoro ? completedPomodoroCycles : 0
+
         endPomodoroIfNeeded()
 
         // 4. 상태 전환
@@ -408,6 +425,9 @@ final class AppState {
     func resetToIdle() {
         timer.reset()
         endPomodoroIfNeeded()
+        lastCompletedMode = .free
+        lastCompletedFocusDuration = 0
+        lastCompletedPomodoroCycles = 0
         focusState = .idle
     }
 

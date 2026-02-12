@@ -349,7 +349,7 @@ struct CompletedContentView: View {
             Text("집중 완료!")
                 .font(.title2.bold())
 
-            Text(appState.timer.totalDuration.formattedAsReadable + " 집중했습니다")
+            Text(appState.completedSummaryText)
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
