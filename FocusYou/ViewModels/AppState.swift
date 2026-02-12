@@ -445,12 +445,14 @@ final class AppState {
     private func debugScaledDuration(_ seconds: TimeInterval) -> TimeInterval {
         let defaults = UserDefaults.standard
 
-        guard defaults.bool(forKey: "debugFastTimerEnabled") else {
+        guard defaults.bool(forKey: Constants.Settings.debugFastTimerEnabledKey) else {
             return seconds
         }
 
-        let secondsPerMinute = defaults.double(forKey: "debugSecondsPerMinute")
-        let normalizedSecondsPerMinute = max(1, secondsPerMinute)
+        let configuredValue = defaults.object(forKey: Constants.Settings.debugSecondsPerMinuteKey) == nil
+            ? Constants.Settings.debugSecondsPerMinuteDefault
+            : defaults.double(forKey: Constants.Settings.debugSecondsPerMinuteKey)
+        let normalizedSecondsPerMinute = max(1, configuredValue)
         return (seconds / 60.0) * normalizedSecondsPerMinute
     }
     #else

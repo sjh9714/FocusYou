@@ -99,10 +99,15 @@ enum Constants {
         static let showMenuBarTimeKey = "showMenuBarTime"
         static let playCompletionSoundKey = "playCompletionSound"
         static let showBlockedAppNotificationKey = "showBlockedAppNotification"
+        static let debugFastTimerEnabledKey = "debugFastTimerEnabled"
+        static let debugSecondsPerMinuteKey = "debugSecondsPerMinute"
 
         static let showMenuBarTimeDefault = true
         static let playCompletionSoundDefault = true
         static let showBlockedAppNotificationDefault = true
+        static let debugFastTimerEnabledDefault = false
+        static let debugSecondsPerMinuteDefault = 5.0
+        static let debugSecondsPerMinuteRange: ClosedRange<Double> = 1...30
     }
 
     // MARK: - 카테고리

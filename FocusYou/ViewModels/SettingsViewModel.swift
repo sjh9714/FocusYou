@@ -20,4 +20,16 @@ final class SettingsViewModel {
     @ObservationIgnored
     @AppStorage(Constants.Settings.showBlockedAppNotificationKey)
     var showBlockedAppNotification = Constants.Settings.showBlockedAppNotificationDefault
+
+    #if DEBUG
+    /// 디버그: Fast Timer 토글
+    @ObservationIgnored
+    @AppStorage(Constants.Settings.debugFastTimerEnabledKey)
+    var debugFastTimerEnabled = Constants.Settings.debugFastTimerEnabledDefault
+
+    /// 디버그: 1분을 몇 초로 압축할지
+    @ObservationIgnored
+    @AppStorage(Constants.Settings.debugSecondsPerMinuteKey)
+    var debugSecondsPerMinute = Constants.Settings.debugSecondsPerMinuteDefault
+    #endif
 }

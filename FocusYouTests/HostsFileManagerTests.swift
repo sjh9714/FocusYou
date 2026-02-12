@@ -70,4 +70,53 @@ final class HostsFileManagerTests: XCTestCase {
         XCTAssertFalse(backupContent.contains(Constants.Blocking.endMarker))
         XCTAssertTrue(backupContent.contains("127.0.0.1 localhost"))
     }
+
+    func testHasActiveBlockingReflectsMarkerPresenceForRecovery() async throws {
+        let manager = HostsFileManager(
+            hostsPath: hostsURL.path,
+            backupPath: backupURL.path
+        )
+
+        let blockedContent = """
+        127.0.0.1 localhost
+        # === Focus You BEGIN ===
+        0.0.0.0 example.com
+        # === Focus You END ===
+        """
+        try blockedContent.write(to: hostsURL, atomically: true, encoding: .utf8)
+        let hasBlockingAfterBlockedWrite = await manager.hasActiveBlocking()
+        XCTAssertTrue(hasBlockingAfterBlockedWrite)
+
+        let cleanContent = """
+        127.0.0.1 localhost
+        255.255.255.255 broadcasthost
+        """
+        try cleanContent.write(to: hostsURL, atomically: true, encoding: .utf8)
+        let hasBlockingAfterCleanWrite = await manager.hasActiveBlocking()
+        XCTAssertFalse(hasBlockingAfterCleanWrite)
+    }
+
+    func testBuildCleanContentRemovesMarkerBlockAndKeepsOtherLines() async throws {
+        let content = """
+        127.0.0.1 localhost
+        # === Focus You BEGIN ===
+        0.0.0.0 old.com
+        # === Focus You END ===
+        255.255.255.255 broadcasthost
+        """
+        try content.write(to: hostsURL, atomically: true, encoding: .utf8)
+
+        let manager = HostsFileManager(
+            hostsPath: hostsURL.path,
+            backupPath: backupURL.path
+        )
+
+        let cleaned = try await manager.buildCleanContent()
+
+        XCTAssertFalse(cleaned.contains(Constants.Blocking.beginMarker))
+        XCTAssertFalse(cleaned.contains(Constants.Blocking.endMarker))
+        XCTAssertFalse(cleaned.contains("old.com"))
+        XCTAssertTrue(cleaned.contains("127.0.0.1 localhost"))
+        XCTAssertTrue(cleaned.contains("255.255.255.255 broadcasthost"))
+    }
 }

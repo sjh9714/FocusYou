@@ -45,6 +45,8 @@ GitHub Actions에서 macOS 테스트를 자동 실행합니다:
 
 `Debug` 빌드에서만 시간 축소를 켤 수 있습니다.
 
+앱에서 바로 설정하려면 `설정 > 개발자 > Fast Timer (디버그)`를 사용하세요.
+
 ```bash
 # ON: 1분을 5초로 축소
 defaults write com.sungjh.focusyou debugFastTimerEnabled -bool true
@@ -71,10 +73,12 @@ defaults delete com.sungjh.focusyou debugSecondsPerMinute
 | 버전 | 기능 | 상태 |
 |------|------|------|
 | **v0.1** | 메뉴바 + 자유 타이머 + 차단 | ✅ 완료 |
-| v0.3 | 뽀모도로 + 파이차트 타이머 | 예정 |
+| **v0.3** | 뽀모도로 + 파이차트 타이머 | ✅ 개발 완료 |
 | v0.5 | 테마 10종 + 프로필 + 통계 | 예정 |
 | v1.0 | Flowmodoro + 스트릭 + 온보딩 | 예정 |
 | v2.0 | Pro 구독 + Network Extension | 예정 |
+
+v0.3 변경 내역은 `CHANGELOG.md`와 `docs/release-v0.3.0.md`를 참고하세요.
 
 ## 프로젝트 구조
 

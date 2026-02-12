@@ -22,13 +22,18 @@ actor BlockingCoordinator {
     // MARK: - Dependencies
 
     private let websiteBlocker: any WebsiteBlocker
+    private let managesSafetyNet: Bool
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
         category: "BlockingCoordinator"
     )
 
-    init(websiteBlocker: any WebsiteBlocker = HostsFileBlocker()) {
+    init(
+        websiteBlocker: any WebsiteBlocker = HostsFileBlocker(),
+        managesSafetyNet: Bool = true
+    ) {
         self.websiteBlocker = websiteBlocker
+        self.managesSafetyNet = managesSafetyNet
     }
 
     // MARK: - Public
@@ -72,7 +77,7 @@ actor BlockingCoordinator {
         }
 
         // hosts 차단 활성 시에만 안전장치 설치
-        if isWebsiteBlockingActive {
+        if isWebsiteBlockingActive, managesSafetyNet {
             installSafetyNet()
         }
 
@@ -114,7 +119,9 @@ actor BlockingCoordinator {
         }
 
         // 안전장치 해제
-        removeSafetyNet()
+        if managesSafetyNet {
+            removeSafetyNet()
+        }
 
         state = .idle
         logger.info("차단 해제 완료")
@@ -145,7 +152,9 @@ actor BlockingCoordinator {
         // hosts 차단 마커/indicator 없이 안전장치 파일만 남았으면 정리
         if !indicatorExists && !hasActiveBlocking {
             logger.info("긴급 정리: stale 안전장치 파일만 존재, 정리 수행")
-            removeSafetyNet()
+            if managesSafetyNet {
+                removeSafetyNet()
+            }
             isWebsiteBlockingActive = false
             isAppBlockingActive = false
             state = .idle
@@ -155,7 +164,9 @@ actor BlockingCoordinator {
         // hosts 차단이 없으면 안전장치 파일만 정리
         guard hasActiveBlocking else {
             logger.info("긴급 정리: hosts 차단 없음, 안전장치 파일만 제거")
-            removeSafetyNet()
+            if managesSafetyNet {
+                removeSafetyNet()
+            }
             isWebsiteBlockingActive = false
             isAppBlockingActive = false
             state = .idle
@@ -188,7 +199,9 @@ actor BlockingCoordinator {
             return
         }
 
-        removeSafetyNet()
+        if managesSafetyNet {
+            removeSafetyNet()
+        }
         isWebsiteBlockingActive = false
         isAppBlockingActive = false
         state = .idle
