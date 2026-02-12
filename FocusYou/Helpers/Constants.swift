@@ -71,6 +71,8 @@ enum Constants {
         static let bundleIdentifier = "com.sungjh.focusyou"
         /// os.Logger subsystem
         static let subsystem = "com.sungjh.focusyou"
+        /// 앱 종료 시 차단 정리 대기 시간 (초)
+        static let terminationCleanupTimeoutSeconds: TimeInterval = 3
         /// LaunchAgent 라벨
         static let launchAgentLabel = "com.sungjh.focusyou.cleanup"
         /// LaunchAgent plist 경로

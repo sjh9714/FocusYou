@@ -1,7 +1,6 @@
 import XCTest
 @testable import Focus_You
 
-@MainActor
 final class SettingsViewModelTests: XCTestCase {
     private var suiteName: String!
     private var defaults: UserDefaults!
@@ -20,6 +19,7 @@ final class SettingsViewModelTests: XCTestCase {
         super.tearDown()
     }
 
+    @MainActor
     func testDefaultsLoadWhenKeysAreMissing() {
         let viewModel = SettingsViewModel(defaults: defaults)
 
@@ -39,6 +39,7 @@ final class SettingsViewModelTests: XCTestCase {
         #endif
     }
 
+    @MainActor
     func testUpdatedValuesPersistAcrossNewViewModelInstance() {
         let firstViewModel = SettingsViewModel(defaults: defaults)
         firstViewModel.showMenuBarTime = false

@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import os
 
 @main
 struct FocusYouApp: App {
@@ -65,7 +66,14 @@ struct FocusYouApp: App {
 
 // MARK: - AppDelegate (앱 시작/종료 관리)
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let logger = Logger(
+        subsystem: Constants.App.subsystem,
+        category: "AppLifecycle"
+    )
+    private var isTerminationCleanupInProgress = false
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 앱 시작 시 메뉴바 팝오버 자동 열기
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -90,10 +98,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return nil
     }
 
-    func applicationWillTerminate(_ notification: Notification) {
-        // 앱 종료 시 차단이 활성화되어 있으면 정리
-        Task {
-            try? await BlockingCoordinator.shared.deactivateBlocking()
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard !isTerminationCleanupInProgress else {
+            return .terminateNow
         }
+
+        isTerminationCleanupInProgress = true
+
+        Task { [weak self] in
+            await self?.performTerminationCleanupAndReply()
+        }
+
+        return .terminateLater
+    }
+
+    private func performTerminationCleanupAndReply() async {
+        let logger = self.logger
+        let timeoutNanoseconds = UInt64(
+            Constants.App.terminationCleanupTimeoutSeconds * 1_000_000_000
+        )
+
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                do {
+                    try await BlockingCoordinator.shared.deactivateBlocking()
+                } catch {
+                    logger.error("앱 종료 시 차단 정리 실패: \(error.localizedDescription)")
+                }
+            }
+
+            group.addTask {
+                try? await Task.sleep(nanoseconds: timeoutNanoseconds)
+            }
+
+            _ = await group.next()
+            group.cancelAll()
+        }
+
+        isTerminationCleanupInProgress = false
+        NSApp.reply(toApplicationShouldTerminate: true)
     }
 }

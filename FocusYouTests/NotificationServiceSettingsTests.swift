@@ -14,28 +14,26 @@ final class NotificationServiceSettingsTests: XCTestCase {
         super.tearDown()
     }
 
-    func testCompletionSoundUsesDefaultWhenValueMissing() {
-        XCTAssertEqual(
-            NotificationService.shared.isCompletionSoundEnabled(),
-            Constants.Settings.playCompletionSoundDefault
-        )
+    func testCompletionSoundUsesDefaultWhenValueMissing() async {
+        let isEnabled = await NotificationService.shared.isCompletionSoundEnabled()
+        XCTAssertEqual(isEnabled, Constants.Settings.playCompletionSoundDefault)
     }
 
-    func testCompletionSoundReadsStoredValue() {
+    func testCompletionSoundReadsStoredValue() async {
         defaults.set(false, forKey: Constants.Settings.playCompletionSoundKey)
-        XCTAssertFalse(NotificationService.shared.isCompletionSoundEnabled())
+        let isEnabled = await NotificationService.shared.isCompletionSoundEnabled()
+        XCTAssertFalse(isEnabled)
     }
 
-    func testBlockingNotificationUsesDefaultWhenValueMissing() {
-        XCTAssertEqual(
-            NotificationService.shared.isBlockingEventNotificationEnabled(),
-            Constants.Settings.showBlockedAppNotificationDefault
-        )
+    func testBlockingNotificationUsesDefaultWhenValueMissing() async {
+        let isEnabled = await NotificationService.shared.isBlockingEventNotificationEnabled()
+        XCTAssertEqual(isEnabled, Constants.Settings.showBlockedAppNotificationDefault)
     }
 
-    func testBlockingNotificationReadsStoredValue() {
+    func testBlockingNotificationReadsStoredValue() async {
         defaults.set(false, forKey: Constants.Settings.showBlockedAppNotificationKey)
-        XCTAssertFalse(NotificationService.shared.isBlockingEventNotificationEnabled())
+        let isEnabled = await NotificationService.shared.isBlockingEventNotificationEnabled()
+        XCTAssertFalse(isEnabled)
     }
 
     private func clearKeys() {
