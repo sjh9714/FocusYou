@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.2] - 2026-02-13
+
+### Fixed
+- Hardened app termination cleanup by waiting for blocking deactivation with a bounded timeout.
+- Migrated `NotificationService` from `@unchecked Sendable` class to `actor` for safer concurrency.
+- Updated notification/settings tests to align with Swift concurrency actor isolation rules.
+
 ## [0.3.1] - 2026-02-13
 
 ### Fixed
