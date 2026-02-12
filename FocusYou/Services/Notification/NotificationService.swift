@@ -74,6 +74,21 @@ final class NotificationService: @unchecked Sendable {
         await send(content: content, identifier: "blocking-deactivated")
     }
 
+    /// 뽀모도로 페이즈 전환 알림
+    func sendPomodoroPhaseStarted(phaseTitle: String, cycleText: String) async {
+        guard shouldSendBlockingEventNotification else {
+            logger.debug("뽀모도로 페이즈 알림 비활성화로 발송 건너뜀")
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = "뽀모도로 전환"
+        content.body = "\(phaseTitle) 시작 · \(cycleText)"
+        content.sound = nil
+
+        await send(content: content, identifier: "pomodoro-phase-\(UUID().uuidString)")
+    }
+
     // MARK: - Private
 
     private func send(content: UNMutableNotificationContent, identifier: String) async {

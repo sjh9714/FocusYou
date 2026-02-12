@@ -42,6 +42,8 @@ final class AppState {
     let timer = FreeTimer()
     private let pomodoroEngine = PomodoroEngine()
     private var accumulatedPomodoroFocusDuration: TimeInterval = 0
+    private var sessionBlockedDomains: [String] = []
+    private var sessionBlockedAppBundleIds: [String] = []
 
     // MARK: - 메뉴바
 
@@ -131,6 +133,8 @@ final class AppState {
                 appBundleIds: enabledBundleIds
             )
             isBlockingActive = !enabledDomains.isEmpty || !enabledBundleIds.isEmpty
+            sessionBlockedDomains = enabledDomains
+            sessionBlockedAppBundleIds = enabledBundleIds
 
             // 2. 타이머 시작
             timerMode = mode
@@ -262,12 +266,37 @@ final class AppState {
         }
 
         if let nextPhase = pomodoroEngine.advancePhase() {
+            do {
+                try await applyBlockingForPomodoroPhase(nextPhase.type)
+            } catch {
+                logger.error("뽀모도로 페이즈 전환 차단 처리 실패: \(error.localizedDescription)")
+
+                if nextPhase.type == .focus {
+                    presentError("집중 단계 차단 활성화에 실패해 세션을 종료했습니다. \(error.localizedDescription)")
+                    currentSession?.cancel(actualDuration: Int(sessionElapsedDuration))
+                    currentSession = nil
+                    timer.reset()
+                    endPomodoroIfNeeded()
+                    focusState = .idle
+                    return
+                } else {
+                    presentError(
+                        "휴식 단계 차단 해제에 실패했습니다. \(error.localizedDescription)",
+                        canRetryDeactivation: true
+                    )
+                }
+            }
+
             currentPomodoroPhase = nextPhase
             pomodoroCycleProgressText = "사이클 \(nextPhase.cycleIndex)/\(pomodoroEngine.configuration.cycles)"
 
             // completed 상태의 FreeTimer를 다음 페이즈 재시작을 위해 초기화
             timer.reset()
             timer.start(duration: nextPhase.duration)
+            await NotificationService.shared.sendPomodoroPhaseStarted(
+                phaseTitle: nextPhase.type.displayName,
+                cycleText: pomodoroCycleProgressText
+            )
             focusState = .focusing
             return
         }
@@ -342,6 +371,27 @@ final class AppState {
         }
     }
 
+    private func applyBlockingForPomodoroPhase(_ phaseType: PomodoroEngine.PhaseType) async throws {
+        let hasBlockingTargets = !sessionBlockedDomains.isEmpty || !sessionBlockedAppBundleIds.isEmpty
+
+        guard hasBlockingTargets else {
+            isBlockingActive = false
+            return
+        }
+
+        switch phaseType {
+        case .focus:
+            try await BlockingCoordinator.shared.activateBlocking(
+                domains: sessionBlockedDomains,
+                appBundleIds: sessionBlockedAppBundleIds
+            )
+            isBlockingActive = true
+        case .shortBreak, .longBreak:
+            try await BlockingCoordinator.shared.deactivateBlocking()
+            isBlockingActive = false
+        }
+    }
+
     private func endPomodoroIfNeeded() {
         if timerMode == .pomodoro {
             pomodoroEngine.reset()
@@ -350,6 +400,8 @@ final class AppState {
         currentPomodoroPhase = nil
         pomodoroCycleProgressText = ""
         accumulatedPomodoroFocusDuration = 0
+        sessionBlockedDomains = []
+        sessionBlockedAppBundleIds = []
     }
 
     /// 완료 상태에서 유휴로 복귀
