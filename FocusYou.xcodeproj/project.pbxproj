@@ -14,6 +14,7 @@
 		0C931460D19EF4619274025C /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB7D984FBAE86A04F3EE948 /* SettingsViewModel.swift */; };
 		0E7735D36356283E151587D9 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F920638F8E8D4DF6164C4124 /* ThemeManager.swift */; };
 		0FE63215E95C413DF29917E1 /* PrivilegedHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946DE288441FC826623C09C6 /* PrivilegedHelper.swift */; };
+		1C56B083C74E3A29B471059D /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */; };
 		36EEEC526890D897DBEB37F1 /* FreeTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED328A26A0F4A52077A5791 /* FreeTimer.swift */; };
 		3C5862BA5D23610BB7C55E54 /* video.json in Resources */ = {isa = PBXBuildFile; fileRef = 4158EE2F545858A72688CFE9 /* video.json */; };
 		3EACAD5A918E9DFBC39F4DCA /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923F7679B21AE4E12016F775 /* MenuBarView.swift */; };
@@ -74,6 +75,7 @@
 		16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePickerView.swift; sourceTree = "<group>"; };
 		180C8A945AD4A277828C840E /* PomodoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngine.swift; sourceTree = "<group>"; };
 		1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		2B3E26060BA507E42D48663C /* FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSession.swift; sourceTree = "<group>"; };
 		2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceSettingsTests.swift; sourceTree = "<group>"; };
 		2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListViewModel.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */,
 				2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */,
 				E1253C394407F81E88611851 /* PomodoroEngineTests.swift */,
+				1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */,
 				7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */,
 			);
 			path = FocusYouTests;
@@ -433,6 +436,7 @@
 				F50384EFF52B64498DA2426D /* HostsFileManagerTests.swift in Sources */,
 				6E82E0928C9BA2B277CE68F6 /* NotificationServiceSettingsTests.swift in Sources */,
 				DCD9BE315136CCA2B27798D1 /* PomodoroEngineTests.swift in Sources */,
+				1C56B083C74E3A29B471059D /* SettingsViewModelTests.swift in Sources */,
 				75702BCEE3D87EF47532D34D /* StringExtensionsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
