@@ -41,6 +41,20 @@ GitHub Actions에서 macOS 테스트를 자동 실행합니다:
 - trigger: `push`, `pull_request` (`develop`, `main`)
 - command: `xcodegen generate` + `xcodebuild ... test`
 
+## Debug Fast Timer (개발용)
+
+`Debug` 빌드에서만 시간 축소를 켤 수 있습니다.
+
+```bash
+# ON: 1분을 5초로 축소
+defaults write com.sungjh.focusyou debugFastTimerEnabled -bool true
+defaults write com.sungjh.focusyou debugSecondsPerMinute -float 5
+
+# OFF
+defaults delete com.sungjh.focusyou debugFastTimerEnabled
+defaults delete com.sungjh.focusyou debugSecondsPerMinute
+```
+
 ## 기술 스택
 
 | 영역 | 기술 |

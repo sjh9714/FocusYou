@@ -160,13 +160,13 @@ final class AppState {
 
             switch mode {
             case .free:
-                timer.start(duration: duration)
+                timer.start(duration: debugScaledDuration(duration))
             case .pomodoro:
                 let firstPhase = pomodoroEngine.start(configuration: pomodoroConfiguration)
                 guard let firstPhase else { return }
                 currentPomodoroPhase = firstPhase
                 pomodoroCycleProgressText = "사이클 \(firstPhase.cycleIndex)/\(pomodoroConfiguration.cycles)"
-                timer.start(duration: firstPhase.duration)
+                timer.start(duration: debugScaledDuration(firstPhase.duration))
             }
 
             // 3. 세션 기록 생성
@@ -308,7 +308,7 @@ final class AppState {
 
             // completed 상태의 FreeTimer를 다음 페이즈 재시작을 위해 초기화
             timer.reset()
-            timer.start(duration: nextPhase.duration)
+            timer.start(duration: debugScaledDuration(nextPhase.duration))
             await NotificationService.shared.sendPomodoroPhaseStarted(
                 phaseTitle: nextPhase.type.displayName,
                 cycleText: pomodoroCycleProgressText
@@ -440,6 +440,24 @@ final class AppState {
         let totalBreakMinutes = (shortBreakCount * configuration.shortBreakMinutes) + configuration.longBreakMinutes
         return TimeInterval(totalBreakMinutes * 60)
     }
+
+    #if DEBUG
+    private func debugScaledDuration(_ seconds: TimeInterval) -> TimeInterval {
+        let defaults = UserDefaults.standard
+
+        guard defaults.bool(forKey: "debugFastTimerEnabled") else {
+            return seconds
+        }
+
+        let secondsPerMinute = defaults.double(forKey: "debugSecondsPerMinute")
+        let normalizedSecondsPerMinute = max(1, secondsPerMinute)
+        return (seconds / 60.0) * normalizedSecondsPerMinute
+    }
+    #else
+    private func debugScaledDuration(_ seconds: TimeInterval) -> TimeInterval {
+        seconds
+    }
+    #endif
 
     /// 완료 상태에서 유휴로 복귀
     func resetToIdle() {
