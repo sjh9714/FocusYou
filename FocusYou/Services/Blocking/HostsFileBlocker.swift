@@ -6,7 +6,6 @@ import os
 
 actor HostsFileBlocker: WebsiteBlocker {
     private let hostsFileManager = HostsFileManager.shared
-    private let dnsManager = DNSManager.shared
     private let privilegedHelper = PrivilegedHelper.shared
 
     private let logger = Logger(
@@ -28,14 +27,11 @@ actor HostsFileBlocker: WebsiteBlocker {
         // 2. 차단 내용 생성
         let newContent = try await hostsFileManager.buildBlockedContent(domains: domains)
 
-        // 3. 관리자 권한으로 hosts 파일 쓰기
-        try await privilegedHelper.writeFileAsRoot(
+        // 3. 관리자 권한으로 hosts 파일 쓰기 + DNS 플러시 (단일 admin 호출)
+        try await privilegedHelper.writeFileAsRootAndFlushDNS(
             content: newContent,
             to: Constants.Blocking.hostsFilePath
         )
-
-        // 4. DNS 캐시 플러시
-        try await dnsManager.flushDNSCache()
 
         logger.info("웹사이트 차단 활성화 완료")
     }
@@ -46,14 +42,11 @@ actor HostsFileBlocker: WebsiteBlocker {
         // 1. 마커 구간 제거된 내용 생성
         let cleanContent = try await hostsFileManager.buildCleanContent()
 
-        // 2. 관리자 권한으로 hosts 파일 쓰기
-        try await privilegedHelper.writeFileAsRoot(
+        // 2. 관리자 권한으로 hosts 파일 쓰기 + DNS 플러시 (단일 admin 호출)
+        try await privilegedHelper.writeFileAsRootAndFlushDNS(
             content: cleanContent,
             to: Constants.Blocking.hostsFilePath
         )
-
-        // 3. DNS 캐시 플러시
-        try await dnsManager.flushDNSCache()
 
         logger.info("웹사이트 차단 해제 완료")
     }

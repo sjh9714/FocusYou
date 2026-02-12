@@ -7,6 +7,22 @@ struct FocusYouApp: App {
     @State private var settingsViewModel = SettingsViewModel()
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
+    /// 모든 Scene에서 공유하는 단일 ModelContainer
+    let modelContainer: ModelContainer
+
+    init() {
+        do {
+            modelContainer = try ModelContainer(
+                for: BlockProfile.self,
+                BlockedSite.self,
+                BlockedApp.self,
+                FocusSession.self
+            )
+        } catch {
+            fatalError("ModelContainer 생성 실패: \(error)")
+        }
+    }
+
     var body: some Scene {
         // MARK: - 메뉴바 (메인)
         MenuBarExtra {
@@ -25,24 +41,14 @@ struct FocusYouApp: App {
             }
         }
         .menuBarExtraStyle(.window)
-        .modelContainer(for: [
-            BlockProfile.self,
-            BlockedSite.self,
-            BlockedApp.self,
-            FocusSession.self,
-        ])
+        .modelContainer(modelContainer)
 
         // MARK: - 차단 목록 관리 윈도우
         Window("차단 목록 관리", id: "block-list") {
             BlockListView()
                 .environment(appState)
         }
-        .modelContainer(for: [
-            BlockProfile.self,
-            BlockedSite.self,
-            BlockedApp.self,
-            FocusSession.self,
-        ])
+        .modelContainer(modelContainer)
         .defaultSize(width: 520, height: 450)
 
         // MARK: - 설정 윈도우
