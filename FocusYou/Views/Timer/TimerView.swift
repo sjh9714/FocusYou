@@ -5,6 +5,7 @@ import SwiftData
 
 struct IdleContentView: View {
     @Environment(AppState.self) private var appState
+    @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = TimerViewModel()
 
@@ -35,13 +36,13 @@ struct IdleContentView: View {
                         .padding(.vertical, 6)
                         .background(
                             viewModel.selectedMode == mode
-                                ? ThemeManager.shared.primary
+                                ? themeManager.primary
                                 : Color.secondary.opacity(0.15)
                         )
                         .foregroundStyle(
                             viewModel.selectedMode == mode
                                 ? .white
-                                : ThemeManager.shared.textPrimary
+                                : themeManager.textPrimary
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -55,7 +56,7 @@ struct IdleContentView: View {
     private var timerDisplay: some View {
         Text(viewModel.initialDurationSeconds.formattedAsTimer)
             .font(.system(size: 48, weight: .light, design: .monospaced))
-            .foregroundStyle(ThemeManager.shared.textPrimary)
+            .foregroundStyle(themeManager.textPrimary)
             .accessibilityLabel(
                 viewModel.selectedMode == .free
                     ? "\(viewModel.selectedDurationMinutes)분 타이머"
@@ -100,13 +101,13 @@ struct IdleContentView: View {
                         .padding(.vertical, 6)
                         .background(
                             viewModel.selectedPreset == minutes
-                                ? ThemeManager.shared.primary
+                                ? themeManager.primary
                                 : Color.secondary.opacity(0.15)
                         )
                         .foregroundStyle(
                             viewModel.selectedPreset == minutes
                                 ? .white
-                                : ThemeManager.shared.textPrimary
+                                : themeManager.textPrimary
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -128,7 +129,7 @@ struct IdleContentView: View {
                 in: Double(Constants.Timer.minimumMinutes)...Double(Constants.Timer.maximumMinutes),
                 step: 1
             )
-            .tint(ThemeManager.shared.primary)
+            .tint(themeManager.primary)
 
             HStack {
                 Text("\(Constants.Timer.minimumMinutes)분")
@@ -173,13 +174,13 @@ struct IdleContentView: View {
                 )
             }
         } label: {
-            Text("집중 시작")
-                .font(.title3.bold())
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(ThemeManager.shared.startButton)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                Text("집중 시작")
+                    .font(.title3.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(themeManager.startButton)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("집중 시작")
@@ -191,6 +192,7 @@ struct IdleContentView: View {
 
 struct FocusingContentView: View {
     @Environment(AppState.self) private var appState
+    @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = TimerViewModel()
     @State private var phaseBadgeScale: CGFloat = 1.0
@@ -219,7 +221,7 @@ struct FocusingContentView: View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 36))
-                .foregroundStyle(ThemeManager.shared.stopButton)
+                .foregroundStyle(themeManager.stopButton)
 
             Text("집중을 중지하시겠습니까?")
                 .font(.headline)
@@ -236,8 +238,8 @@ struct FocusingContentView: View {
                     Text("계속 집중하기")
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
-                        .background(ThemeManager.shared.primary.opacity(0.15))
-                        .foregroundStyle(ThemeManager.shared.primary)
+                        .background(themeManager.primary.opacity(0.15))
+                        .foregroundStyle(themeManager.primary)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
@@ -247,12 +249,12 @@ struct FocusingContentView: View {
                         await appState.stopSession(modelContext: modelContext)
                     }
                 } label: {
-                    Text("중지")
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(ThemeManager.shared.stopButton)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        Text("중지")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                        .background(themeManager.stopButton)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
             }
@@ -297,7 +299,7 @@ struct FocusingContentView: View {
             } else if appState.focusState == .paused {
                 Text("일시정지됨")
                     .font(.callout)
-                    .foregroundStyle(ThemeManager.shared.pauseButton)
+                    .foregroundStyle(themeManager.pauseButton)
             } else {
                 Text("집중 중...")
                     .font(.callout)
@@ -309,9 +311,9 @@ struct FocusingContentView: View {
     private var phaseAccentColor: Color {
         guard appState.timerMode == .pomodoro,
               let phase = appState.currentPomodoroPhase else {
-            return ThemeManager.shared.progress
+            return themeManager.progress
         }
-        return phase.type == .focus ? ThemeManager.shared.primary : ThemeManager.shared.secondary
+        return phase.type == .focus ? themeManager.primary : themeManager.secondary
     }
 
     private func animatePhaseBadge() {
@@ -345,8 +347,8 @@ struct FocusingContentView: View {
                 )
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
-                .background(ThemeManager.shared.pauseButton.opacity(0.15))
-                .foregroundStyle(ThemeManager.shared.pauseButton)
+                .background(themeManager.pauseButton.opacity(0.15))
+                .foregroundStyle(themeManager.pauseButton)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)
@@ -358,8 +360,8 @@ struct FocusingContentView: View {
                 Label("중지", systemImage: "stop.fill")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(ThemeManager.shared.stopButton.opacity(0.15))
-                    .foregroundStyle(ThemeManager.shared.stopButton)
+                    .background(themeManager.stopButton.opacity(0.15))
+                    .foregroundStyle(themeManager.stopButton)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)
@@ -371,12 +373,13 @@ struct FocusingContentView: View {
 
 struct CompletedContentView: View {
     @Environment(AppState.self) private var appState
+    @Environment(ThemeManager.self) private var themeManager
 
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(ThemeManager.shared.completed)
+                .foregroundStyle(themeManager.completed)
 
             Text("집중 완료!")
                 .font(.title2.bold())
@@ -400,7 +403,7 @@ struct CompletedContentView: View {
                     .font(.callout.bold())
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(ThemeManager.shared.primary)
+                    .background(themeManager.primary)
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
@@ -415,6 +418,7 @@ struct CompletedContentView: View {
 #Preview("유휴 상태") {
     IdleContentView(sites: [], apps: [])
         .environment(AppState())
+        .environment(ThemeManager.shared)
         .frame(width: 340)
         .padding()
 }
@@ -422,6 +426,7 @@ struct CompletedContentView: View {
 #Preview("집중 중") {
     FocusingContentView()
         .environment(AppState())
+        .environment(ThemeManager.shared)
         .frame(width: 340)
         .padding()
 }
@@ -429,6 +434,7 @@ struct CompletedContentView: View {
 #Preview("완료") {
     CompletedContentView()
         .environment(AppState())
+        .environment(ThemeManager.shared)
         .frame(width: 340)
         .padding()
 }

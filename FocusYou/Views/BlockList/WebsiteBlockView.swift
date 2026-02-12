@@ -5,6 +5,7 @@ import SwiftData
 
 struct WebsiteBlockView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var themeManager
     @Query(sort: \BlockedSite.createdAt, order: .reverse)
     private var sites: [BlockedSite]
     @State private var viewModel = BlockListViewModel()
@@ -69,7 +70,7 @@ struct WebsiteBlockView: View {
             // 사이트 아이콘
             Image(systemName: "globe")
                 .font(.system(size: 14))
-                .foregroundStyle(site.isEnabled ? ThemeManager.shared.primary : .secondary)
+                .foregroundStyle(site.isEnabled ? themeManager.primary : .secondary)
                 .frame(width: 24, height: 24)
 
             // 도메인 + 카테고리
@@ -112,6 +113,7 @@ struct WebsiteBlockView: View {
 
 #Preview {
     WebsiteBlockView()
+        .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,
             BlockProfile.self, FocusSession.self,

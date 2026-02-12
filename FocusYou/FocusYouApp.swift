@@ -7,6 +7,7 @@ import os
 struct FocusYouApp: App {
     @State private var appState = AppState()
     @State private var settingsViewModel = SettingsViewModel()
+    @State private var themeManager = ThemeManager.shared
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     /// 모든 Scene에서 공유하는 단일 ModelContainer
@@ -34,6 +35,7 @@ struct FocusYouApp: App {
                 .modelContainer(modelContainer)
                 .environment(appState)
                 .environment(settingsViewModel)
+                .environment(themeManager)
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: appState.menuBarIcon)
@@ -52,6 +54,7 @@ struct FocusYouApp: App {
             BlockListView()
                 .modelContainer(modelContainer)
                 .environment(appState)
+                .environment(themeManager)
         }
         .defaultSize(width: 520, height: 450)
 
@@ -59,8 +62,9 @@ struct FocusYouApp: App {
         Window("설정", id: "settings") {
             SettingsView()
                 .environment(settingsViewModel)
+                .environment(themeManager)
         }
-        .defaultSize(width: 400, height: 250)
+        .defaultSize(width: 420, height: 360)
     }
 }
 

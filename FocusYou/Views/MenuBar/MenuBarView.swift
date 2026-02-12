@@ -5,6 +5,7 @@ import SwiftData
 
 struct MenuBarView: View {
     @Environment(AppState.self) private var appState
+    @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
 
@@ -56,7 +57,7 @@ struct MenuBarView: View {
     private var headerView: some View {
         HStack {
             Image(systemName: "shield.fill")
-                .foregroundStyle(ThemeManager.shared.primary)
+                .foregroundStyle(themeManager.primary)
             Text("Focus You")
                 .font(.headline)
             Spacer()
@@ -73,7 +74,7 @@ struct MenuBarView: View {
                 .font(.caption)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 2)
-                .background(ThemeManager.shared.primary.opacity(0.2))
+                .background(themeManager.primary.opacity(0.2))
                 .clipShape(Capsule())
         }
     }
@@ -82,7 +83,7 @@ struct MenuBarView: View {
         VStack(alignment: .leading, spacing: 10) {
             Label("오류", systemImage: "exclamationmark.triangle.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(ThemeManager.shared.stopButton)
+                .foregroundStyle(themeManager.stopButton)
 
             Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
                 .font(.caption)
@@ -99,7 +100,7 @@ struct MenuBarView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(ThemeManager.shared.stopButton)
+                    .tint(themeManager.stopButton)
                 }
 
                 Button {
@@ -112,7 +113,7 @@ struct MenuBarView: View {
             }
         }
         .padding(12)
-        .background(ThemeManager.shared.stopButton.opacity(0.08))
+        .background(themeManager.stopButton.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -148,6 +149,7 @@ struct MenuBarView: View {
     MenuBarView()
         .environment(AppState())
         .environment(SettingsViewModel())
+        .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,
             BlockProfile.self, FocusSession.self,

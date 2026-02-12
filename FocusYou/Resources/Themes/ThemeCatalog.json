@@ -1,0 +1,92 @@
+[
+  {
+    "id": "crimson-focus",
+    "name": "Crimson Focus",
+    "primaryHex": "#E63946",
+    "secondaryHex": "#2D6A4F",
+    "accentHex": "#457B9D",
+    "stopHex": "#D62828",
+    "backgroundHex": "#F7F9FC"
+  },
+  {
+    "id": "ocean-pulse",
+    "name": "Ocean Pulse",
+    "primaryHex": "#0077B6",
+    "secondaryHex": "#2A9D8F",
+    "accentHex": "#48CAE4",
+    "stopHex": "#C1121F",
+    "backgroundHex": "#EEF7FB"
+  },
+  {
+    "id": "sunset-paper",
+    "name": "Sunset Paper",
+    "primaryHex": "#EF476F",
+    "secondaryHex": "#06D6A0",
+    "accentHex": "#FFD166",
+    "stopHex": "#D90429",
+    "backgroundHex": "#FFF8F1"
+  },
+  {
+    "id": "forest-studio",
+    "name": "Forest Studio",
+    "primaryHex": "#2A9D8F",
+    "secondaryHex": "#52796F",
+    "accentHex": "#84A98C",
+    "stopHex": "#BC4749",
+    "backgroundHex": "#F3F8F5"
+  },
+  {
+    "id": "midnight-signal",
+    "name": "Midnight Signal",
+    "primaryHex": "#3A86FF",
+    "secondaryHex": "#8338EC",
+    "accentHex": "#FFBE0B",
+    "stopHex": "#E63946",
+    "backgroundHex": "#F2F5FF"
+  },
+  {
+    "id": "terracotta-desk",
+    "name": "Terracotta Desk",
+    "primaryHex": "#C44536",
+    "secondaryHex": "#6D597A",
+    "accentHex": "#F4A261",
+    "stopHex": "#9D0208",
+    "backgroundHex": "#FFF4EE"
+  },
+  {
+    "id": "mint-notebook",
+    "name": "Mint Notebook",
+    "primaryHex": "#1B9AAA",
+    "secondaryHex": "#76C893",
+    "accentHex": "#B5E48C",
+    "stopHex": "#BA181B",
+    "backgroundHex": "#F2FCFA"
+  },
+  {
+    "id": "amber-sprint",
+    "name": "Amber Sprint",
+    "primaryHex": "#FF9F1C",
+    "secondaryHex": "#2EC4B6",
+    "accentHex": "#E71D36",
+    "stopHex": "#A4161A",
+    "backgroundHex": "#FFF8ED"
+  },
+  {
+    "id": "slate-focus",
+    "name": "Slate Focus",
+    "primaryHex": "#4361EE",
+    "secondaryHex": "#4D908E",
+    "accentHex": "#90E0EF",
+    "stopHex": "#D00000",
+    "backgroundHex": "#F4F7FB"
+  },
+  {
+    "id": "rose-lab",
+    "name": "Rose Lab",
+    "primaryHex": "#D81159",
+    "secondaryHex": "#8F2D56",
+    "accentHex": "#FFBC42",
+    "stopHex": "#B00020",
+    "backgroundHex": "#FFF3F7"
+  }
+]

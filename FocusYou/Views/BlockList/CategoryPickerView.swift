@@ -5,6 +5,7 @@ import SwiftData
 
 struct CategoryPickerView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var themeManager
     @Query private var sites: [BlockedSite]
     @Query private var apps: [BlockedApp]
     @State private var viewModel = BlockListViewModel()
@@ -71,7 +72,7 @@ struct CategoryPickerView: View {
                 if isApplied {
                     Text("제거하기")
                         .font(.caption)
-                        .foregroundStyle(ThemeManager.shared.stopButton)
+                        .foregroundStyle(themeManager.stopButton)
                 } else {
                     Text("추가하기")
                         .font(.caption)
@@ -82,7 +83,7 @@ struct CategoryPickerView: View {
             .padding(.vertical, 16)
             .background(
                 isApplied
-                    ? ThemeManager.shared.completed.opacity(0.1)
+                    ? themeManager.completed.opacity(0.1)
                     : Color.secondary.opacity(0.08)
             )
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -90,7 +91,7 @@ struct CategoryPickerView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
                         isApplied
-                            ? ThemeManager.shared.completed
+                            ? themeManager.completed
                             : Color.clear,
                         lineWidth: 1
                     )
@@ -110,6 +111,7 @@ struct CategoryPickerView: View {
 
 #Preview {
     CategoryPickerView()
+        .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,
             BlockProfile.self, FocusSession.self,

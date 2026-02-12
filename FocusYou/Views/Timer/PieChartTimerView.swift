@@ -3,6 +3,8 @@ import SwiftUI
 // MARK: - 파이차트 타이머 (v0.3)
 
 struct PieChartTimerView: View {
+    @Environment(ThemeManager.self) private var themeManager
+
     let progress: Double
     let remainingTimeText: String
     let isPaused: Bool
@@ -16,7 +18,7 @@ struct PieChartTimerView: View {
             Circle()
                 .trim(from: 0, to: max(0, min(progress, 1)))
                 .stroke(
-                    isPaused ? ThemeManager.shared.textSecondary : activeColor,
+                    isPaused ? themeManager.textSecondary : activeColor,
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
@@ -25,7 +27,7 @@ struct PieChartTimerView: View {
             Text(remainingTimeText)
                 .font(.system(size: 36, weight: .light, design: .monospaced))
                 .foregroundStyle(
-                    isPaused ? ThemeManager.shared.textSecondary : ThemeManager.shared.textPrimary
+                    isPaused ? themeManager.textSecondary : themeManager.textPrimary
                 )
         }
         .frame(width: 190, height: 190)
@@ -41,5 +43,6 @@ struct PieChartTimerView: View {
         isPaused: false,
         activeColor: ThemeManager.shared.primary
     )
+    .environment(ThemeManager.shared)
     .padding()
 }

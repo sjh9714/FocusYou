@@ -4,6 +4,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(SettingsViewModel.self) private var viewModel
+    @Environment(ThemeManager.self) private var themeManager
 
     var body: some View {
         Form {
@@ -24,6 +25,8 @@ struct SettingsView: View {
                 )
             }
 
+            themeSection
+
             #if DEBUG
             debugSection
             #endif
@@ -40,6 +43,49 @@ struct SettingsView: View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.3.0"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
         return "\(version) (\(build))"
+    }
+
+    private var themeSection: some View {
+        Section("테마") {
+            ForEach(themeManager.availableThemes) { theme in
+                Button {
+                    themeManager.selectTheme(id: theme.id)
+                } label: {
+                    HStack(spacing: 10) {
+                        themeSwatches(theme)
+
+                        Text(theme.name)
+                            .font(.callout)
+                            .foregroundStyle(.primary)
+
+                        Spacer()
+
+                        if theme.id == themeManager.selectedThemeID {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(themeManager.primary)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Text("선택한 테마는 메뉴바/타이머/버튼에 즉시 반영됩니다.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func themeSwatches(_ theme: AppTheme) -> some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(Color(hex: theme.primaryHex))
+            Circle()
+                .fill(Color(hex: theme.secondaryHex))
+            Circle()
+                .fill(Color(hex: theme.accentHex))
+        }
+        .frame(width: 42, height: 12)
     }
 
     #if DEBUG
@@ -74,5 +120,6 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(SettingsViewModel())
+        .environment(ThemeManager.shared)
         .frame(width: 400)
 }
