@@ -35,9 +35,12 @@ jobs:
 
       - name: Install XcodeGen
         run: |
-          if ! command -v xcodegen >/dev/null 2>&1; then
+          if ! brew list --versions xcodegen >/dev/null 2>&1; then
             brew install xcodegen
           fi
+          brew link xcodegen --overwrite --force
+          echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+          xcodegen --version
 
       - name: Generate Project
         run: xcodegen generate
