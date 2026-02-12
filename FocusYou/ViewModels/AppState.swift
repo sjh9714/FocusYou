@@ -84,9 +84,8 @@ final class AppState {
     init() {
         // 타이머 완료 콜백 설정
         timer.onComplete = { [weak self] in
-            guard let self else { return }
-            Task { @MainActor in
-                await self.handleTimerComplete()
+            Task { @MainActor [weak self] in
+                await self?.handleTimerComplete()
             }
         }
 
@@ -284,11 +283,35 @@ final class AppState {
         if let nextPhase = pomodoroEngine.advancePhase() {
             do {
                 try await applyBlockingForPomodoroPhase(nextPhase.type)
-            } catch {
-                logger.error("뽀모도로 페이즈 전환 차단 처리 실패: \(error.localizedDescription)")
+            } catch let phaseTransitionError {
+                logger.error("뽀모도로 페이즈 전환 차단 처리 실패: \(phaseTransitionError.localizedDescription)")
 
                 if nextPhase.type == .focus {
-                    presentError("집중 단계 차단 활성화에 실패해 세션을 종료했습니다. \(error.localizedDescription)")
+                    var cleanupError: Error?
+                    do {
+                        try await BlockingCoordinator.shared.deactivateBlocking()
+                        isBlockingActive = false
+                    } catch {
+                        cleanupError = error
+                        isBlockingActive = true
+                        logger.error("집중 단계 전환 실패 후 차단 정리 실패: \(error.localizedDescription)")
+                    }
+
+                    if let cleanupError {
+                        presentError(
+                            """
+                            집중 단계 차단 활성화에 실패했고 차단 정리도 실패했습니다. \
+                            활성화 오류: \(phaseTransitionError.localizedDescription) \
+                            정리 오류: \(cleanupError.localizedDescription)
+                            """,
+                            canRetryDeactivation: true
+                        )
+                    } else {
+                        presentError(
+                            "집중 단계 차단 활성화에 실패해 세션을 종료했습니다. \(phaseTransitionError.localizedDescription)"
+                        )
+                    }
+
                     currentSession?.cancel(actualDuration: Int(sessionElapsedDuration))
                     currentSession = nil
                     timer.reset()
@@ -297,7 +320,7 @@ final class AppState {
                     return
                 } else {
                     presentError(
-                        "휴식 단계 차단 해제에 실패했습니다. \(error.localizedDescription)",
+                        "휴식 단계 차단 해제에 실패했습니다. \(phaseTransitionError.localizedDescription)",
                         canRetryDeactivation: true
                     )
                 }
