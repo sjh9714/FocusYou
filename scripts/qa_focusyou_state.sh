@@ -11,6 +11,11 @@ BACKUP_PATH="$STATE_DIR/hosts.backup"
 LAUNCH_AGENT_PATH="$HOME/Library/LaunchAgents/com.sungjh.focusyou.cleanup.plist"
 HELPER_PATH="/usr/local/bin/focusyou-helper"
 HOSTS_PATH="/etc/hosts"
+APP_BUNDLE_ID="com.sungjh.focusyou"
+QA_AUTOMATION_ENABLED_KEY="qaAutomationEnabled"
+QA_AUTOMATION_COMMAND_KEY="qaAutomationCommand"
+QA_AUTOMATION_RESULT_KEY="qaAutomationResult"
+QA_COMMAND_TIMEOUT_SECONDS=20
 
 print_header() {
   echo "=== FocusYou QA Snapshot ($(date '+%Y-%m-%d %H:%M:%S')) ==="
@@ -73,6 +78,104 @@ app_process_state() {
   else
     echo "app process: not running"
   fi
+}
+
+json_extract_string() {
+  local json="$1"
+  local key="$2"
+  printf '%s' "$json" | sed -n "s/.*\"$key\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" | head -n 1
+}
+
+ensure_app_running() {
+  if pgrep -ifl "Focus You.app/Contents/MacOS/Focus You|Focus You" >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "FAIL: Focus You app process not found (run app from Xcode first)"
+  return 1
+}
+
+send_app_command() {
+  local action="$1"
+  local duration_seconds="${2:-}"
+  local domain="${3:-}"
+  local command_id
+  local command_json
+  local max_loops
+  local result_json
+  local result_id
+  local result_status
+  local result_message
+  local i
+
+  command_id="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+
+  case "$action" in
+    start_session)
+      command_json="$(printf '{"id":"%s","action":"start_session","durationSeconds":%s,"domain":"%s"}' \
+        "$command_id" "$duration_seconds" "$domain")"
+      ;;
+    stop_session|reset_to_idle)
+      command_json="$(printf '{"id":"%s","action":"%s"}' "$command_id" "$action")"
+      ;;
+    *)
+      echo "FAIL: unknown app command action ($action)"
+      return 1
+      ;;
+  esac
+
+  defaults write "$APP_BUNDLE_ID" "$QA_AUTOMATION_ENABLED_KEY" -bool true
+  defaults delete "$APP_BUNDLE_ID" "$QA_AUTOMATION_RESULT_KEY" >/dev/null 2>&1 || true
+  defaults write "$APP_BUNDLE_ID" "$QA_AUTOMATION_COMMAND_KEY" -string "$command_json"
+
+  max_loops=$((QA_COMMAND_TIMEOUT_SECONDS * 5))
+  for ((i = 0; i < max_loops; i++)); do
+    result_json="$(defaults read "$APP_BUNDLE_ID" "$QA_AUTOMATION_RESULT_KEY" 2>/dev/null || true)"
+    if [ -n "$result_json" ]; then
+      result_id="$(json_extract_string "$result_json" "id")"
+      if [ "$result_id" = "$command_id" ]; then
+        result_status="$(json_extract_string "$result_json" "status")"
+        result_message="$(json_extract_string "$result_json" "message")"
+        if [ "$result_status" = "ok" ]; then
+          echo "PASS: app command '$action' succeeded ($result_message)"
+          return 0
+        fi
+        echo "FAIL: app command '$action' failed ($result_message)"
+        return 1
+      fi
+    fi
+    sleep 0.2
+  done
+
+  echo "FAIL: app command '$action' timed out (DEBUG build + running app required)"
+  return 1
+}
+
+qa_start_session() {
+  local duration_seconds="${1:-120}"
+  local domain="${2:-example.com}"
+
+  ensure_app_running || return 1
+  send_app_command "start_session" "$duration_seconds" "$domain"
+}
+
+qa_stop_session() {
+  ensure_app_running || return 1
+  send_app_command "stop_session"
+}
+
+qa_reset_to_idle() {
+  ensure_app_running || return 1
+  send_app_command "reset_to_idle"
+}
+
+qa_smoke_start_stop() {
+  local duration_seconds="${1:-120}"
+  local domain="${2:-example.com}"
+
+  qa_start_session "$duration_seconds" "$domain" || return 1
+  assert_blocked || return 1
+  qa_stop_session || return 1
+  assert_clean
 }
 
 snapshot() {
@@ -261,6 +364,10 @@ Usage:
   $(basename "$0") assert-helper-ready
   $(basename "$0") assert-recovery-pending
   $(basename "$0") assert-recovered
+  $(basename "$0") qa-start-session [duration_seconds] [domain]
+  $(basename "$0") qa-stop-session
+  $(basename "$0") qa-reset-to-idle
+  $(basename "$0") qa-smoke-start-stop [duration_seconds] [domain]
   $(basename "$0") watch [interval_seconds]
 EOF
 }
@@ -287,6 +394,18 @@ case "$cmd" in
     ;;
   assert-recovered)
     assert_recovered
+    ;;
+  qa-start-session)
+    qa_start_session "${2:-120}" "${3:-example.com}"
+    ;;
+  qa-stop-session)
+    qa_stop_session
+    ;;
+  qa-reset-to-idle)
+    qa_reset_to_idle
+    ;;
+  qa-smoke-start-stop)
+    qa_smoke_start_stop "${2:-120}" "${3:-example.com}"
     ;;
   watch)
     interval="${2:-2}"

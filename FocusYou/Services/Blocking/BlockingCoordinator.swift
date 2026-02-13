@@ -4,6 +4,18 @@ import os
 // MARK: - 차단 통합 코디네이터
 // 웹사이트 차단 + 앱 차단을 통합 관리하는 중앙 오케스트레이터
 
+protocol BlockingCoordinating: Sendable {
+    var state: BlockingCoordinator.State { get async }
+
+    func activateBlocking(
+        domains: [String],
+        appBundleIds: [String]
+    ) async throws
+
+    func deactivateBlocking() async throws
+    func emergencyCleanup() async
+}
+
 actor BlockingCoordinator {
     static let shared = BlockingCoordinator()
 
@@ -284,3 +296,5 @@ actor BlockingCoordinator {
         return "'\(escaped)'"
     }
 }
+
+extension BlockingCoordinator: BlockingCoordinating {}

@@ -56,4 +56,92 @@ final class PomodoroEngineTests: XCTestCase {
 
         XCTAssertNil(engine.advancePhase())
     }
+
+    func testBuildPhasesUsesConfiguredDurationsForEachCycle() {
+        let configuration = PomodoroConfiguration(
+            focusMinutes: 30,
+            shortBreakMinutes: 7,
+            longBreakMinutes: 20,
+            cycles: 3
+        )
+
+        let phases = PomodoroEngine.buildPhases(configuration: configuration)
+
+        XCTAssertEqual(phases.count, 6)
+        XCTAssertEqual(phases.map(\.type), [.focus, .shortBreak, .focus, .shortBreak, .focus, .longBreak])
+        XCTAssertEqual(phases.map(\.duration), [1800, 420, 1800, 420, 1800, 1200])
+        XCTAssertEqual(phases.map(\.cycleIndex), [1, 1, 2, 2, 3, 3])
+    }
+
+    func testBuildPhasesSingleCycleUsesLongBreakWithoutShortBreak() {
+        let configuration = PomodoroConfiguration(
+            focusMinutes: 40,
+            shortBreakMinutes: 10,
+            longBreakMinutes: 25,
+            cycles: 1
+        )
+
+        let phases = PomodoroEngine.buildPhases(configuration: configuration)
+
+        XCTAssertEqual(phases.count, 2)
+        XCTAssertEqual(phases.map(\.type), [.focus, .longBreak])
+        XCTAssertEqual(phases.map(\.duration), [2400, 1500])
+        XCTAssertEqual(phases.map(\.cycleIndex), [1, 1])
+    }
+
+    func testBuildPhasesMaxCycleMatchesExpectedTimelineAndDurations() {
+        let maxCycles = Constants.Timer.pomodoroCyclesRange.upperBound
+        let configuration = PomodoroConfiguration(
+            focusMinutes: 35,
+            shortBreakMinutes: 8,
+            longBreakMinutes: 20,
+            cycles: maxCycles
+        )
+
+        let phases = PomodoroEngine.buildPhases(configuration: configuration)
+
+        XCTAssertEqual(phases.count, maxCycles * 2)
+        XCTAssertEqual(phases.filter { $0.type == .focus }.count, maxCycles)
+        XCTAssertEqual(phases.filter { $0.type == .shortBreak }.count, max(maxCycles - 1, 0))
+        XCTAssertEqual(phases.filter { $0.type == .longBreak }.count, 1)
+        XCTAssertEqual(phases.last?.type, .longBreak)
+        XCTAssertEqual(phases.last?.cycleIndex, maxCycles)
+
+        let expectedTotalDuration = TimeInterval(
+            (configuration.focusMinutes * maxCycles)
+                + (configuration.shortBreakMinutes * max(maxCycles - 1, 0))
+                + configuration.longBreakMinutes
+        ) * 60
+        let timelineDuration = phases.reduce(0) { $0 + $1.duration }
+        XCTAssertEqual(timelineDuration, expectedTotalDuration)
+    }
+
+    func testPlannedFocusDurationMatchesFocusMinutesAndCycles() {
+        let configuration = PomodoroConfiguration(
+            focusMinutes: 40,
+            shortBreakMinutes: 10,
+            longBreakMinutes: 25,
+            cycles: 4
+        )
+
+        XCTAssertEqual(configuration.plannedFocusDuration, 40 * 4 * 60)
+    }
+
+    func testBuildPhasesReturnsEmptyWhenCyclesIsZeroOrNegative() {
+        let zeroCycleConfiguration = PomodoroConfiguration(
+            focusMinutes: 25,
+            shortBreakMinutes: 5,
+            longBreakMinutes: 15,
+            cycles: 0
+        )
+        let negativeCycleConfiguration = PomodoroConfiguration(
+            focusMinutes: 25,
+            shortBreakMinutes: 5,
+            longBreakMinutes: 15,
+            cycles: -1
+        )
+
+        XCTAssertTrue(PomodoroEngine.buildPhases(configuration: zeroCycleConfiguration).isEmpty)
+        XCTAssertTrue(PomodoroEngine.buildPhases(configuration: negativeCycleConfiguration).isEmpty)
+    }
 }

@@ -280,6 +280,12 @@ git tag v0.1.0
 git push origin main --tags
 ```
 
+릴리스 전 프리플라이트 검증:
+```bash
+./scripts/release_preflight.sh --stage pre-tag
+./scripts/release_preflight.sh --stage tagged
+```
+
 ### 커밋 메시지 규칙
 
 ```
@@ -316,6 +322,7 @@ chore: SwiftLint 설정 추가
 ## 참고 문서
 
 - `design.md` — 상세 기능 명세, UX 설계, 수익 모델
+- `docs/release-preflight.md` — 릴리스 브랜치/태그/체인지로그 정합성 검증 절차
 - Apple HIG: https://developer.apple.com/design/human-interface-guidelines/
 - SwiftUI: https://developer.apple.com/documentation/swiftui/
 - StoreKit 2: https://developer.apple.com/documentation/storekit/
