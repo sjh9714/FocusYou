@@ -56,6 +56,7 @@ struct FocusYouApp: App {
                 .environment(appState)
                 .environment(settingsViewModel)
                 .environment(themeManager)
+                .preferredColorScheme(.light)
         }
         .defaultSize(width: 840, height: 620)
 
