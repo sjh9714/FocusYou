@@ -24,7 +24,7 @@ struct MainDashboardView: View {
             }
             .padding(20)
         }
-        .background(themeManager.background.opacity(0.45))
+        .background(themeManager.background)
     }
 
     private var header: some View {
