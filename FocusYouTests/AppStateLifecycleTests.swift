@@ -66,6 +66,8 @@ final class AppStateLifecycleTests: XCTestCase {
         XCTAssertTrue(completed)
         XCTAssertTrue(recordedSession.wasCompleted)
         XCTAssertEqual(recordedSession.actualDuration, 120)
+        XCTAssertEqual(appState.focusState, .completed)
+        XCTAssertFalse(appState.isBlockingActive)
         XCTAssertEqual(appState.lastCompletedMode, .free)
         XCTAssertEqual(appState.lastCompletedFocusDuration, 120)
 
@@ -74,6 +76,41 @@ final class AppStateLifecycleTests: XCTestCase {
 
         let timerCompletedDurations = await notificationService.timerCompletedDurationsSnapshot()
         XCTAssertEqual(timerCompletedDurations, [120])
+    }
+
+    func testCompletionThenResetReturnsToIdleAndClearsCompletionSnapshot() async throws {
+        let appState = AppState(
+            blockingCoordinator: MockBlockingCoordinator(),
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+
+        await appState.startFocusSession(
+            duration: 90,
+            sites: [],
+            apps: [],
+            modelContext: modelContext
+        )
+
+        appState.timer.onComplete?()
+
+        let didComplete = await waitUntil {
+            appState.focusState == .completed
+        }
+        XCTAssertTrue(didComplete)
+        XCTAssertEqual(appState.lastCompletedFocusDuration, 90)
+        XCTAssertEqual(appState.lastCompletedMode, .free)
+
+        appState.resetToIdle()
+
+        XCTAssertEqual(appState.focusState, .idle)
+        XCTAssertFalse(appState.isBlockingActive)
+        XCTAssertEqual(appState.timerMode, .free)
+        XCTAssertEqual(appState.lastCompletedFocusDuration, 0)
+        XCTAssertEqual(appState.lastCompletedPomodoroCycles, 0)
+        XCTAssertEqual(appState.lastCompletedPomodoroBreakDuration, 0)
     }
 
     func testStopSessionDeactivationFailureKeepsRetrySignalAndRetryRecovers() async throws {
@@ -139,6 +176,30 @@ final class AppStateLifecycleTests: XCTestCase {
         XCTAssertEqual(counts.cleanup, 1)
     }
 
+    func testStartupCleanupSuccessKeepsIdleStateWithoutError() async {
+        let blockingCoordinator = MockBlockingCoordinator()
+        await blockingCoordinator.setEmergencyCleanupResult(.idle)
+
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: true
+        )
+
+        let didRunCleanup = await waitUntilAsync {
+            let counts = await blockingCoordinator.callCounts()
+            return counts.cleanup == 1
+        }
+
+        XCTAssertTrue(didRunCleanup)
+        XCTAssertEqual(appState.focusState, .idle)
+        XCTAssertFalse(appState.isBlockingActive)
+        XCTAssertFalse(appState.showError)
+        XCTAssertFalse(appState.canRetryBlockingDeactivation)
+        XCTAssertNil(appState.errorMessage)
+    }
+
     private func makeModelContext() throws -> ModelContext {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -163,6 +224,23 @@ final class AppStateLifecycleTests: XCTestCase {
         }
 
         return condition()
+    }
+
+    private func waitUntilAsync(
+        timeout: TimeInterval = 1.0,
+        intervalNanoseconds: UInt64 = 20_000_000,
+        condition: @escaping () async -> Bool
+    ) async -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if await condition() {
+                return true
+            }
+            try? await Task.sleep(nanoseconds: intervalNanoseconds)
+        }
+
+        return await condition()
     }
 }
 
