@@ -56,4 +56,49 @@ final class PomodoroEngineTests: XCTestCase {
 
         XCTAssertNil(engine.advancePhase())
     }
+
+    func testBuildPhasesUsesConfiguredDurationsForEachCycle() {
+        let configuration = PomodoroConfiguration(
+            focusMinutes: 30,
+            shortBreakMinutes: 7,
+            longBreakMinutes: 20,
+            cycles: 3
+        )
+
+        let phases = PomodoroEngine.buildPhases(configuration: configuration)
+
+        XCTAssertEqual(phases.count, 6)
+        XCTAssertEqual(phases.map(\.type), [.focus, .shortBreak, .focus, .shortBreak, .focus, .longBreak])
+        XCTAssertEqual(phases.map(\.duration), [1800, 420, 1800, 420, 1800, 1200])
+        XCTAssertEqual(phases.map(\.cycleIndex), [1, 1, 2, 2, 3, 3])
+    }
+
+    func testPlannedFocusDurationMatchesFocusMinutesAndCycles() {
+        let configuration = PomodoroConfiguration(
+            focusMinutes: 40,
+            shortBreakMinutes: 10,
+            longBreakMinutes: 25,
+            cycles: 4
+        )
+
+        XCTAssertEqual(configuration.plannedFocusDuration, 40 * 4 * 60)
+    }
+
+    func testBuildPhasesReturnsEmptyWhenCyclesIsZeroOrNegative() {
+        let zeroCycleConfiguration = PomodoroConfiguration(
+            focusMinutes: 25,
+            shortBreakMinutes: 5,
+            longBreakMinutes: 15,
+            cycles: 0
+        )
+        let negativeCycleConfiguration = PomodoroConfiguration(
+            focusMinutes: 25,
+            shortBreakMinutes: 5,
+            longBreakMinutes: 15,
+            cycles: -1
+        )
+
+        XCTAssertTrue(PomodoroEngine.buildPhases(configuration: zeroCycleConfiguration).isEmpty)
+        XCTAssertTrue(PomodoroEngine.buildPhases(configuration: negativeCycleConfiguration).isEmpty)
+    }
 }

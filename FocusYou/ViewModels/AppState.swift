@@ -74,6 +74,9 @@ final class AppState {
 
     // MARK: - Private
 
+    private let blockingCoordinator: any BlockingCoordinating
+    private let notificationService: any NotificationServicing
+
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
         category: "AppState"
@@ -81,7 +84,15 @@ final class AppState {
 
     // MARK: - 초기화
 
-    init() {
+    init(
+        blockingCoordinator: any BlockingCoordinating = BlockingCoordinator.shared,
+        notificationService: any NotificationServicing = NotificationService.shared,
+        shouldRequestNotificationPermission: Bool = true,
+        shouldRunStartupCleanup: Bool = true
+    ) {
+        self.blockingCoordinator = blockingCoordinator
+        self.notificationService = notificationService
+
         // 타이머 완료 콜백 설정
         timer.onComplete = { [weak self] in
             Task { @MainActor [weak self] in
@@ -90,21 +101,25 @@ final class AppState {
         }
 
         // 알림 권한 요청
-        Task {
-            _ = await NotificationService.shared.requestPermission()
+        if shouldRequestNotificationPermission {
+            Task {
+                _ = await notificationService.requestPermission()
+            }
         }
 
         // 앱 시작 시 긴급 정리 확인
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            await BlockingCoordinator.shared.emergencyCleanup()
+        if shouldRunStartupCleanup {
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                await blockingCoordinator.emergencyCleanup()
 
-            if case .error(let cleanupError) = await BlockingCoordinator.shared.state {
-                self.logger.error("앱 시작 시 긴급 정리 실패: \(cleanupError.localizedDescription)")
-                self.presentError(
-                    "앱 시작 시 차단 복구에 실패했습니다. \(cleanupError.localizedDescription)",
-                    canRetryDeactivation: true
-                )
+                if case .error(let cleanupError) = await blockingCoordinator.state {
+                    self.logger.error("앱 시작 시 긴급 정리 실패: \(cleanupError.localizedDescription)")
+                    self.presentError(
+                        "앱 시작 시 차단 복구에 실패했습니다. \(cleanupError.localizedDescription)",
+                        canRetryDeactivation: true
+                    )
+                }
             }
         }
     }
@@ -143,7 +158,7 @@ final class AppState {
                 logger.warning("차단 목록이 비어있음 — 차단 없이 타이머만 시작")
             }
 
-            try await BlockingCoordinator.shared.activateBlocking(
+            try await blockingCoordinator.activateBlocking(
                 domains: enabledDomains,
                 appBundleIds: enabledBundleIds
             )
@@ -228,9 +243,9 @@ final class AppState {
 
         // 차단 해제
         do {
-            try await BlockingCoordinator.shared.deactivateBlocking()
+            try await blockingCoordinator.deactivateBlocking()
             if wasBlockingActive {
-                await NotificationService.shared.sendBlockingDeactivated()
+                await notificationService.sendBlockingDeactivated()
             }
             isBlockingActive = false
         } catch {
@@ -292,7 +307,7 @@ final class AppState {
                 if nextPhase.type == .focus {
                     var cleanupError: Error?
                     do {
-                        try await BlockingCoordinator.shared.deactivateBlocking()
+                        try await blockingCoordinator.deactivateBlocking()
                         isBlockingActive = false
                     } catch {
                         cleanupError = error
@@ -342,7 +357,7 @@ final class AppState {
             // completed 상태의 FreeTimer를 다음 페이즈 재시작을 위해 초기화
             timer.reset()
             timer.start(duration: debugScaledDuration(nextPhase.duration))
-            await NotificationService.shared.sendPomodoroPhaseStarted(
+            await notificationService.sendPomodoroPhaseStarted(
                 phaseTitle: nextPhase.type.displayName,
                 cycleText: pomodoroCycleProgressText
             )
@@ -368,15 +383,15 @@ final class AppState {
         )
 
         // 1. 완료 알림
-        await NotificationService.shared.sendTimerCompleted(
+        await notificationService.sendTimerCompleted(
             duration: notificationDuration
         )
 
         // 2. 차단 해제
         do {
-            try await BlockingCoordinator.shared.deactivateBlocking()
+            try await blockingCoordinator.deactivateBlocking()
             if wasBlockingActive {
-                await NotificationService.shared.sendBlockingDeactivated()
+                await notificationService.sendBlockingDeactivated()
             }
             isBlockingActive = false
         } catch {
@@ -443,13 +458,13 @@ final class AppState {
 
         switch phaseType {
         case .focus:
-            try await BlockingCoordinator.shared.activateBlocking(
+            try await blockingCoordinator.activateBlocking(
                 domains: sessionBlockedDomains,
                 appBundleIds: sessionBlockedAppBundleIds
             )
             isBlockingActive = true
         case .shortBreak, .longBreak:
-            try await BlockingCoordinator.shared.deactivateBlocking()
+            try await blockingCoordinator.deactivateBlocking()
             isBlockingActive = false
         }
     }
@@ -510,9 +525,9 @@ final class AppState {
         guard canRetryBlockingDeactivation else { return }
 
         do {
-            try await BlockingCoordinator.shared.deactivateBlocking()
+            try await blockingCoordinator.deactivateBlocking()
             if isBlockingActive {
-                await NotificationService.shared.sendBlockingDeactivated()
+                await notificationService.sendBlockingDeactivated()
             }
             isBlockingActive = false
             dismissError()

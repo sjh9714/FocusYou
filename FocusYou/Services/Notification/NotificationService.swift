@@ -5,6 +5,14 @@ import os
 // MARK: - 알림 서비스
 // 타이머 완료, 앱 차단 등의 시스템 알림 관리
 
+protocol NotificationServicing: Sendable {
+    func requestPermission() async -> Bool
+    func sendTimerCompleted(duration: TimeInterval) async
+    func sendAppBlocked(appName: String) async
+    func sendBlockingDeactivated() async
+    func sendPomodoroPhaseStarted(phaseTitle: String, cycleText: String) async
+}
+
 actor NotificationService {
     static let shared = NotificationService()
 
@@ -133,3 +141,5 @@ actor NotificationService {
         )
     }
 }
+
+extension NotificationService: NotificationServicing {}
