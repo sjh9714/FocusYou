@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.6.0] - 2026-02-14
+
+### Added
+- Settings 테마 섹션에 실시간 프리뷰 패널 추가 (대시보드/팝오버 미리보기 전환).
+- 설정에서 "대시보드 나란히 열기" 동작 추가로 테마 변경을 실시간 비교 가능.
+- DEBUG 전용 QA 자동화 브리지 및 start/stop 스모크 명령 추가.
+- 릴리스 전 정합성 검사 스크립트 `scripts/release_preflight.sh` 및 운영 문서 추가.
+
+### Changed
+- Settings 테마 UX를 자동 저장 기반 플로우로 명확화.
+
+### Testing
+- AppState 라이프사이클 회귀 테스트 확장 (start/stop/complete/reset/startup cleanup/error-retry).
+- PomodoroEngine duration 검증 확장 (single cycle, max cycle, 전체 타임라인 합계).
+- `xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -destination 'platform=macOS' test` (33 tests, 0 failures)
+- `./scripts/qa_focusyou_state.sh assert-helper-ready`
+- `./scripts/qa_focusyou_state.sh assert-clean`
+
 ## [0.5.0] - 2026-02-14
 
 ### Added
