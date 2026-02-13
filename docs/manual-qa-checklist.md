@@ -164,3 +164,24 @@ Use this during manual actions:
 ```
 
 This prints state every 2 seconds.
+
+## Optional Debug Automation (Start/Stop Smoke)
+
+DEBUG 빌드에서 앱 실행 중이면 아래 명령으로 시작/중지를 반자동 검증할 수 있습니다.
+
+```bash
+./scripts/qa_focusyou_state.sh qa-start-session 120 example.com
+./scripts/qa_focusyou_state.sh assert-blocked
+./scripts/qa_focusyou_state.sh qa-stop-session
+./scripts/qa_focusyou_state.sh assert-clean
+```
+
+원샷으로는:
+
+```bash
+./scripts/qa_focusyou_state.sh qa-smoke-start-stop 120 example.com
+```
+
+참고:
+- 이 훅은 DEBUG 전용입니다. Release 빌드에서는 동작하지 않습니다.
+- 앱 프로세스가 실행 중이어야 합니다.

@@ -5,9 +5,9 @@ import os
 
 @main
 struct FocusYouApp: App {
-    @State private var appState = AppState()
-    @State private var settingsViewModel = SettingsViewModel()
-    @State private var themeManager = ThemeManager.shared
+    @State private var appState: AppState
+    @State private var settingsViewModel: SettingsViewModel
+    @State private var themeManager: ThemeManager
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     /// 모든 Scene에서 공유하는 단일 ModelContainer
@@ -15,15 +15,28 @@ struct FocusYouApp: App {
 
     init() {
         do {
-            modelContainer = try ModelContainer(
+            let container = try ModelContainer(
                 for: BlockProfile.self,
                 BlockedSite.self,
                 BlockedApp.self,
                 FocusSession.self
             )
+            modelContainer = container
         } catch {
             fatalError("ModelContainer 생성 실패: \(error)")
         }
+
+        let state = AppState()
+        _appState = State(initialValue: state)
+        _settingsViewModel = State(initialValue: SettingsViewModel())
+        _themeManager = State(initialValue: ThemeManager.shared)
+
+        #if DEBUG
+        QAAutomationController.shared.startIfNeeded(
+            appState: state,
+            modelContext: modelContainer.mainContext
+        )
+        #endif
     }
 
     var body: some Scene {

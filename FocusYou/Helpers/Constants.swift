@@ -104,6 +104,10 @@ enum Constants {
         static let selectedThemeIDKey = "selectedThemeID"
         static let debugFastTimerEnabledKey = "debugFastTimerEnabled"
         static let debugSecondsPerMinuteKey = "debugSecondsPerMinute"
+        static let qaAutomationEnabledKey = "qaAutomationEnabled"
+        static let qaAutomationCommandKey = "qaAutomationCommand"
+        static let qaAutomationResultKey = "qaAutomationResult"
+        static let qaAutomationHandledCommandIDKey = "qaAutomationHandledCommandID"
 
         static let showMenuBarTimeDefault = true
         static let playCompletionSoundDefault = true
@@ -111,6 +115,7 @@ enum Constants {
         static let selectedThemeIDDefault = "crimson-focus"
         static let debugFastTimerEnabledDefault = false
         static let debugSecondsPerMinuteDefault = 5.0
+        static let qaAutomationEnabledDefault = false
         static let debugSecondsPerMinuteRange: ClosedRange<Double> = 1...30
     }
 
