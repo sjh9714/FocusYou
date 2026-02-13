@@ -319,10 +319,17 @@ final class AppState {
                     focusState = .idle
                     return
                 } else {
+                    // 휴식 단계 차단 해제 실패 시에도 세션 정리
                     presentError(
                         "휴식 단계 차단 해제에 실패했습니다. \(phaseTransitionError.localizedDescription)",
                         canRetryDeactivation: true
                     )
+                    currentSession?.cancel(actualDuration: Int(sessionElapsedDuration))
+                    currentSession = nil
+                    timer.reset()
+                    endPomodoroIfNeeded()
+                    focusState = .idle
+                    return
                 }
             }
 

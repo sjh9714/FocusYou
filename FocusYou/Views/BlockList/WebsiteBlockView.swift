@@ -35,7 +35,7 @@ struct WebsiteBlockView: View {
                     .font(.system(size: Constants.Design.iconSM))
                     .foregroundStyle(.tertiary)
 
-                TextField("example.com", text: $viewModel.newWebsiteURL)
+                TextField("example.com (https:// 제외)", text: $viewModel.newWebsiteURL)
                     .textFieldStyle(.plain)
                     .accessibilityLabel("차단할 웹사이트 주소 입력")
                     .onSubmit {

@@ -159,7 +159,7 @@ struct ProfileEditorView: View {
                             .contentShape(Circle())
                             .overlay(
                                 Circle()
-                                    .stroke(.white, lineWidth: isSelected ? 3 : 0)
+                                    .stroke(Color(nsColor: .controlBackgroundColor), lineWidth: isSelected ? 3 : 0)
                             )
                             .shadow(
                                 color: isSelected ? Color(hex: hex).opacity(0.4) : .clear,

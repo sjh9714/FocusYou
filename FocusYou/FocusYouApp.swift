@@ -194,6 +194,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return .terminateNow
         }
 
+        // Window observer 정리
+        for observer in windowObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        windowObservers.removeAll()
+
         isTerminationCleanupInProgress = true
 
         Task { [weak self] in

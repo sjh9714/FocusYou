@@ -362,7 +362,8 @@ struct FocusingContentView: View {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
             phaseBadgeScale = 1.12
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
             withAnimation(.easeOut(duration: 0.15)) {
                 phaseBadgeScale = 1.0
             }
