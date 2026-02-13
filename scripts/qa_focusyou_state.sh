@@ -100,6 +100,7 @@ assert_clean() {
   local markers
   local indicator_exists=0
   local backup_exists=0
+  local launch_agent_exists=0
 
   markers="$(hosts_marker_count)"
   if [[ "$markers" == *"begin=0 end=0"* ]]; then
@@ -115,9 +116,12 @@ assert_clean() {
   if [ -e "$BACKUP_PATH" ]; then
     backup_exists=1
   fi
+  if [ -e "$LAUNCH_AGENT_PATH" ]; then
+    launch_agent_exists=1
+  fi
 
-  if [ "$indicator_exists" -eq 1 ] || [ "$backup_exists" -eq 1 ]; then
-    echo "FAIL: safety files remain (indicator=$indicator_exists backup=$backup_exists)"
+  if [ "$indicator_exists" -eq 1 ] || [ "$backup_exists" -eq 1 ] || [ "$launch_agent_exists" -eq 1 ]; then
+    echo "FAIL: safety files remain (indicator=$indicator_exists backup=$backup_exists launchAgent=$launch_agent_exists)"
     return 1
   fi
 

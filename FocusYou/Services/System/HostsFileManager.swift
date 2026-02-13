@@ -86,7 +86,10 @@ actor HostsFileManager {
 
         for domain in domains {
             let normalized = domain.normalizedDomain
-            guard !normalized.isEmpty else { continue }
+            guard !normalized.isEmpty, isValidDomain(normalized) else {
+                logger.warning("유효하지 않은 도메인 건너뜀: \(domain, privacy: .public)")
+                continue
+            }
 
             // 도메인 자체와 www 서브도메인 모두 차단
             // IPv4 + IPv6 loopback + IPv6 link-local 3중 차단 (macOS IPv6 우선 해석 대응)
@@ -113,6 +116,12 @@ actor HostsFileManager {
     }
 
     // MARK: - Private
+
+    /// 도메인 형식 검증 (알파벳, 숫자, 하이픈, 점만 허용 + 점 최소 1개)
+    private func isValidDomain(_ domain: String) -> Bool {
+        let pattern = #"^[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)+$"#
+        return domain.range(of: pattern, options: .regularExpression) != nil
+    }
 
     /// 마커 구간을 문자열에서 제거
     private func removeMarkerSection(from content: String) -> String {

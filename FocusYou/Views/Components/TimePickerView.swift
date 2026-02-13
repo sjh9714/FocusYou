@@ -3,6 +3,8 @@ import SwiftUI
 // MARK: - 시간 선택 컴포넌트
 
 struct TimePickerView: View {
+    @Environment(ThemeManager.self) private var themeManager
+
     @Binding var minutes: Double
     let range: ClosedRange<Double>
 
@@ -19,7 +21,7 @@ struct TimePickerView: View {
             Slider(value: $minutes, in: range, step: 1) {
                 Text("시간 설정")
             }
-            .tint(ThemeManager.shared.primary)
+            .tint(themeManager.primary)
 
             HStack {
                 Text("\(Int(range.lowerBound))분")
@@ -38,6 +40,7 @@ struct TimePickerView: View {
 
 #Preview {
     TimePickerView(minutes: .constant(25))
+        .environment(ThemeManager.shared)
         .padding()
         .frame(width: 300)
 }

@@ -279,6 +279,9 @@ final class AppState {
         if completedPhase.type == .focus {
             accumulatedPomodoroFocusDuration += completedPhase.duration
         }
+        // 페이즈 경계(완료 시점)에서는 누적 집중 시간이 이미 최종값.
+        // sessionElapsedDuration을 쓰면 완료된 focus 페이즈가 이중 계산될 수 있다.
+        let completedFocusSeconds = Int(accumulatedPomodoroFocusDuration)
 
         if let nextPhase = pomodoroEngine.advancePhase() {
             do {
@@ -312,17 +315,24 @@ final class AppState {
                         )
                     }
 
-                    currentSession?.cancel(actualDuration: Int(sessionElapsedDuration))
+                    currentSession?.cancel(actualDuration: completedFocusSeconds)
                     currentSession = nil
                     timer.reset()
                     endPomodoroIfNeeded()
                     focusState = .idle
                     return
                 } else {
+                    // 휴식 단계 차단 해제 실패 시에도 세션 정리
                     presentError(
                         "휴식 단계 차단 해제에 실패했습니다. \(phaseTransitionError.localizedDescription)",
                         canRetryDeactivation: true
                     )
+                    currentSession?.cancel(actualDuration: completedFocusSeconds)
+                    currentSession = nil
+                    timer.reset()
+                    endPomodoroIfNeeded()
+                    focusState = .idle
+                    return
                 }
             }
 

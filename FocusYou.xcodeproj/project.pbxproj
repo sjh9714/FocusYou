@@ -9,18 +9,23 @@
 /* Begin PBXBuildFile section */
 		00B0CDCEE36C2FBB035A5741 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57394063463AFF1878042D5B /* String+Extensions.swift */; };
 		0156279D8FBC229B765C8D53 /* DNSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C2057280949E9F448AE711 /* DNSManager.swift */; };
+		05E19AE2DDA201D8D1619554 /* StatsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */; };
 		0975E061C0C01A6593ED6A64 /* games.json in Resources */ = {isa = PBXBuildFile; fileRef = D5694D96C1975D74CDAE10E0 /* games.json */; };
 		09B21DC7AFA1496E66C315C3 /* View+Modifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D043734447E897EECAA90E0A /* View+Modifiers.swift */; };
 		0C931460D19EF4619274025C /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB7D984FBAE86A04F3EE948 /* SettingsViewModel.swift */; };
 		0E7735D36356283E151587D9 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F920638F8E8D4DF6164C4124 /* ThemeManager.swift */; };
+		0F63113E064387FB6FDCAA45 /* ProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75FCD3FE480A8EF349AC789 /* ProfileEditorView.swift */; };
 		0FE63215E95C413DF29917E1 /* PrivilegedHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946DE288441FC826623C09C6 /* PrivilegedHelper.swift */; };
+		1BB0F58FE6391E2EBF22F1CD /* ThemeCatalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */; };
 		1C56B083C74E3A29B471059D /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */; };
 		36EEEC526890D897DBEB37F1 /* FreeTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED328A26A0F4A52077A5791 /* FreeTimer.swift */; };
 		3C5862BA5D23610BB7C55E54 /* video.json in Resources */ = {isa = PBXBuildFile; fileRef = 4158EE2F545858A72688CFE9 /* video.json */; };
 		3EACAD5A918E9DFBC39F4DCA /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923F7679B21AE4E12016F775 /* MenuBarView.swift */; };
+		408572736EEEA1740E4B2982 /* ThemeManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D619D1183C7B812AA42A1337 /* ThemeManagerTests.swift */; };
 		40EA309FD3C69A7FB1D0257A /* HostsFileBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */; };
 		424B452870555D3E845201D5 /* BlockListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */; };
 		432B6715E62F9933022FA065 /* FocusYouApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03355D227440BC47048DC646 /* FocusYouApp.swift */; };
+		4BDFD390A0691774D076EFEC /* ProfileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF71C7E4163B1A0467DA61CF /* ProfileListView.swift */; };
 		4FB41B1C5FBF2C017A37A7EF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6815114D2A30CB27EED1B552 /* AppState.swift */; };
 		53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4BC8344A9F092E59A1ADDE6 /* NotificationService.swift */; };
 		65FBB5EEECD9E840423E5BEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7E4D50889113C0AF74856AAA /* Assets.xcassets */; };
@@ -36,7 +41,9 @@
 		8A236F8CC3E7A19605EC8888 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9AD64C24178ABFA2FB00F5B /* Color+Theme.swift */; };
 		8ACB0836E7785E748C06AEFD /* HostsFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A6E1949B015C2817CE009 /* HostsFileManager.swift */; };
 		A3E73C30EC933E3803D3588F /* TimePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */; };
+		A4BC30D7217B153B86E21769 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E592359E71D0D7E463D21B /* ProfileViewModel.swift */; };
 		A5C2DC2E0D2129997E3B639A /* BlockingCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3C65E5F7BA82264521F661C /* BlockingCoordinatorTests.swift */; };
+		A83F49C17A5CD05971DA608B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01048996487435090C180644 /* StatsView.swift */; };
 		AB6B9AF0E73DBC0D2E9B6477 /* PomodoroConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A506D1C89B5DCDBCC50E20E /* PomodoroConfigView.swift */; };
 		AD673288B15AB358371F2373 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F146962AE1C48075E7184D /* SettingsView.swift */; };
 		C32D273CA53713F48CF91BE3 /* WebsiteBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C630404612B8E32C1F00AE40 /* WebsiteBlockView.swift */; };
@@ -49,11 +56,13 @@
 		DCD9BE315136CCA2B27798D1 /* PomodoroEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1253C394407F81E88611851 /* PomodoroEngineTests.swift */; };
 		E200EB2AAD3DEC0F0A17A392 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883DE0F6C198BD475B72202C /* TimerView.swift */; };
 		E2E1EFAAE13D7F4FF3403212 /* PieChartTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A863ECA533CD25DD064FBE18 /* PieChartTimerView.swift */; };
+		E80B9AF3714F10EB751A1EAD /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2982F421866F4409537C2 /* AppTheme.swift */; };
 		E9EA78A518F2D6FCD8E18C25 /* BlockProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCF53A306D96110BFA5BB8A /* BlockProfile.swift */; };
 		EAE4C81A07549C1F4990A15A /* BlockedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */; };
 		EBBE4690B5997DA436CC2E71 /* BlockListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F591BC59259AC45E8F15287 /* BlockListView.swift */; };
 		F2FD603D4559E67260548B5F /* FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E26060BA507E42D48663C /* FocusSession.swift */; };
 		F50384EFF52B64498DA2426D /* HostsFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */; };
+		FC55AD7F2656D9A9B4E38265 /* MainDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +76,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		01048996487435090C180644 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		03355D227440BC47048DC646 /* FocusYouApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouApp.swift; sourceTree = "<group>"; };
 		08D9E20C91ECBDB7EABC9A77 /* WebsiteBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlocker.swift; sourceTree = "<group>"; };
 		0AB7D984FBAE86A04F3EE948 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -80,6 +90,8 @@
 		2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceSettingsTests.swift; sourceTree = "<group>"; };
 		2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListViewModel.swift; sourceTree = "<group>"; };
 		38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedApp.swift; sourceTree = "<group>"; };
+		3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsViewModel.swift; sourceTree = "<group>"; };
+		3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ThemeCatalog.json; sourceTree = "<group>"; };
 		3ED328A26A0F4A52077A5791 /* FreeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTimer.swift; sourceTree = "<group>"; };
 		4158EE2F545858A72688CFE9 /* video.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = video.json; sourceTree = "<group>"; };
 		450B8438A119A2575F0189EE /* AppBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlocker.swift; sourceTree = "<group>"; };
@@ -88,9 +100,11 @@
 		56C2057280949E9F448AE711 /* DNSManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSManager.swift; sourceTree = "<group>"; };
 		57394063463AFF1878042D5B /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		5F591BC59259AC45E8F15287 /* BlockListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListView.swift; sourceTree = "<group>"; };
+		5FA2982F421866F4409537C2 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		6815114D2A30CB27EED1B552 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensionsTests.swift; sourceTree = "<group>"; };
 		72EA9A639375CA3DDA78D63E /* BlockedSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedSite.swift; sourceTree = "<group>"; };
+		78E592359E71D0D7E463D21B /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		7A506D1C89B5DCDBCC50E20E /* PomodoroConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroConfigView.swift; sourceTree = "<group>"; };
 		7E4D50889113C0AF74856AAA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		85112EB9686823A2B6122971 /* BlockingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockingCoordinator.swift; sourceTree = "<group>"; };
@@ -107,12 +121,16 @@
 		B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileBlocker.swift; sourceTree = "<group>"; };
 		B87999382957A62F387E43D2 /* FocusYou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusYou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8F146962AE1C48075E7184D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDashboardView.swift; sourceTree = "<group>"; };
 		BC929065CCF7442C450405B3 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
 		C630404612B8E32C1F00AE40 /* WebsiteBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlockView.swift; sourceTree = "<group>"; };
 		CCCF53A306D96110BFA5BB8A /* BlockProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockProfile.swift; sourceTree = "<group>"; };
 		D043734447E897EECAA90E0A /* View+Modifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Modifiers.swift"; sourceTree = "<group>"; };
 		D5694D96C1975D74CDAE10E0 /* games.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = games.json; sourceTree = "<group>"; };
+		D619D1183C7B812AA42A1337 /* ThemeManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManagerTests.swift; sourceTree = "<group>"; };
+		D75FCD3FE480A8EF349AC789 /* ProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditorView.swift; sourceTree = "<group>"; };
 		D9AD64C24178ABFA2FB00F5B /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		DF71C7E4163B1A0467DA61CF /* ProfileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListView.swift; sourceTree = "<group>"; };
 		E1253C394407F81E88611851 /* PomodoroEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngineTests.swift; sourceTree = "<group>"; };
 		E3C65E5F7BA82264521F661C /* BlockingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockingCoordinatorTests.swift; sourceTree = "<group>"; };
 		E4A54D40EAA9967B9F83E5F6 /* AppBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockView.swift; sourceTree = "<group>"; };
@@ -130,6 +148,22 @@
 				8F678FD857532A0A03FB7E56 /* Timer */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		07D6689E59DC621750DB7A1B /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				01048996487435090C180644 /* StatsView.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		0CB948290EF77EE270001C6B /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */,
+			);
+			path = Main;
 			sourceTree = "<group>";
 		};
 		19BC4BEF7BBF485D486F3AB9 /* Blocking */ = {
@@ -165,12 +199,23 @@
 			path = BlockList;
 			sourceTree = "<group>";
 		};
+		24675D6E3CD18516E4D1067A /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				D75FCD3FE480A8EF349AC789 /* ProfileEditorView.swift */,
+				DF71C7E4163B1A0467DA61CF /* ProfileListView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		2FD437F2C3035F5DB16F70C2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
 				6815114D2A30CB27EED1B552 /* AppState.swift */,
 				2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */,
+				78E592359E71D0D7E463D21B /* ProfileViewModel.swift */,
 				0AB7D984FBAE86A04F3EE948 /* SettingsViewModel.swift */,
+				3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */,
 				BC929065CCF7442C450405B3 /* TimerViewModel.swift */,
 			);
 			path = ViewModels;
@@ -195,6 +240,7 @@
 		477BF9AAE0D0976C17354933 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5FA2982F421866F4409537C2 /* AppTheme.swift */,
 				38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */,
 				72EA9A639375CA3DDA78D63E /* BlockedSite.swift */,
 				CCCF53A306D96110BFA5BB8A /* BlockProfile.swift */,
@@ -220,6 +266,14 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		6B4ADC6AD4EF3934765BF86D /* Themes */ = {
+			isa = PBXGroup;
+			children = (
+				3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */,
+			);
+			path = Themes;
+			sourceTree = "<group>";
+		};
 		75E9FC3F0D99B7062021B117 /* FocusYouTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -229,6 +283,7 @@
 				E1253C394407F81E88611851 /* PomodoroEngineTests.swift */,
 				1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */,
 				7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */,
+				D619D1183C7B812AA42A1337 /* ThemeManagerTests.swift */,
 			);
 			path = FocusYouTests;
 			sourceTree = "<group>";
@@ -275,6 +330,7 @@
 			children = (
 				7E4D50889113C0AF74856AAA /* Assets.xcassets */,
 				E94C68FB11AEA6AE35DCBF0C /* Presets */,
+				6B4ADC6AD4EF3934765BF86D /* Themes */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -310,8 +366,11 @@
 			children = (
 				23B2D62913B992AD729D1A1A /* BlockList */,
 				50709C8D4B5D7740AF44C933 /* Components */,
+				0CB948290EF77EE270001C6B /* Main */,
 				FFFBFE34E23E31AC44B49C3E /* MenuBar */,
+				24675D6E3CD18516E4D1067A /* Profile */,
 				4745363672B2DC6EE6BB92D2 /* Settings */,
+				07D6689E59DC621750DB7A1B /* Stats */,
 				AD80F397276516991BCCA9B2 /* Timer */,
 			);
 			path = Views;
@@ -418,6 +477,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				65FBB5EEECD9E840423E5BEF /* Assets.xcassets in Resources */,
+				1BB0F58FE6391E2EBF22F1CD /* ThemeCatalog.json in Resources */,
 				0975E061C0C01A6593ED6A64 /* games.json in Resources */,
 				787CCC5E00EDE1AE5AE0B3A5 /* news.json in Resources */,
 				CEB9C18BF8A1043F1571E64D /* sns.json in Resources */,
@@ -438,6 +498,7 @@
 				DCD9BE315136CCA2B27798D1 /* PomodoroEngineTests.swift in Sources */,
 				1C56B083C74E3A29B471059D /* SettingsViewModelTests.swift in Sources */,
 				75702BCEE3D87EF47532D34D /* StringExtensionsTests.swift in Sources */,
+				408572736EEEA1740E4B2982 /* ThemeManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,6 +509,7 @@
 				73628EED32AED64A1B16570F /* AppBlockView.swift in Sources */,
 				D2C31AB753E47BCF2412F5C9 /* AppBlocker.swift in Sources */,
 				4FB41B1C5FBF2C017A37A7EF /* AppState.swift in Sources */,
+				E80B9AF3714F10EB751A1EAD /* AppTheme.swift in Sources */,
 				EBBE4690B5997DA436CC2E71 /* BlockListView.swift in Sources */,
 				424B452870555D3E845201D5 /* BlockListViewModel.swift in Sources */,
 				E9EA78A518F2D6FCD8E18C25 /* BlockProfile.swift in Sources */,
@@ -465,14 +527,20 @@
 				36EEEC526890D897DBEB37F1 /* FreeTimer.swift in Sources */,
 				40EA309FD3C69A7FB1D0257A /* HostsFileBlocker.swift in Sources */,
 				8ACB0836E7785E748C06AEFD /* HostsFileManager.swift in Sources */,
+				FC55AD7F2656D9A9B4E38265 /* MainDashboardView.swift in Sources */,
 				3EACAD5A918E9DFBC39F4DCA /* MenuBarView.swift in Sources */,
 				53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */,
 				E2E1EFAAE13D7F4FF3403212 /* PieChartTimerView.swift in Sources */,
 				AB6B9AF0E73DBC0D2E9B6477 /* PomodoroConfigView.swift in Sources */,
 				CDF704D151A76F2E52DDCFDD /* PomodoroEngine.swift in Sources */,
 				0FE63215E95C413DF29917E1 /* PrivilegedHelper.swift in Sources */,
+				0F63113E064387FB6FDCAA45 /* ProfileEditorView.swift in Sources */,
+				4BDFD390A0691774D076EFEC /* ProfileListView.swift in Sources */,
+				A4BC30D7217B153B86E21769 /* ProfileViewModel.swift in Sources */,
 				AD673288B15AB358371F2373 /* SettingsView.swift in Sources */,
 				0C931460D19EF4619274025C /* SettingsViewModel.swift in Sources */,
+				A83F49C17A5CD05971DA608B /* StatsView.swift in Sources */,
+				05E19AE2DDA201D8D1619554 /* StatsViewModel.swift in Sources */,
 				00B0CDCEE36C2FBB035A5741 /* String+Extensions.swift in Sources */,
 				0E7735D36356283E151587D9 /* ThemeManager.swift in Sources */,
 				A3E73C30EC933E3803D3588F /* TimePickerView.swift in Sources */,
@@ -562,7 +630,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = FocusYou/FocusYou.entitlements;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -585,7 +653,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -648,7 +716,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = FocusYou/FocusYou.entitlements;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -665,7 +733,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.5.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sungjh.focusyou;

@@ -30,7 +30,7 @@ v0.1~v1.0에서 사용:
 - **SwiftData** — 데이터 영속화 (macOS 14+)
 - **Combine** — 리액티브 데이터 흐름
 - **UserNotifications** — 알림
-- **Charts** — 통계 차트 (v0.5+, Swift Charts)
+- **Charts** — 통계 차트 (v0.5+, Swift Charts, 사용 중)
 
 v1.x 이후 추가:
 - **ServiceManagement** — 로그인 시 자동 시작
@@ -101,11 +101,11 @@ private let logger = Logger(subsystem: "com.yourname.focusyou", category: "Timer
 
 ## 프로젝트 구조
 
-> v1.0 기준. 이후 버전에서 추가되는 파일은 해당 버전 개발 시 생성.
+> v0.5 기준 실제 파일 구조. 이후 버전에서 추가되는 파일은 해당 버전 개발 시 생성.
 
 ```
 FocusYou/
-├── FocusYouApp.swift                    # @main, MenuBarExtra
+├── FocusYouApp.swift                    # @main, MenuBarExtra + AppDelegate
 ├── Info.plist
 │
 ├── Models/                              # SwiftData (iCloud 호환 설계)
@@ -126,6 +126,8 @@ FocusYou/
 ├── Views/
 │   ├── MenuBar/
 │   │   └── MenuBarView.swift            # 메뉴바 팝오버 메인
+│   ├── Main/
+│   │   └── MainDashboardView.swift      # 메인 대시보드 윈도우 (v0.5+)
 │   ├── Timer/
 │   │   ├── TimerView.swift              # 타이머 영역 (모드별 분기)
 │   │   ├── PieChartTimerView.swift      # 파이차트 (v0.3+)
@@ -139,15 +141,14 @@ FocusYou/
 │   │   ├── ProfileListView.swift
 │   │   └── ProfileEditorView.swift
 │   ├── Stats/                           # v0.5+
-│   │   └── StatsView.swift              # 기본 통계
+│   │   └── StatsView.swift              # 기본 통계 (Swift Charts)
 │   ├── Settings/
-│   │   ├── SettingsView.swift
-│   │   └── ThemePickerView.swift        # v0.5+
-│   ├── Onboarding/                      # v1.0
+│   │   └── SettingsView.swift           # 설정 + 테마 선택 통합
+│   ├── Onboarding/                      # v1.0 예정
 │   │   └── OnboardingView.swift
 │   └── Components/
 │       ├── TimePickerView.swift
-│       └── StreakBadgeView.swift         # v1.0
+│       └── StreakBadgeView.swift         # v1.0 예정
 │
 ├── Services/
 │   ├── Blocking/
@@ -156,15 +157,15 @@ FocusYou/
 │   │   ├── AppBlocker.swift
 │   │   └── BlockingCoordinator.swift    # 차단 통합 (actor)
 │   ├── Timer/
-│   │   ├── FreeTimer.swift              # 자유 타이머
+│   │   ├── FreeTimer.swift              # 자유 타이머 (슬립/웨이크 대응)
 │   │   ├── PomodoroEngine.swift         # v0.3+ (Overflow 포함)
-│   │   └── FlowmodoroEngine.swift       # v1.0
+│   │   └── FlowmodoroEngine.swift       # v1.0 예정
 │   ├── System/
-│   │   ├── HostsFileManager.swift
-│   │   ├── PrivilegedHelper.swift
-│   │   └── DNSManager.swift
+│   │   ├── HostsFileManager.swift       # hosts 파일 마커 관리
+│   │   ├── PrivilegedHelper.swift       # osascript 권한 상승
+│   │   └── DNSManager.swift             # DNS 캐시 플러시
 │   ├── Theme/
-│   │   └── ThemeManager.swift           # v0.5+
+│   │   └── ThemeManager.swift           # v0.5+ 테마 단일 진실 원천
 │   └── Notification/
 │       └── NotificationService.swift
 │
@@ -180,7 +181,17 @@ FocusYou/
 │   └── View+Modifiers.swift
 │
 └── Helpers/
-    └── Constants.swift
+    ├── Constants.swift
+    └── FocusYouError.swift              # LocalizedError 열거형
+
+FocusYouTests/
+├── BlockingCoordinatorTests.swift
+├── HostsFileManagerTests.swift
+├── NotificationServiceSettingsTests.swift
+├── PomodoroEngineTests.swift
+├── SettingsViewModelTests.swift
+├── StringExtensionsTests.swift
+└── ThemeManagerTests.swift
 
 # v1.x 이후 추가 예정 (필요 시 생성)
 # Services/Sound/SoundManager.swift        ← 앰비언트 사운드

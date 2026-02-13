@@ -118,7 +118,14 @@ final class BlockListViewModel {
         modelContext: ModelContext
     ) {
         if isBlocked {
-            // 추가
+            // 중복 확인 (applyPreset과 동일 패턴)
+            let bundleId = installedApp.bundleId
+            let predicate = #Predicate<BlockedApp> { $0.bundleId == bundleId }
+            let descriptor = FetchDescriptor<BlockedApp>(predicate: predicate)
+            if let count = try? modelContext.fetchCount(descriptor), count > 0 {
+                return
+            }
+
             let app = BlockedApp(
                 bundleId: installedApp.bundleId,
                 name: installedApp.name

@@ -1,10 +1,11 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - 메뉴바 팝오버 메인 뷰
+// MARK: - 메뉴바 팝오버 메인 뷰 (v0.5 리디자인)
 
 struct MenuBarView: View {
     @Environment(AppState.self) private var appState
+    @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
 
@@ -14,18 +15,21 @@ struct MenuBarView: View {
     @Query(filter: #Predicate<BlockedApp> { $0.isEnabled })
     private var enabledApps: [BlockedApp]
 
+    @State private var blockingPulse = false
+
+    /// 앱 시작 시 대시보드를 1회만 자동 열기 위한 플래그
+    private static var hasAutoOpenedDashboard = false
+
     var body: some View {
-        VStack(spacing: 16) {
-            // 상단 헤더
+        VStack(spacing: Constants.Design.spacingLG) {
             headerView
 
             if appState.showError {
                 inlineErrorPanel
             }
 
-            Divider()
+            Rectangle().fill(.quaternary).frame(height: 0.5)
 
-            // 상태별 메인 콘텐츠
             Group {
                 switch appState.focusState {
                 case .idle:
@@ -39,56 +43,85 @@ struct MenuBarView: View {
                     CompletedContentView()
                 }
             }
-            .animation(.easeInOut(duration: 0.25), value: appState.focusState)
+            .animation(.mediumEase, value: appState.focusState)
 
-            Divider()
+            Rectangle().fill(.quaternary).frame(height: 0.5)
 
-            // 하단 버튼
             footerView
         }
         .padding()
         .frame(width: Constants.UI.popoverWidth)
-        .animation(.easeInOut(duration: 0.2), value: appState.showError)
+        .animation(.quickEase, value: appState.showError)
+        .task {
+            guard !Self.hasAutoOpenedDashboard else { return }
+            Self.hasAutoOpenedDashboard = true
+            try? await Task.sleep(for: .milliseconds(300))
+            openWindow(id: "main-dashboard")
+        }
     }
 
     // MARK: - 헤더
 
     private var headerView: some View {
-        HStack {
+        HStack(spacing: Constants.Design.spacingSM) {
+            // 그라디언트 쉴드 아이콘
             Image(systemName: "shield.fill")
-                .foregroundStyle(ThemeManager.shared.primary)
+                .font(.system(size: 16))
+                .foregroundStyle(themeManager.primary)
+                .frame(width: 28, height: 28)
+                .background(
+                    themeManager.primary.opacity(0.1),
+                    in: RoundedRectangle(cornerRadius: Constants.Design.cornerSM)
+                )
+
             Text("Focus You")
                 .font(.headline)
+
             Spacer()
-            blockingSummary
+
+            if appState.isBlockingActive {
+                blockingBadge
+            }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Focus You\(appState.isBlockingActive ? ", 차단 활성화 상태" : "")")
     }
 
-    @ViewBuilder
-    private var blockingSummary: some View {
-        if appState.isBlockingActive {
+    private var blockingBadge: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(themeManager.primary)
+                .frame(width: 6, height: 6)
+                .opacity(blockingPulse ? 0.4 : 1.0)
+
             Text("차단 중")
-                .font(.caption)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .background(ThemeManager.shared.primary.opacity(0.2))
-                .clipShape(Capsule())
+                .font(.caption2.weight(.semibold))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(themeManager.primary.opacity(0.1))
+        .foregroundStyle(themeManager.primary)
+        .clipShape(Capsule())
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                blockingPulse = true
+            }
         }
     }
 
+    // MARK: - 에러 패널
+
     private var inlineErrorPanel: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
             Label("오류", systemImage: "exclamationmark.triangle.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(ThemeManager.shared.stopButton)
+                .foregroundStyle(themeManager.stopButton)
 
             Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Constants.Design.spacingSM) {
                 if appState.canRetryBlockingDeactivation {
                     Button {
                         Task {
@@ -98,8 +131,7 @@ struct MenuBarView: View {
                         Text("다시 시도")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(ThemeManager.shared.stopButton)
+                    .primaryActionStyle(color: themeManager.stopButton)
                 }
 
                 Button {
@@ -108,39 +140,58 @@ struct MenuBarView: View {
                     Text("닫기")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
+                .secondaryActionStyle(color: .secondary)
             }
         }
-        .padding(12)
-        .background(ThemeManager.shared.stopButton.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .frostedCard()
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
+                .stroke(themeManager.stopButton.opacity(0.15), lineWidth: 0.5)
+        )
     }
 
     // MARK: - 푸터
 
     private var footerView: some View {
-        HStack {
-            Button {
+        HStack(spacing: 0) {
+            footerButton(title: "차단 목록", symbol: "list.bullet.rectangle") {
                 openWindow(id: "block-list")
                 NSApp.activate(ignoringOtherApps: true)
-            } label: {
-                Label("차단 목록", systemImage: "list.bullet.rectangle")
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
 
             Spacer()
 
-            Button {
+            footerButton(title: "대시보드", symbol: "square.grid.2x2") {
+                openWindow(id: "main-dashboard")
+                NSApp.activate(ignoringOtherApps: true)
+            }
+
+            Spacer()
+
+            footerButton(title: "설정", symbol: "gearshape") {
                 openWindow(id: "settings")
                 NSApp.activate(ignoringOtherApps: true)
-            } label: {
-                Label("설정", systemImage: "gearshape")
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
         }
-        .font(.caption)
+    }
+
+    private func footerButton(
+        title: String,
+        symbol: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: symbol)
+                    .font(.system(size: 15))
+                    .frame(width: 36, height: 28)
+                Text(title)
+                    .font(.caption2)
+            }
+            .foregroundStyle(.secondary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -148,6 +199,7 @@ struct MenuBarView: View {
     MenuBarView()
         .environment(AppState())
         .environment(SettingsViewModel())
+        .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,
             BlockProfile.self, FocusSession.self,

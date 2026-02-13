@@ -101,15 +101,57 @@ enum Constants {
         static let showMenuBarTimeKey = "showMenuBarTime"
         static let playCompletionSoundKey = "playCompletionSound"
         static let showBlockedAppNotificationKey = "showBlockedAppNotification"
+        static let selectedThemeIDKey = "selectedThemeID"
         static let debugFastTimerEnabledKey = "debugFastTimerEnabled"
         static let debugSecondsPerMinuteKey = "debugSecondsPerMinute"
 
         static let showMenuBarTimeDefault = true
         static let playCompletionSoundDefault = true
         static let showBlockedAppNotificationDefault = true
+        static let selectedThemeIDDefault = "crimson-focus"
         static let debugFastTimerEnabledDefault = false
         static let debugSecondsPerMinuteDefault = 5.0
         static let debugSecondsPerMinuteRange: ClosedRange<Double> = 1...30
+    }
+
+    // MARK: - 디자인 토큰
+
+    enum Design {
+        // 간격 (4의 배수)
+        static let spacingXS: CGFloat = 4
+        static let spacingSM: CGFloat = 8
+        static let spacingMD: CGFloat = 12
+        static let spacingLG: CGFloat = 16
+        static let spacingXL: CGFloat = 20
+        static let spacingXXL: CGFloat = 24
+
+        // 모서리
+        static let cornerSM: CGFloat = 6
+        static let cornerMD: CGFloat = 10
+        static let cornerLG: CGFloat = 14
+        static let cornerXL: CGFloat = 18
+
+        // 카드
+        static let cardPadding: CGFloat = 14
+
+        // 아이콘
+        static let iconSM: CGFloat = 14
+        static let iconMD: CGFloat = 18
+        static let iconLG: CGFloat = 24
+
+        // 프로필 에디터
+        static let profileIcons = [
+            "shield.fill", "book.fill", "brain.head.profile", "laptopcomputer",
+            "desktopcomputer", "pencil.and.outline", "lightbulb.fill", "target",
+            "flame.fill", "leaf.fill", "moon.fill", "sun.max.fill",
+            "graduationcap.fill", "music.note", "paintbrush.fill", "wrench.fill",
+            "cup.and.saucer.fill", "figure.walk", "heart.fill", "star.fill",
+        ]
+
+        static let profileColors = [
+            "#E63946", "#0077B6", "#2A9D8F", "#EF476F", "#FF9F1C", "#4361EE",
+            "#8338EC", "#D81159", "#06D6A0", "#F4A261", "#6D597A", "#264653",
+        ]
     }
 
     // MARK: - 카테고리
