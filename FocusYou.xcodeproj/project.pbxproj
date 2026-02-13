@@ -57,6 +57,7 @@
 		EBBE4690B5997DA436CC2E71 /* BlockListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F591BC59259AC45E8F15287 /* BlockListView.swift */; };
 		F2FD603D4559E67260548B5F /* FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E26060BA507E42D48663C /* FocusSession.swift */; };
 		F50384EFF52B64498DA2426D /* HostsFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */; };
+		FC55AD7F2656D9A9B4E38265 /* MainDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +113,7 @@
 		B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileBlocker.swift; sourceTree = "<group>"; };
 		B87999382957A62F387E43D2 /* FocusYou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusYou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8F146962AE1C48075E7184D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDashboardView.swift; sourceTree = "<group>"; };
 		BC929065CCF7442C450405B3 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
 		C630404612B8E32C1F00AE40 /* WebsiteBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlockView.swift; sourceTree = "<group>"; };
 		CCCF53A306D96110BFA5BB8A /* BlockProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockProfile.swift; sourceTree = "<group>"; };
@@ -136,6 +138,14 @@
 				8F678FD857532A0A03FB7E56 /* Timer */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		0CB948290EF77EE270001C6B /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */,
+			);
+			path = Main;
 			sourceTree = "<group>";
 		};
 		19BC4BEF7BBF485D486F3AB9 /* Blocking */ = {
@@ -327,6 +337,7 @@
 			children = (
 				23B2D62913B992AD729D1A1A /* BlockList */,
 				50709C8D4B5D7740AF44C933 /* Components */,
+				0CB948290EF77EE270001C6B /* Main */,
 				FFFBFE34E23E31AC44B49C3E /* MenuBar */,
 				4745363672B2DC6EE6BB92D2 /* Settings */,
 				AD80F397276516991BCCA9B2 /* Timer */,
@@ -485,6 +496,7 @@
 				36EEEC526890D897DBEB37F1 /* FreeTimer.swift in Sources */,
 				40EA309FD3C69A7FB1D0257A /* HostsFileBlocker.swift in Sources */,
 				8ACB0836E7785E748C06AEFD /* HostsFileManager.swift in Sources */,
+				FC55AD7F2656D9A9B4E38265 /* MainDashboardView.swift in Sources */,
 				3EACAD5A918E9DFBC39F4DCA /* MenuBarView.swift in Sources */,
 				53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */,
 				E2E1EFAAE13D7F4FF3403212 /* PieChartTimerView.swift in Sources */,

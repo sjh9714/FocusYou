@@ -133,6 +133,17 @@ struct MenuBarView: View {
             Spacer()
 
             Button {
+                openWindow(id: "main-dashboard")
+                NSApp.activate(ignoringOtherApps: true)
+            } label: {
+                Label("대시보드", systemImage: "square.grid.2x2")
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button {
                 openWindow(id: "settings")
                 NSApp.activate(ignoringOtherApps: true)
             } label: {

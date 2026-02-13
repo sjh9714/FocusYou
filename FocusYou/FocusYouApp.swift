@@ -49,6 +49,16 @@ struct FocusYouApp: App {
         }
         .menuBarExtraStyle(.window)
 
+        // MARK: - 메인 대시보드 윈도우
+        Window("Focus You 대시보드", id: "main-dashboard") {
+            MainDashboardView()
+                .modelContainer(modelContainer)
+                .environment(appState)
+                .environment(settingsViewModel)
+                .environment(themeManager)
+        }
+        .defaultSize(width: 840, height: 620)
+
         // MARK: - 차단 목록 관리 윈도우
         Window("차단 목록 관리", id: "block-list") {
             BlockListView()

@@ -5,6 +5,7 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(SettingsViewModel.self) private var viewModel
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Form {
@@ -73,6 +74,12 @@ struct SettingsView: View {
             Text("선택한 테마는 메뉴바/타이머/버튼에 즉시 반영됩니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            Button {
+                openWindow(id: "main-dashboard")
+            } label: {
+                Label("대시보드에서 미리보기", systemImage: "rectangle.on.rectangle")
+            }
         }
     }
 
