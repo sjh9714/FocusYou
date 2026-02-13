@@ -93,6 +93,16 @@ enum Constants {
         static let menuBarIconIdle = "shield.fill"
         /// 메뉴바 아이콘 (활성)
         static let menuBarIconActive = "shield.checkered"
+        /// 윈도우 ID: 메인 대시보드
+        static let mainDashboardWindowID = "main-dashboard"
+        /// 윈도우 타이틀: 메인 대시보드
+        static let mainDashboardWindowTitle = "Focus You 대시보드"
+        /// 윈도우 타이틀: 설정
+        static let settingsWindowTitle = "설정"
+        /// 라이브 프리뷰 시 설정/대시보드 윈도우 간 간격
+        static let livePreviewWindowGap: CGFloat = 16
+        /// 대시보드 윈도우를 연 직후 배치 대기 시간
+        static let livePreviewArrangeDelay: TimeInterval = 0.12
     }
 
     // MARK: - 설정

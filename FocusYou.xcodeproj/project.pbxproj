@@ -30,6 +30,7 @@
 		4BDFD390A0691774D076EFEC /* ProfileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF71C7E4163B1A0467DA61CF /* ProfileListView.swift */; };
 		4FB41B1C5FBF2C017A37A7EF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6815114D2A30CB27EED1B552 /* AppState.swift */; };
 		53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4BC8344A9F092E59A1ADDE6 /* NotificationService.swift */; };
+		5DFBCD7D9EA63D81DD5632B1 /* ThemeLivePreviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAD2FEEFD93DF6F2BA42339 /* ThemeLivePreviewPanel.swift */; };
 		65FBB5EEECD9E840423E5BEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7E4D50889113C0AF74856AAA /* Assets.xcassets */; };
 		6A48F1066BB7DE23C8AE1CA6 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EE6B94F7670ED50E3DC9810 /* Date+Extensions.swift */; };
 		6B1FC13D5AB53344E630A40D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */; };
@@ -88,6 +89,7 @@
 		16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePickerView.swift; sourceTree = "<group>"; };
 		180C8A945AD4A277828C840E /* PomodoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngine.swift; sourceTree = "<group>"; };
 		1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		1BAD2FEEFD93DF6F2BA42339 /* ThemeLivePreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeLivePreviewPanel.swift; sourceTree = "<group>"; };
 		1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		2B3E26060BA507E42D48663C /* FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSession.swift; sourceTree = "<group>"; };
 		2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceSettingsTests.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 			isa = PBXGroup;
 			children = (
 				B8F146962AE1C48075E7184D /* SettingsView.swift */,
+				1BAD2FEEFD93DF6F2BA42339 /* ThemeLivePreviewPanel.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -558,6 +561,7 @@
 				A83F49C17A5CD05971DA608B /* StatsView.swift in Sources */,
 				05E19AE2DDA201D8D1619554 /* StatsViewModel.swift in Sources */,
 				00B0CDCEE36C2FBB035A5741 /* String+Extensions.swift in Sources */,
+				5DFBCD7D9EA63D81DD5632B1 /* ThemeLivePreviewPanel.swift in Sources */,
 				0E7735D36356283E151587D9 /* ThemeManager.swift in Sources */,
 				A3E73C30EC933E3803D3588F /* TimePickerView.swift in Sources */,
 				E200EB2AAD3DEC0F0A17A392 /* TimerView.swift in Sources */,
