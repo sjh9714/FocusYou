@@ -7,16 +7,25 @@ import SwiftData
 struct MainDashboardView: View {
     @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
 
+    @Query(sort: \BlockedSite.createdAt, order: .reverse)
+    private var blockedSites: [BlockedSite]
+    @Query(sort: \BlockedApp.createdAt, order: .reverse)
+    private var blockedApps: [BlockedApp]
     @Query(sort: \FocusSession.startedAt, order: .reverse)
     private var sessions: [FocusSession]
+    @State private var quickStartMode: AppState.TimerMode = .free
+    @State private var selectedFreeMinutes: Int = Constants.Timer.presets.first ?? 25
+    @State private var isSessionActionInFlight = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header
                 sessionStatusCard
+                sessionControlCard
                 todayStatsRow
                 themePreviewCard
                 quickActionsCard
@@ -70,6 +79,208 @@ struct MainDashboardView: View {
             }
         }
         .groupBoxStyle(.automatic)
+    }
+
+    private var sessionControlCard: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("빠른 세션 제어")
+                    .font(.headline)
+
+                switch appState.focusState {
+                case .idle:
+                    idleSessionControls
+                case .focusing, .paused:
+                    activeSessionControls
+                case .completed:
+                    completedSessionControls
+                }
+            }
+        }
+    }
+
+    private var idleSessionControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                quickModeButton(.free, title: "자유")
+                quickModeButton(.pomodoro, title: "뽀모도로")
+            }
+
+            if quickStartMode == .free {
+                HStack(spacing: 8) {
+                    ForEach(Constants.Timer.presets, id: \.self) { minutes in
+                        Button {
+                            selectedFreeMinutes = minutes
+                        } label: {
+                            Text("\(minutes)분")
+                                .font(.caption.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 6)
+                                .background(
+                                    selectedFreeMinutes == minutes
+                                        ? themeManager.primary.opacity(0.2)
+                                        : Color.secondary.opacity(0.1)
+                                )
+                                .foregroundStyle(
+                                    selectedFreeMinutes == minutes
+                                        ? themeManager.primary
+                                        : themeManager.textPrimary
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            } else {
+                Text("기본 설정으로 시작: 집중 \(Constants.Timer.pomodoroFocusDefaultMinutes)분 · \(Constants.Timer.pomodoroCyclesDefault)사이클")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 8) {
+                Label("\(enabledSiteCount)개 사이트", systemImage: "globe")
+                Label("\(enabledAppCount)개 앱", systemImage: "app.fill")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            Button {
+                startSessionFromDashboard()
+            } label: {
+                Label(
+                    quickStartMode == .pomodoro
+                        ? "뽀모도로 시작"
+                        : "\(selectedFreeMinutes)분 집중 시작",
+                    systemImage: "play.fill"
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(themeManager.startButton)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
+            .disabled(isSessionActionInFlight)
+        }
+    }
+
+    private var activeSessionControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(
+                appState.timerMode == .pomodoro
+                    ? "\(appState.pomodoroPhaseTitle) · \(appState.pomodoroCycleProgressText)"
+                    : "자유 타이머 진행 중"
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            HStack(spacing: 10) {
+                Button {
+                    if appState.focusState == .paused {
+                        appState.resumeSession()
+                    } else {
+                        appState.pauseSession()
+                    }
+                } label: {
+                    Label(
+                        appState.focusState == .paused ? "재개" : "일시정지",
+                        systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(themeManager.pauseButton.opacity(0.15))
+                    .foregroundStyle(themeManager.pauseButton)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+                .disabled(isSessionActionInFlight)
+
+                Button {
+                    stopSessionFromDashboard()
+                } label: {
+                    Label("중지", systemImage: "stop.fill")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(themeManager.stopButton.opacity(0.15))
+                        .foregroundStyle(themeManager.stopButton)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+                .disabled(isSessionActionInFlight)
+            }
+        }
+    }
+
+    private var completedSessionControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(appState.completedSummaryText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Button {
+                appState.resetToIdle()
+            } label: {
+                Label("완료 확인", systemImage: "checkmark")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(themeManager.primary.opacity(0.16))
+                    .foregroundStyle(themeManager.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func quickModeButton(_ mode: AppState.TimerMode, title: String) -> some View {
+        Button {
+            quickStartMode = mode
+        } label: {
+            Text(title)
+                .font(.callout.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+                .background(
+                    quickStartMode == mode
+                        ? themeManager.primary.opacity(0.2)
+                        : Color.secondary.opacity(0.12)
+                )
+                .foregroundStyle(
+                    quickStartMode == mode ? themeManager.primary : themeManager.textPrimary
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func startSessionFromDashboard() {
+        guard !isSessionActionInFlight else { return }
+        isSessionActionInFlight = true
+
+        let selectedDuration = quickStartMode == .free
+            ? TimeInterval(selectedFreeMinutes * 60)
+            : TimeInterval(Constants.Timer.pomodoroFocusDefaultMinutes * 60)
+
+        Task { @MainActor in
+            await appState.startFocusSession(
+                duration: selectedDuration,
+                sites: blockedSites,
+                apps: blockedApps,
+                modelContext: modelContext,
+                mode: quickStartMode,
+                pomodoroConfiguration: .default
+            )
+            isSessionActionInFlight = false
+        }
+    }
+
+    private func stopSessionFromDashboard() {
+        guard !isSessionActionInFlight else { return }
+        isSessionActionInFlight = true
+
+        Task { @MainActor in
+            await appState.stopSession(modelContext: modelContext)
+            isSessionActionInFlight = false
+        }
     }
 
     private var todayStatsRow: some View {
@@ -246,6 +457,14 @@ struct MainDashboardView: View {
         guard !todaySessions.isEmpty else { return 0 }
         let completed = todaySessions.filter(\.wasCompleted).count
         return Int((Double(completed) / Double(todaySessions.count)) * 100)
+    }
+
+    private var enabledSiteCount: Int {
+        blockedSites.filter(\.isEnabled).count
+    }
+
+    private var enabledAppCount: Int {
+        blockedApps.filter(\.isEnabled).count
     }
 
     private var statusTitle: String {

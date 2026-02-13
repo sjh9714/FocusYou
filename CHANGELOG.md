@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- Added a main dashboard quick-control card to start, pause/resume, stop, and acknowledge sessions without reopening the popover.
+- Added dashboard quick-start options for free mode presets and default Pomodoro launch.
+
+### Fixed
+- Fixed dashboard readability by removing translucent background blur layering.
+- Forced light appearance for the dashboard window to keep text/background contrast stable.
+
 ## [0.3.2] - 2026-02-13
 
 ### Fixed
