@@ -150,21 +150,25 @@ final class AppState {
         do {
             // 1. 차단 활성화
             let enabledDomains = sites.filter(\.isEnabled).map(\.domain)
-            let enabledBundleIds = apps.filter(\.isEnabled).map(\.bundleId)
+            let selectedBundleIds = apps.filter(\.isEnabled).map(\.bundleId)
+            let effectiveBundleIds = resolvedBlockedAppBundleIDs(
+                domains: enabledDomains,
+                selectedBundleIds: selectedBundleIds
+            )
 
-            logger.info("차단 대상: 사이트 \(enabledDomains.count)개, 앱 \(enabledBundleIds.count)개")
+            logger.info("차단 대상: 사이트 \(enabledDomains.count)개, 앱 \(effectiveBundleIds.count)개")
 
-            if enabledDomains.isEmpty && enabledBundleIds.isEmpty {
+            if enabledDomains.isEmpty && effectiveBundleIds.isEmpty {
                 logger.warning("차단 목록이 비어있음 — 차단 없이 타이머만 시작")
             }
 
             try await blockingCoordinator.activateBlocking(
                 domains: enabledDomains,
-                appBundleIds: enabledBundleIds
+                appBundleIds: effectiveBundleIds
             )
-            isBlockingActive = !enabledDomains.isEmpty || !enabledBundleIds.isEmpty
+            isBlockingActive = !enabledDomains.isEmpty || !effectiveBundleIds.isEmpty
             sessionBlockedDomains = enabledDomains
-            sessionBlockedAppBundleIds = enabledBundleIds
+            sessionBlockedAppBundleIds = effectiveBundleIds
 
             // 2. 타이머 시작
             timerMode = mode
@@ -487,6 +491,27 @@ final class AppState {
         let shortBreakCount = max(configuration.cycles - 1, 0)
         let totalBreakMinutes = (shortBreakCount * configuration.shortBreakMinutes) + configuration.longBreakMinutes
         return TimeInterval(totalBreakMinutes * 60)
+    }
+
+    private func resolvedBlockedAppBundleIDs(
+        domains: [String],
+        selectedBundleIds: [String]
+    ) -> [String] {
+        guard !domains.isEmpty, isStrictBrowserBlockingEnabled else {
+            return selectedBundleIds
+        }
+
+        let merged = Set(selectedBundleIds).union(Constants.Blocking.strictBrowserBundleIDs)
+        logger.info("강력 웹 차단 적용: 브라우저 \(Constants.Blocking.strictBrowserBundleIDs.count)개 자동 포함")
+        return merged.sorted()
+    }
+
+    private var isStrictBrowserBlockingEnabled: Bool {
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: Constants.Settings.strictBrowserBlockingKey) != nil else {
+            return Constants.Settings.strictBrowserBlockingDefault
+        }
+        return defaults.bool(forKey: Constants.Settings.strictBrowserBlockingKey)
     }
 
     #if DEBUG

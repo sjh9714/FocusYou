@@ -4,6 +4,11 @@ import XCTest
 
 @MainActor
 final class AppStateLifecycleTests: XCTestCase {
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.strictBrowserBlockingKey)
+        super.tearDown()
+    }
+
     func testStartAndStopSessionTransitionsToIdleAndCancelsSession() async throws {
         let blockingCoordinator = MockBlockingCoordinator()
         let notificationService = MockNotificationService()
@@ -153,6 +158,56 @@ final class AppStateLifecycleTests: XCTestCase {
         XCTAssertEqual(counts.deactivate, 2)
     }
 
+    func testStartFocusSessionAddsStrictBrowserBundleIDsWhenEnabled() async throws {
+        UserDefaults.standard.set(true, forKey: Constants.Settings.strictBrowserBlockingKey)
+
+        let blockingCoordinator = MockBlockingCoordinator()
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+        let site = BlockedSite(domain: "fmkorea.com")
+
+        await appState.startFocusSession(
+            duration: 120,
+            sites: [site],
+            apps: [],
+            modelContext: modelContext
+        )
+
+        let args = await blockingCoordinator.latestActivateArguments()
+        XCTAssertEqual(args?.domains, ["fmkorea.com"])
+        XCTAssertEqual(args?.appBundleIds ?? [], Constants.Blocking.strictBrowserBundleIDs.sorted())
+    }
+
+    func testStartFocusSessionDoesNotAddStrictBrowserBundleIDsWhenDisabled() async throws {
+        UserDefaults.standard.set(false, forKey: Constants.Settings.strictBrowserBlockingKey)
+
+        let blockingCoordinator = MockBlockingCoordinator()
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+        let site = BlockedSite(domain: "fmkorea.com")
+
+        await appState.startFocusSession(
+            duration: 120,
+            sites: [site],
+            apps: [],
+            modelContext: modelContext
+        )
+
+        let args = await blockingCoordinator.latestActivateArguments()
+        XCTAssertEqual(args?.domains, ["fmkorea.com"])
+        XCTAssertEqual(args?.appBundleIds ?? [], [])
+    }
+
     func testStartupCleanupErrorPresentsRetryableError() async {
         let blockingCoordinator = MockBlockingCoordinator()
         await blockingCoordinator.setEmergencyCleanupResult(.error(.hostsFileWriteFailed))
@@ -253,9 +308,13 @@ actor MockBlockingCoordinator: BlockingCoordinating {
     private var activateError: Error?
     private var deactivateError: Error?
     private var emergencyCleanupResult: BlockingCoordinator.State = .idle
+    private var lastActivateDomains: [String] = []
+    private var lastActivateAppBundleIDs: [String] = []
 
     func activateBlocking(domains: [String], appBundleIds: [String]) async throws {
         activateCallCount += 1
+        lastActivateDomains = domains
+        lastActivateAppBundleIDs = appBundleIds.sorted()
         if let activateError {
             state = .error((activateError as? FocusYouError) ?? .hostsFileWriteFailed)
             throw activateError
@@ -293,6 +352,11 @@ actor MockBlockingCoordinator: BlockingCoordinating {
             deactivate: deactivateCallCount,
             cleanup: emergencyCleanupCallCount
         )
+    }
+
+    func latestActivateArguments() -> (domains: [String], appBundleIds: [String])? {
+        guard activateCallCount > 0 else { return nil }
+        return (domains: lastActivateDomains, appBundleIds: lastActivateAppBundleIDs)
     }
 }
 

@@ -23,6 +23,11 @@ struct SettingsView: View {
                     "차단된 앱 알림",
                     isOn: Bindable(viewModel).showBlockedAppNotification
                 )
+
+                Toggle(
+                    "강력 웹 차단 (브라우저도 차단)",
+                    isOn: Bindable(viewModel).strictBrowserBlocking
+                )
             }
 
             themeSection

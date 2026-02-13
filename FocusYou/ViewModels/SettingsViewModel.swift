@@ -32,6 +32,16 @@ final class SettingsViewModel {
         }
     }
 
+    /// 강력 웹 차단 (웹 차단 시 브라우저 앱도 함께 차단)
+    var strictBrowserBlocking: Bool {
+        didSet {
+            defaults.set(
+                strictBrowserBlocking,
+                forKey: Constants.Settings.strictBrowserBlockingKey
+            )
+        }
+    }
+
     #if DEBUG
     /// 디버그: Fast Timer 토글
     var debugFastTimerEnabled: Bool {
@@ -82,6 +92,11 @@ final class SettingsViewModel {
             forKey: Constants.Settings.showBlockedAppNotificationKey,
             defaults: defaults,
             defaultValue: Constants.Settings.showBlockedAppNotificationDefault
+        )
+        strictBrowserBlocking = Self.boolValue(
+            forKey: Constants.Settings.strictBrowserBlockingKey,
+            defaults: defaults,
+            defaultValue: Constants.Settings.strictBrowserBlockingDefault
         )
 
         #if DEBUG
