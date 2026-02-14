@@ -64,25 +64,36 @@ struct StatsView: View {
     // MARK: - 요약 카드
 
     private var summaryCards: some View {
-        HStack(spacing: Constants.Design.spacingMD) {
-            summaryItem(
-                icon: "timer",
-                color: themeManager.primary,
-                value: TimeInterval(viewModel.totalFocusSeconds(from: sessions)).formattedAsReadable,
-                label: "총 집중"
-            )
-            summaryItem(
-                icon: "number",
-                color: themeManager.secondary,
-                value: "\(viewModel.sessionCount(from: sessions))회",
-                label: "총 세션"
-            )
-            summaryItem(
-                icon: "checkmark.seal.fill",
-                color: themeManager.accent,
-                value: "\(viewModel.completionRate(from: sessions))%",
-                label: "완료율"
-            )
+        let streak = viewModel.streakInfo(from: sessions)
+        return VStack(spacing: Constants.Design.spacingMD) {
+            HStack(spacing: Constants.Design.spacingMD) {
+                summaryItem(
+                    icon: "timer",
+                    color: themeManager.primary,
+                    value: TimeInterval(viewModel.totalFocusSeconds(from: sessions)).formattedAsReadable,
+                    label: "총 집중"
+                )
+                summaryItem(
+                    icon: "number",
+                    color: themeManager.secondary,
+                    value: "\(viewModel.sessionCount(from: sessions))회",
+                    label: "총 세션"
+                )
+            }
+            HStack(spacing: Constants.Design.spacingMD) {
+                summaryItem(
+                    icon: "checkmark.seal.fill",
+                    color: themeManager.accent,
+                    value: "\(viewModel.completionRate(from: sessions))%",
+                    label: "완료율"
+                )
+                summaryItem(
+                    icon: "flame.fill",
+                    color: .orange,
+                    value: "\(streak.current)일",
+                    label: "현재 스트릭"
+                )
+            }
         }
     }
 
@@ -232,7 +243,7 @@ struct StatsView: View {
 
     private func historyRow(_ session: FocusSession, isEven: Bool) -> some View {
         HStack(spacing: Constants.Design.spacingMD) {
-            Text(session.timerMode == "pomodoro" ? "뽀모도로" : "자유")
+            Text(session.timerMode == "pomodoro" ? "뽀모도로" : session.timerMode == "flowmodoro" ? "플로우" : "자유")
                 .font(.callout.weight(.medium))
 
             Spacer()

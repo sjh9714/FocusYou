@@ -29,6 +29,20 @@ enum Constants {
         static let pomodoroShortBreakRange = 3...30
         static let pomodoroLongBreakRange = 10...45
         static let pomodoroCyclesRange = 2...8
+
+        // MARK: - 플로우모도로 (v1.0)
+
+        /// 휴식 비율: 집중 시간의 1/5
+        static let flowmodoroBreakRatio: Double = 0.2
+        /// 최대 집중 시간 (초): 4시간
+        static let flowmodoroMaxDuration: TimeInterval = 14400
+    }
+
+    // MARK: - 스트릭 (v1.0)
+
+    enum Streak {
+        /// 하루 최소 완료 세션 수
+        static let minimumSessionsPerDay = 1
     }
 
     // MARK: - 차단
@@ -129,6 +143,10 @@ enum Constants {
         static let debugSecondsPerMinuteDefault = 5.0
         static let qaAutomationEnabledDefault = false
         static let debugSecondsPerMinuteRange: ClosedRange<Double> = 1...30
+
+        // 온보딩 (v1.0)
+        static let hasCompletedOnboardingKey = "hasCompletedOnboarding"
+        static let hasCompletedOnboardingDefault = false
     }
 
     // MARK: - 디자인 토큰

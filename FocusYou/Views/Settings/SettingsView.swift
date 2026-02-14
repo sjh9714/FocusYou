@@ -159,6 +159,10 @@ struct SettingsView: View {
             Text("세션 QA를 빠르게 검증할 때만 사용됩니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            Button("온보딩 재설정") {
+                viewModel.hasCompletedOnboarding = false
+            }
         }
     }
     #endif

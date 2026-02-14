@@ -63,6 +63,11 @@ final class StatsViewModel {
         return Int((Double(pomodoro) / Double(filtered.count)) * 100)
     }
 
+    /// 스트릭 정보
+    func streakInfo(from sessions: [FocusSession]) -> StreakCalculator.StreakInfo {
+        StreakCalculator.calculate(from: sessions)
+    }
+
     /// 일별 차트 데이터
     func dailyData(from sessions: [FocusSession]) -> [DailyFocusEntry] {
         let filtered = filteredSessions(from: sessions)

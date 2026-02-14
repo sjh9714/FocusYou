@@ -10,6 +10,7 @@ final class TimerViewModel {
     enum TimerMode: String, CaseIterable {
         case free
         case pomodoro
+        case flowmodoro
 
         var displayName: String {
             switch self {
@@ -17,6 +18,17 @@ final class TimerViewModel {
                 return "자유"
             case .pomodoro:
                 return "뽀모도로"
+            case .flowmodoro:
+                return "플로우"
+            }
+        }
+
+        /// TimerViewModel.TimerMode → AppState.TimerMode 변환
+        var appStateMode: AppState.TimerMode {
+            switch self {
+            case .free: return .free
+            case .pomodoro: return .pomodoro
+            case .flowmodoro: return .flowmodoro
             }
         }
     }
@@ -60,6 +72,8 @@ final class TimerViewModel {
             return selectedDurationSeconds
         case .pomodoro:
             return TimeInterval(pomodoroConfiguration.focusMinutes * 60)
+        case .flowmodoro:
+            return Constants.Timer.flowmodoroMaxDuration
         }
     }
 

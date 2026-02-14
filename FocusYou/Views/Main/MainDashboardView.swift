@@ -5,6 +5,7 @@ import SwiftData
 
 struct MainDashboardView: View {
     @Environment(AppState.self) private var appState
+    @Environment(SettingsViewModel.self) private var settingsViewModel
     @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
@@ -25,6 +26,18 @@ struct MainDashboardView: View {
     @Namespace private var dashModeNamespace
 
     var body: some View {
+        Group {
+            if settingsViewModel.hasCompletedOnboarding {
+                dashboardContent
+            } else {
+                OnboardingView()
+            }
+        }
+    }
+
+    // MARK: - 대시보드 콘텐츠
+
+    private var dashboardContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Constants.Design.spacingXL) {
                 header
@@ -204,14 +217,24 @@ struct MainDashboardView: View {
                     namespace: dashModeNamespace,
                     activeColor: themeManager.primary
                 )
+                SegmentedPill(
+                    title: "플로우",
+                    tag: AppState.TimerMode.flowmodoro,
+                    selection: $quickStartMode,
+                    namespace: dashModeNamespace,
+                    activeColor: themeManager.primary
+                )
             }
             .padding(3)
             .background(Color.secondary.opacity(0.06), in: Capsule())
 
-            if quickStartMode == .free {
+            switch quickStartMode {
+            case .free:
                 freeTimerConfig
-            } else {
+            case .pomodoro:
                 pomodoroTimerConfig
+            case .flowmodoro:
+                flowmodoroConfig
             }
 
             HStack(spacing: Constants.Design.spacingMD) {
@@ -220,6 +243,7 @@ struct MainDashboardView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity)
 
             Button {
                 startSessionFromDashboard()
@@ -308,10 +332,34 @@ struct MainDashboardView: View {
         .animation(.quickEase, value: pomodoroConfiguration.focusMinutes)
     }
 
+    // MARK: - 플로우모도로 설정
+
+    private var flowmodoroConfig: some View {
+        VStack(spacing: Constants.Design.spacingMD) {
+            Image(systemName: "infinity")
+                .font(.system(size: 36, weight: .ultraLight))
+                .foregroundStyle(themeManager.primary)
+
+            VStack(spacing: Constants.Design.spacingSM) {
+                Text("원하는 만큼 집중하세요")
+                    .font(.callout.weight(.medium))
+                Text("집중 시간의 1/5이 휴식으로 자동 부여됩니다")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private var startButtonTitle: String {
-        quickStartMode == .pomodoro
-            ? "뽀모도로 시작"
-            : "\(selectedDurationMinutes)분 집중 시작"
+        switch quickStartMode {
+        case .free:
+            return "\(selectedDurationMinutes)분 집중 시작"
+        case .pomodoro:
+            return "뽀모도로 시작"
+        case .flowmodoro:
+            return "플로우 시작"
+        }
     }
 
     // 진행 중 → 라이브 타이머
@@ -326,28 +374,46 @@ struct MainDashboardView: View {
                     .foregroundStyle(.secondary)
 
                 HStack(spacing: Constants.Design.spacingSM) {
-                    Button {
-                        if appState.focusState == .paused {
-                            appState.resumeSession()
-                        } else {
-                            appState.pauseSession()
+                    if isDashFlowmodoroFocus {
+                        Button {
+                            finishFlowmodoroFromDashboard()
+                        } label: {
+                            Label("집중 완료", systemImage: "checkmark.circle.fill")
                         }
-                    } label: {
-                        Label(
-                            appState.focusState == .paused ? "재개" : "일시정지",
-                            systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
-                        )
-                    }
-                    .secondaryActionStyle(color: themeManager.pauseButton)
-                    .disabled(isSessionActionInFlight)
+                        .primaryActionStyle(color: themeManager.primary)
+                        .disabled(isSessionActionInFlight)
 
-                    Button {
-                        stopSessionFromDashboard()
-                    } label: {
-                        Label("중지", systemImage: "stop.fill")
+                        Button {
+                            stopSessionFromDashboard()
+                        } label: {
+                            Label("취소", systemImage: "xmark")
+                        }
+                        .secondaryActionStyle(color: themeManager.stopButton)
+                        .disabled(isSessionActionInFlight)
+                    } else {
+                        Button {
+                            if appState.focusState == .paused {
+                                appState.resumeSession()
+                            } else {
+                                appState.pauseSession()
+                            }
+                        } label: {
+                            Label(
+                                appState.focusState == .paused ? "재개" : "일시정지",
+                                systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
+                            )
+                        }
+                        .secondaryActionStyle(color: themeManager.pauseButton)
+                        .disabled(isSessionActionInFlight)
+
+                        Button {
+                            stopSessionFromDashboard()
+                        } label: {
+                            Label("중지", systemImage: "stop.fill")
+                        }
+                        .secondaryActionStyle(color: themeManager.stopButton)
+                        .disabled(isSessionActionInFlight)
                     }
-                    .secondaryActionStyle(color: themeManager.stopButton)
-                    .disabled(isSessionActionInFlight)
                 }
             }
 
@@ -359,7 +425,7 @@ struct MainDashboardView: View {
                     .monospacedDigit()
                     .foregroundStyle(themeManager.primary)
 
-                Text("남은 시간")
+                Text(isDashFlowmodoroFocus ? "경과 시간" : "남은 시간")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -377,8 +443,15 @@ struct MainDashboardView: View {
             IconBadge(systemName: "checkmark.circle.fill", color: themeManager.completed, size: 44)
 
             VStack(alignment: .leading, spacing: Constants.Design.spacingXS) {
-                Text("세션 완료!")
-                    .font(.headline)
+                HStack(spacing: Constants.Design.spacingSM) {
+                    Text("세션 완료!")
+                        .font(.headline)
+                    if currentStreakDays > 0 {
+                        Text("\(currentStreakDays)일 연속")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.orange)
+                    }
+                }
                 Text(appState.completedSummaryText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -418,6 +491,12 @@ struct MainDashboardView: View {
                 color: themeManager.accent,
                 value: "\(todayCompletionRate)%",
                 label: "세션 완료율"
+            )
+            statCard(
+                icon: "flame.fill",
+                color: .orange,
+                value: "\(currentStreakDays)일",
+                label: "연속 집중"
             )
         }
     }
@@ -597,7 +676,7 @@ struct MainDashboardView: View {
 
     private func sessionRow(_ session: FocusSession, isEven: Bool) -> some View {
         HStack(spacing: Constants.Design.spacingMD) {
-            Text(session.timerMode == "pomodoro" ? "뽀모도로" : "자유")
+            Text(session.timerMode == "pomodoro" ? "뽀모도로" : session.timerMode == "flowmodoro" ? "플로우" : "자유")
                 .font(.callout.weight(.medium))
 
             Spacer()
@@ -646,15 +725,25 @@ struct MainDashboardView: View {
         return Int((Double(completed) / Double(todaySessions.count)) * 100)
     }
 
+    private var currentStreakDays: Int {
+        StreakCalculator.calculate(from: sessions).current
+    }
+
     // MARK: - 세션 액션
 
     private func startSessionFromDashboard() {
         guard !isSessionActionInFlight else { return }
         isSessionActionInFlight = true
 
-        let selectedDuration = quickStartMode == .free
-            ? TimeInterval(selectedDurationMinutes * 60)
-            : TimeInterval(pomodoroConfiguration.focusMinutes * 60)
+        let selectedDuration: TimeInterval
+        switch quickStartMode {
+        case .free:
+            selectedDuration = TimeInterval(selectedDurationMinutes * 60)
+        case .pomodoro:
+            selectedDuration = TimeInterval(pomodoroConfiguration.focusMinutes * 60)
+        case .flowmodoro:
+            selectedDuration = Constants.Timer.flowmodoroMaxDuration
+        }
 
         Task { @MainActor in
             await appState.startFocusSession(
@@ -665,6 +754,16 @@ struct MainDashboardView: View {
                 mode: quickStartMode,
                 pomodoroConfiguration: pomodoroConfiguration
             )
+            isSessionActionInFlight = false
+        }
+    }
+
+    private func finishFlowmodoroFromDashboard() {
+        guard !isSessionActionInFlight else { return }
+        isSessionActionInFlight = true
+
+        Task { @MainActor in
+            await appState.finishFlowmodoroFocus(modelContext: modelContext)
             isSessionActionInFlight = false
         }
     }
@@ -684,7 +783,12 @@ struct MainDashboardView: View {
     private var statusTitle: String {
         switch appState.focusState {
         case .idle: return "대기 중"
-        case .focusing: return appState.timerMode == .pomodoro ? "뽀모도로 진행 중" : "집중 진행 중"
+        case .focusing:
+            if appState.timerMode == .flowmodoro {
+                let isBreak = appState.currentFlowmodoroPhase == .rest
+                return isBreak ? "플로우 휴식 중" : "플로우 진행 중"
+            }
+            return appState.timerMode == .pomodoro ? "뽀모도로 진행 중" : "집중 진행 중"
         case .paused: return "일시정지"
         case .completed: return "세션 완료"
         }
@@ -697,6 +801,10 @@ struct MainDashboardView: View {
             if appState.timerMode == .pomodoro {
                 return "\(appState.pomodoroPhaseTitle) · \(appState.pomodoroCycleProgressText)"
             }
+            if appState.timerMode == .flowmodoro {
+                let isBreak = appState.currentFlowmodoroPhase == .rest
+                return isBreak ? "휴식 카운트다운" : "플로우모도로"
+            }
             return "자유 타이머"
         case .completed: return appState.completedSummaryText
         }
@@ -705,10 +813,17 @@ struct MainDashboardView: View {
     private var remainingTimerText: String {
         switch appState.focusState {
         case .focusing, .paused:
+            if isDashFlowmodoroFocus {
+                return "▲ \(appState.timer.elapsedTime.formattedAsTimer)"
+            }
             return appState.timer.remainingTime.formattedAsTimer
         case .idle: return "00:00"
         case .completed: return "DONE"
         }
+    }
+
+    private var isDashFlowmodoroFocus: Bool {
+        appState.timerMode == .flowmodoro && appState.currentFlowmodoroPhase == .focus
     }
 
     private var statusColor: Color {

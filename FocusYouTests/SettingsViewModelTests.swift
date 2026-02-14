@@ -61,4 +61,21 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertEqual(secondViewModel.debugSecondsPerMinute, 7)
         #endif
     }
+
+    // MARK: - 온보딩
+
+    @MainActor
+    func testOnboardingDefaultIsFalse() {
+        let viewModel = SettingsViewModel(defaults: defaults)
+        XCTAssertFalse(viewModel.hasCompletedOnboarding)
+    }
+
+    @MainActor
+    func testOnboardingPersistsAcrossInstances() {
+        let first = SettingsViewModel(defaults: defaults)
+        first.hasCompletedOnboarding = true
+
+        let second = SettingsViewModel(defaults: defaults)
+        XCTAssertTrue(second.hasCompletedOnboarding)
+    }
 }

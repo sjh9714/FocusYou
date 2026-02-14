@@ -55,8 +55,14 @@ struct FocusYouApp: App {
 
                 if appState.focusState == .focusing,
                    settingsViewModel.showMenuBarTime {
-                    Text(appState.timer.remainingTime.formattedAsTimer)
-                        .monospacedDigit()
+                    if appState.timerMode == .flowmodoro,
+                       appState.currentFlowmodoroPhase == .focus {
+                        Text(appState.timer.elapsedTime.formattedAsTimer)
+                            .monospacedDigit()
+                    } else {
+                        Text(appState.timer.remainingTime.formattedAsTimer)
+                            .monospacedDigit()
+                    }
                 }
             }
         }

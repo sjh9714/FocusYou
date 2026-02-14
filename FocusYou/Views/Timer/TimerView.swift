@@ -10,6 +10,9 @@ struct IdleContentView: View {
     @State private var viewModel = TimerViewModel()
     @Namespace private var modeNamespace
 
+    @Query(sort: \BlockProfile.createdAt)
+    private var profiles: [BlockProfile]
+
     let sites: [BlockedSite]
     let apps: [BlockedApp]
 
@@ -20,6 +23,7 @@ struct IdleContentView: View {
             timerOptions
             blockSummary
             startButton
+            profileQuickStart
         }
     }
 
@@ -46,18 +50,26 @@ struct IdleContentView: View {
 
     // MARK: - 시간 표시
 
+    @ViewBuilder
     private var timerDisplay: some View {
-        Text(viewModel.initialDurationSeconds.formattedAsTimer)
-            .font(.system(size: 42, weight: .ultraLight, design: .rounded))
-            .monospacedDigit()
-            .foregroundStyle(themeManager.textPrimary)
-            .contentTransition(.numericText())
-            .animation(.mediumEase, value: viewModel.initialDurationSeconds)
-            .accessibilityLabel(
-                viewModel.selectedMode == .free
-                    ? "\(viewModel.selectedDurationMinutes)분 타이머"
-                    : "뽀모도로 집중 \(viewModel.pomodoroConfiguration.focusMinutes)분"
-            )
+        if viewModel.selectedMode == .flowmodoro {
+            Image(systemName: "infinity")
+                .font(.system(size: 42, weight: .ultraLight))
+                .foregroundStyle(themeManager.textPrimary)
+                .accessibilityLabel("플로우모도로 — 시간 제한 없음")
+        } else {
+            Text(viewModel.initialDurationSeconds.formattedAsTimer)
+                .font(.system(size: 42, weight: .ultraLight, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(themeManager.textPrimary)
+                .contentTransition(.numericText())
+                .animation(.mediumEase, value: viewModel.initialDurationSeconds)
+                .accessibilityLabel(
+                    viewModel.selectedMode == .free
+                        ? "\(viewModel.selectedDurationMinutes)분 타이머"
+                        : "뽀모도로 집중 \(viewModel.pomodoroConfiguration.focusMinutes)분"
+                )
+        }
     }
 
     @ViewBuilder
@@ -80,6 +92,15 @@ struct IdleContentView: View {
                     )
                 )
             }
+        case .flowmodoro:
+            VStack(spacing: Constants.Design.spacingSM) {
+                Text("원하는 만큼 집중하세요")
+                    .font(.callout.weight(.medium))
+                Text("집중 시간의 1/5이 휴식으로 자동 부여됩니다")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
         }
     }
 
@@ -155,16 +176,69 @@ struct IdleContentView: View {
                     sites: sites,
                     apps: apps,
                     modelContext: modelContext,
-                    mode: viewModel.selectedMode == .pomodoro ? .pomodoro : .free,
+                    mode: viewModel.selectedMode.appStateMode,
                     pomodoroConfiguration: viewModel.pomodoroConfiguration
                 )
             }
         } label: {
-            Label("집중 시작", systemImage: "bolt.fill")
+            Label(
+                viewModel.selectedMode == .flowmodoro ? "플로우 시작" : "집중 시작",
+                systemImage: "bolt.fill"
+            )
         }
         .primaryActionStyle(color: themeManager.startButton)
         .accessibilityLabel("집중 시작")
         .accessibilityHint("타이머를 시작하고 사이트와 앱 차단을 활성화합니다")
+    }
+
+    // MARK: - 프로필 빠른 시작
+
+    @ViewBuilder
+    private var profileQuickStart: some View {
+        if !profiles.isEmpty {
+            VStack(spacing: Constants.Design.spacingSM) {
+                Text("빠른 시작")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                HStack(spacing: Constants.Design.spacingSM) {
+                    ForEach(profiles) { profile in
+                        profileChip(profile)
+                    }
+                }
+            }
+        }
+    }
+
+    private func profileChip(_ profile: BlockProfile) -> some View {
+        Button {
+            Task {
+                await appState.startSessionFromProfile(
+                    profile,
+                    sites: sites,
+                    apps: apps,
+                    modelContext: modelContext
+                )
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: profile.icon)
+                    .font(.caption2)
+                Text(profile.name)
+                    .font(.caption.weight(.medium))
+            }
+            .padding(.horizontal, Constants.Design.spacingSM)
+            .padding(.vertical, 5)
+            .frame(maxWidth: .infinity)
+            .background(
+                Color(hex: profile.color).opacity(0.1),
+                in: Capsule()
+            )
+            .foregroundStyle(Color(hex: profile.color))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(profile.name) 프로필로 집중 시작")
     }
 }
 
@@ -243,45 +317,96 @@ struct FocusingContentView: View {
 
     // MARK: - 파이차트 카운트다운
 
+    @ViewBuilder
     private var countdownDisplay: some View {
-        PieChartTimerView(
-            progress: appState.timer.progress,
-            remainingTimeText: appState.timer.remainingTime.formattedAsTimer,
-            isPaused: appState.focusState == .paused,
-            activeColor: phaseAccentColor
-        )
-        .opacity(breatheOpacity)
+        if isFlowmodoroFocus {
+            VStack(spacing: Constants.Design.spacingSM) {
+                PieChartTimerView(
+                    progress: 0,
+                    remainingTimeText: "▲ \(appState.timer.elapsedTime.formattedAsTimer)",
+                    isPaused: appState.focusState == .paused,
+                    activeColor: flowmodoroColor
+                )
+                Text("멈추면 \(estimatedBreakText) 휴식")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .opacity(breatheOpacity)
+        } else {
+            PieChartTimerView(
+                progress: appState.timer.progress,
+                remainingTimeText: appState.timer.remainingTime.formattedAsTimer,
+                isPaused: appState.focusState == .paused,
+                activeColor: phaseAccentColor
+            )
+            .opacity(breatheOpacity)
+        }
     }
 
     // MARK: - 캡슐 프로그레스 바
 
+    @ViewBuilder
     private var capsuleProgressBar: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.secondary.opacity(0.1))
+        if isFlowmodoroFocus {
+            // 플로우모도로 집중 중: 진행률 없으므로 맥동 바
+            Capsule()
+                .fill(flowmodoroColor.opacity(0.2))
+                .frame(height: 6)
+                .overlay(alignment: .leading) {
+                    Capsule()
+                        .fill(flowmodoroColor)
+                        .frame(width: 40)
+                        .phaseAnimator([false, true]) { content, phase in
+                            content
+                                .offset(x: phase ? 260 : 0)
+                                .opacity(phase ? 0.3 : 0.8)
+                        } animation: { _ in
+                            .easeInOut(duration: 2.0).repeatForever(autoreverses: true)
+                        }
+                }
+                .clipShape(Capsule())
+        } else {
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.secondary.opacity(0.1))
 
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: [phaseAccentColor.opacity(0.7), phaseAccentColor],
-                            startPoint: .leading,
-                            endPoint: .trailing
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [phaseAccentColor.opacity(0.7), phaseAccentColor],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
                         )
-                    )
-                    .frame(width: max(6, geometry.size.width * appState.timer.progress))
-                    .animation(.easeInOut(duration: 0.8), value: appState.timer.progress)
+                        .frame(width: max(6, geometry.size.width * appState.timer.progress))
+                        .animation(.easeInOut(duration: 0.8), value: appState.timer.progress)
+                }
             }
+            .frame(height: 6)
+            .clipShape(Capsule())
         }
-        .frame(height: 6)
-        .clipShape(Capsule())
     }
 
     // MARK: - 상태 뱃지
 
     private var statusBadge: some View {
         VStack(spacing: Constants.Design.spacingXS) {
-            if appState.timerMode == .pomodoro, let phase = appState.currentPomodoroPhase {
+            if appState.timerMode == .flowmodoro {
+                let isBreak = appState.currentFlowmodoroPhase == .rest
+                HStack(spacing: 6) {
+                    Image(systemName: isBreak ? "cup.and.saucer.fill" : "waveform.circle.fill")
+                        .symbolEffect(.pulse, options: .repeating, isActive: !isBreak)
+                    Text(isBreak ? "휴식 중" : "플로우 중")
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(flowmodoroColor.opacity(0.12))
+                .foregroundStyle(flowmodoroColor)
+                .clipShape(Capsule())
+                .shadow(color: flowmodoroColor.opacity(0.15), radius: 4, y: 1)
+            } else if appState.timerMode == .pomodoro, let phase = appState.currentPomodoroPhase {
                 HStack(spacing: 6) {
                     Image(systemName: phase.type == .focus ? "bolt.fill" : "cup.and.saucer.fill")
                         .symbolEffect(.pulse, options: .repeating, isActive: phase.type == .focus)
@@ -322,39 +447,77 @@ struct FocusingContentView: View {
 
     private var controlButtons: some View {
         HStack(spacing: Constants.Design.spacingMD) {
-            Button {
-                withAnimation(.focusSpring) {
-                    if appState.focusState == .paused {
-                        appState.resumeSession()
-                    } else {
-                        appState.pauseSession()
+            if isFlowmodoroFocus {
+                // 플로우모도로 집중 중: "집중 완료" 주요 버튼
+                Button {
+                    Task {
+                        await appState.finishFlowmodoroFocus(modelContext: modelContext)
                     }
+                } label: {
+                    Label("집중 완료", systemImage: "checkmark.circle.fill")
                 }
-            } label: {
-                Label(
-                    appState.focusState == .paused ? "재개" : "일시정지",
-                    systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
-                )
-            }
-            .secondaryActionStyle(color: themeManager.pauseButton)
+                .primaryActionStyle(color: flowmodoroColor)
 
-            Button {
-                viewModel.requestStop()
-            } label: {
-                Label("중지", systemImage: "stop.fill")
+                Button {
+                    viewModel.requestStop()
+                } label: {
+                    Label("취소", systemImage: "xmark")
+                }
+                .secondaryActionStyle(color: themeManager.stopButton)
+            } else {
+                Button {
+                    withAnimation(.focusSpring) {
+                        if appState.focusState == .paused {
+                            appState.resumeSession()
+                        } else {
+                            appState.pauseSession()
+                        }
+                    }
+                } label: {
+                    Label(
+                        appState.focusState == .paused ? "재개" : "일시정지",
+                        systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
+                    )
+                }
+                .secondaryActionStyle(color: themeManager.pauseButton)
+
+                Button {
+                    viewModel.requestStop()
+                } label: {
+                    Label("중지", systemImage: "stop.fill")
+                }
+                .secondaryActionStyle(color: themeManager.stopButton)
             }
-            .secondaryActionStyle(color: themeManager.stopButton)
         }
     }
 
     // MARK: - Helpers
 
     private var phaseAccentColor: Color {
+        if appState.timerMode == .flowmodoro {
+            return flowmodoroColor
+        }
         guard appState.timerMode == .pomodoro,
               let phase = appState.currentPomodoroPhase else {
             return themeManager.progress
         }
         return phase.type == .focus ? themeManager.primary : themeManager.secondary
+    }
+
+    private var isFlowmodoroFocus: Bool {
+        appState.timerMode == .flowmodoro && appState.currentFlowmodoroPhase == .focus
+    }
+
+    private var flowmodoroColor: Color {
+        if appState.currentFlowmodoroPhase == .rest {
+            return themeManager.secondary
+        }
+        return themeManager.primary
+    }
+
+    private var estimatedBreakText: String {
+        let breakSeconds = appState.timer.elapsedTime * Constants.Timer.flowmodoroBreakRatio
+        return max(breakSeconds, 1).formattedAsReadable
     }
 
     private func animatePhaseBadge() {
@@ -382,9 +545,15 @@ struct FocusingContentView: View {
 struct CompletedContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
+    @Query(sort: \FocusSession.startedAt, order: .reverse)
+    private var sessions: [FocusSession]
     @State private var checkScale: CGFloat = 0
     @State private var showSummary = false
     @State private var confettiParticles: [ConfettiParticle] = []
+
+    private var streakInfo: StreakCalculator.StreakInfo {
+        StreakCalculator.calculate(from: sessions)
+    }
 
     var body: some View {
         VStack(spacing: Constants.Design.spacingXL) {
@@ -393,7 +562,10 @@ struct CompletedContentView: View {
             confirmButton
         }
         .padding(.vertical, Constants.Design.spacingSM)
-        .onAppear { playCelebration() }
+        .onAppear {
+            playCelebration()
+            appState.lastCompletedStreakInfo = streakInfo
+        }
     }
 
     // MARK: - 축하 아이콘
@@ -445,6 +617,14 @@ struct CompletedContentView: View {
                             icon: "chart.bar.fill",
                             color: themeManager.secondary,
                             text: detailText
+                        )
+                    }
+
+                    if streakInfo.current > 0 {
+                        summaryRow(
+                            icon: "flame.fill",
+                            color: .orange,
+                            text: "\(streakInfo.current)일 연속 집중!"
                         )
                     }
                 }

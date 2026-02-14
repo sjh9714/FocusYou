@@ -32,6 +32,16 @@ final class SettingsViewModel {
         }
     }
 
+    /// 온보딩 완료 여부 (v1.0)
+    var hasCompletedOnboarding: Bool {
+        didSet {
+            defaults.set(
+                hasCompletedOnboarding,
+                forKey: Constants.Settings.hasCompletedOnboardingKey
+            )
+        }
+    }
+
     #if DEBUG
     /// 디버그: Fast Timer 토글
     var debugFastTimerEnabled: Bool {
@@ -82,6 +92,11 @@ final class SettingsViewModel {
             forKey: Constants.Settings.showBlockedAppNotificationKey,
             defaults: defaults,
             defaultValue: Constants.Settings.showBlockedAppNotificationDefault
+        )
+        hasCompletedOnboarding = Self.boolValue(
+            forKey: Constants.Settings.hasCompletedOnboardingKey,
+            defaults: defaults,
+            defaultValue: Constants.Settings.hasCompletedOnboardingDefault
         )
         #if DEBUG
         debugFastTimerEnabled = Self.boolValue(

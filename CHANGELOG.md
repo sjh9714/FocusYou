@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.0] - 2026-02-14
+
+### Added
+- Flowmodoro 타이머 모드: 카운트업 집중 → 1/5 비례 자동 휴식 계산 → 휴식 카운트다운.
+- Flowmodoro 집중 중 차단 유지, 휴식 중 자동 해제.
+- 스트릭 시스템: 일일 완료 추적, 연속 기록, 대시보드·통계 화면 표시.
+- 온보딩 3스텝 플로우: 환영 → 차단 카테고리 선택 → 준비 완료.
+- 프로필 원클릭 시작: 프로필 칩 탭으로 해당 타이머 설정 즉시 세션 시작.
+- StreakCalculator 유닛 테스트 추가.
+- FlowmodoroEngine 유닛 테스트 추가.
+
+### Changed
+- AppState에 Flowmodoro 상태 머신 통합 (focus/rest 페이즈 전환).
+- 대시보드에 스트릭 배지 및 Flowmodoro 퀵스타트 추가.
+- StatsView에 스트릭 정보 카드 추가.
+- TimerView에 Flowmodoro 모드 UI 및 프로필 빠른 시작 섹션 추가.
+
+### Testing
+- 69 tests, 0 failures.
+
 ## [0.6.0] - 2026-02-14
 
 ### Added
