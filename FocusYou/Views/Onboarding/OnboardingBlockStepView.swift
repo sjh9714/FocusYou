@@ -4,9 +4,12 @@ import SwiftData
 // MARK: - 온보딩 Step 2: 차단 카테고리 선택 (v1.0)
 
 struct OnboardingBlockStepView: View {
+    @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
     @Environment(\.modelContext) private var modelContext
 
+    @Query(sort: \BlockProfile.createdAt)
+    private var profiles: [BlockProfile]
     @Query private var sites: [BlockedSite]
     @Query private var apps: [BlockedApp]
 
@@ -37,6 +40,16 @@ struct OnboardingBlockStepView: View {
         }
         .padding(.horizontal, Constants.Design.spacingXXL * 2)
         .padding(.bottom, Constants.Design.spacingXXL)
+        .onAppear {
+            appState.ensureActiveProfile(in: profiles)
+        }
+        .onChange(of: profiles.count) { _, _ in
+            appState.ensureActiveProfile(in: profiles)
+        }
+    }
+
+    private var onboardingProfile: BlockProfile? {
+        appState.activeProfile(from: profiles) ?? profiles.first
     }
 
     // MARK: - 헤더
@@ -79,14 +92,16 @@ struct OnboardingBlockStepView: View {
                 if isApplied {
                     viewModel.removePreset(
                         category: category,
-                        modelContext: modelContext
+                        modelContext: modelContext,
+                        profile: onboardingProfile
                     )
                     failedCategory = nil
                 } else {
                     if viewModel.loadPreset(category: category) != nil {
                         viewModel.applyPreset(
                             category: category,
-                            modelContext: modelContext
+                            modelContext: modelContext,
+                            profile: onboardingProfile
                         )
                         failedCategory = nil
                     } else {
@@ -167,8 +182,12 @@ struct OnboardingBlockStepView: View {
 
     private var selectionSummary: some View {
         Group {
-            let siteCount = sites.count
-            let appCount = apps.count
+            let siteCount = sites.filter {
+                $0.profile?.persistentModelID == onboardingProfile?.persistentModelID
+            }.count
+            let appCount = apps.filter {
+                $0.profile?.persistentModelID == onboardingProfile?.persistentModelID
+            }.count
 
             if siteCount > 0 || appCount > 0 {
                 HStack(spacing: Constants.Design.spacingMD) {
@@ -219,8 +238,14 @@ struct OnboardingBlockStepView: View {
     // MARK: - 헬퍼
 
     private var appliedCategories: Set<String> {
+        let scopedSites = sites.filter {
+            $0.profile?.persistentModelID == onboardingProfile?.persistentModelID
+        }
+        let scopedApps = apps.filter {
+            $0.profile?.persistentModelID == onboardingProfile?.persistentModelID
+        }
         let modelCategories = Set(
-            sites.compactMap(\.category) + apps.compactMap(\.category)
+            scopedSites.compactMap(\.category) + scopedApps.compactMap(\.category)
         )
         return Set(Constants.Category.all.filter { modelCategories.contains($0) })
     }
@@ -228,6 +253,7 @@ struct OnboardingBlockStepView: View {
 
 #Preview {
     OnboardingBlockStepView(onNext: {}, onBack: {}, onSkip: {})
+        .environment(AppState())
         .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,

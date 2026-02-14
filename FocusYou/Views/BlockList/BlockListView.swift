@@ -1,9 +1,13 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - 차단 목록 관리 (v0.5 리디자인)
 
 struct BlockListView: View {
+    @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
+    @Query(sort: \BlockProfile.createdAt)
+    private var profiles: [BlockProfile]
     @State private var selectedTab: Tab = .websites
     @Namespace private var tabNamespace
 
@@ -31,6 +35,8 @@ struct BlockListView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            profileBar
+
             // 커스텀 세그먼트 바
             tabBar
 
@@ -40,15 +46,62 @@ struct BlockListView: View {
             Group {
                 switch selectedTab {
                 case .websites:
-                    WebsiteBlockView()
+                    WebsiteBlockView(selectedProfile: activeProfile)
                 case .apps:
-                    AppBlockView()
+                    AppBlockView(selectedProfile: activeProfile)
                 case .categories:
-                    CategoryPickerView()
+                    CategoryPickerView(selectedProfile: activeProfile)
                 }
             }
             .padding()
             .animation(.mediumEase, value: selectedTab)
+        }
+        .onAppear {
+            appState.ensureActiveProfile(in: profiles)
+        }
+        .onChange(of: profiles.count) { _, _ in
+            appState.ensureActiveProfile(in: profiles)
+        }
+    }
+
+    private var activeProfile: BlockProfile? {
+        appState.activeProfile(from: profiles) ?? profiles.first
+    }
+
+    private var profileBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Constants.Design.spacingSM) {
+                ForEach(profiles) { profile in
+                    let isActive = profile.persistentModelID == activeProfile?.persistentModelID
+                    Button {
+                        appState.setActiveProfile(profile)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: profile.icon)
+                                .font(.caption)
+                            Text(profile.name)
+                                .font(.caption.weight(.medium))
+                        }
+                        .padding(.horizontal, Constants.Design.spacingSM)
+                        .padding(.vertical, 5)
+                        .background(
+                            Color(hex: profile.color).opacity(isActive ? 0.2 : 0.08),
+                            in: Capsule()
+                        )
+                        .foregroundStyle(Color(hex: profile.color))
+                        .overlay(
+                            Capsule()
+                                .stroke(
+                                    Color(hex: profile.color).opacity(isActive ? 0.55 : 0),
+                                    lineWidth: 1
+                                )
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, Constants.Design.spacingMD)
         }
     }
 

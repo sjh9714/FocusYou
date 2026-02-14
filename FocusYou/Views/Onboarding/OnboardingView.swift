@@ -115,6 +115,7 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView()
+        .environment(AppState())
         .environment(SettingsViewModel())
         .environment(ThemeManager.shared)
         .modelContainer(for: [

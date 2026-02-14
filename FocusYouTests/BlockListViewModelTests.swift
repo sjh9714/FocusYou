@@ -1,3 +1,4 @@
+import AppKit
 import SwiftData
 import XCTest
 @testable import Focus_You
@@ -63,6 +64,40 @@ final class BlockListViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
+    func testAddWebsiteAllowsSameDomainAcrossDifferentProfiles() throws {
+        let context = try makeModelContext()
+        let profileA = BlockProfile(name: "A")
+        let profileB = BlockProfile(name: "B")
+        context.insert(profileA)
+        context.insert(profileB)
+
+        viewModel.newWebsiteURL = "dup.com"
+        viewModel.addWebsite(modelContext: context, profile: profileA)
+        XCTAssertNil(viewModel.errorMessage)
+
+        viewModel.newWebsiteURL = "dup.com"
+        viewModel.addWebsite(modelContext: context, profile: profileB)
+        XCTAssertNil(viewModel.errorMessage)
+
+        let descriptor = FetchDescriptor<BlockedSite>()
+        let sites = try context.fetch(descriptor)
+        XCTAssertEqual(sites.count, 2)
+    }
+
+    func testAddWebsiteDuplicateWithinSameProfileSetsError() throws {
+        let context = try makeModelContext()
+        let profile = BlockProfile(name: "A")
+        context.insert(profile)
+
+        viewModel.newWebsiteURL = "same.com"
+        viewModel.addWebsite(modelContext: context, profile: profile)
+        XCTAssertNil(viewModel.errorMessage)
+
+        viewModel.newWebsiteURL = "same.com"
+        viewModel.addWebsite(modelContext: context, profile: profile)
+        XCTAssertEqual(viewModel.errorMessage, "이미 추가된 사이트입니다")
+    }
+
     // MARK: - 웹사이트 삭제
 
     func testDeleteSites() throws {
@@ -80,12 +115,43 @@ final class BlockListViewModelTests: XCTestCase {
         XCTAssertEqual(remaining.count, 0)
     }
 
+    // MARK: - 앱 토글 (프로필 스코프)
+
+    func testToggleAppRemoveOnlyAffectsSelectedProfile() throws {
+        let context = try makeModelContext()
+        let profileA = BlockProfile(name: "A")
+        let profileB = BlockProfile(name: "B")
+        context.insert(profileA)
+        context.insert(profileB)
+
+        let appInfo = BlockListViewModel.InstalledApp(
+            id: "com.focusyou.app",
+            bundleId: "com.focusyou.app",
+            name: "Focus App",
+            icon: NSImage(size: NSSize(width: 16, height: 16))
+        )
+
+        viewModel.toggleApp(appInfo, isBlocked: true, modelContext: context, profile: profileA)
+        viewModel.toggleApp(appInfo, isBlocked: true, modelContext: context, profile: profileB)
+
+        var descriptor = FetchDescriptor<BlockedApp>()
+        var apps = try context.fetch(descriptor)
+        XCTAssertEqual(apps.count, 2)
+
+        viewModel.toggleApp(appInfo, isBlocked: false, modelContext: context, profile: profileA)
+
+        descriptor = FetchDescriptor<BlockedApp>()
+        apps = try context.fetch(descriptor)
+        XCTAssertEqual(apps.count, 1)
+        XCTAssertEqual(apps.first?.profile?.persistentModelID, profileB.persistentModelID)
+    }
+
     // MARK: - 헬퍼
 
     private func makeModelContext() throws -> ModelContext {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: BlockedSite.self, BlockedApp.self,
+            for: BlockProfile.self, BlockedSite.self, BlockedApp.self,
             configurations: configuration
         )
         return ModelContext(container)

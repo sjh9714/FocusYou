@@ -204,10 +204,106 @@ final class AppStateLifecycleTests: XCTestCase {
         XCTAssertNil(appState.errorMessage)
     }
 
+    func testFlowmodoroRestTransitionDeactivationFailureKeepsRetrySignal() async throws {
+        let blockingCoordinator = MockBlockingCoordinator()
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+
+        let blockedSite = BlockedSite(domain: "example.com")
+        await appState.startFocusSession(
+            duration: Constants.Timer.flowmodoroMaxDuration,
+            sites: [blockedSite],
+            apps: [],
+            modelContext: modelContext,
+            mode: .flowmodoro
+        )
+
+        XCTAssertEqual(appState.timerMode, .flowmodoro)
+        XCTAssertEqual(appState.currentFlowmodoroPhase, .focus)
+        XCTAssertTrue(appState.isBlockingActive)
+
+        await blockingCoordinator.setDeactivateError(FocusYouError.hostsFileWriteFailed)
+        await appState.finishFlowmodoroFocus(modelContext: modelContext)
+
+        XCTAssertEqual(appState.currentFlowmodoroPhase, .rest)
+        XCTAssertEqual(appState.focusState, .focusing)
+        XCTAssertTrue(appState.showError)
+        XCTAssertTrue(appState.canRetryBlockingDeactivation)
+        XCTAssertTrue(appState.isBlockingActive)
+
+        let countsAfterFailure = await blockingCoordinator.callCounts()
+        XCTAssertEqual(countsAfterFailure.deactivate, 1)
+
+        await blockingCoordinator.setDeactivateError(nil)
+        await appState.retryBlockingDeactivation()
+
+        XCTAssertFalse(appState.showError)
+        XCTAssertFalse(appState.canRetryBlockingDeactivation)
+        XCTAssertFalse(appState.isBlockingActive)
+    }
+
+    func testStartSessionFromProfileUsesOnlyProfileTargets() async throws {
+        let blockingCoordinator = MockBlockingCoordinator()
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+
+        let activeProfile = BlockProfile.createDefault()
+        let otherProfile = BlockProfile(name: "다른 프로필")
+        modelContext.insert(activeProfile)
+        modelContext.insert(otherProfile)
+
+        let activeSite = BlockedSite(domain: "focusyou.app")
+        activeSite.profile = activeProfile
+        modelContext.insert(activeSite)
+
+        let disabledSite = BlockedSite(domain: "ignore.me")
+        disabledSite.isEnabled = false
+        disabledSite.profile = activeProfile
+        modelContext.insert(disabledSite)
+
+        let otherSite = BlockedSite(domain: "other-profile.com")
+        otherSite.profile = otherProfile
+        modelContext.insert(otherSite)
+
+        let activeApp = BlockedApp(bundleId: "com.focusyou.test", name: "Focus App")
+        activeApp.profile = activeProfile
+        modelContext.insert(activeApp)
+
+        let disabledApp = BlockedApp(bundleId: "com.focusyou.disabled", name: "Disabled App")
+        disabledApp.isEnabled = false
+        disabledApp.profile = activeProfile
+        modelContext.insert(disabledApp)
+
+        let otherApp = BlockedApp(bundleId: "com.focusyou.other", name: "Other App")
+        otherApp.profile = otherProfile
+        modelContext.insert(otherApp)
+
+        await appState.startSessionFromProfile(activeProfile, modelContext: modelContext)
+
+        let latestArguments = await blockingCoordinator.latestActivateArguments()
+        let latest = try XCTUnwrap(latestArguments)
+        XCTAssertEqual(Set(latest.domains), Set(["focusyou.app"]))
+        XCTAssertEqual(Set(latest.appBundleIds), Set(["com.focusyou.test"]))
+        XCTAssertEqual(appState.currentSession?.profileName, activeProfile.name)
+    }
+
     private func makeModelContext() throws -> ModelContext {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: FocusSession.self,
+            for: BlockProfile.self,
+            BlockedSite.self,
+            BlockedApp.self,
+            FocusSession.self,
             configurations: configuration
         )
         return ModelContext(container)

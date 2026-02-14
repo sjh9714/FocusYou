@@ -183,6 +183,7 @@ struct ProfileEditorView: View {
             HStack(spacing: Constants.Design.spacingSM) {
                 timerModeChip("자유", mode: "free")
                 timerModeChip("뽀모도로", mode: "pomodoro")
+                timerModeChip("플로우", mode: "flowmodoro")
             }
 
             VStack(spacing: Constants.Design.spacingSM) {

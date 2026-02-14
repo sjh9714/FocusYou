@@ -22,6 +22,9 @@ struct FocusYouApp: App {
                 FocusSession.self
             )
             modelContainer = container
+            ProfileBootstrapper.ensureDefaultProfileAndMigrateOrphans(
+                modelContext: container.mainContext
+            )
         } catch {
             fatalError("ModelContainer 생성 실패: \(error)")
         }
@@ -148,7 +151,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             nc.addObserver(
                 forName: NSWindow.didBecomeKeyNotification,
                 object: nil, queue: .main
-            ) { [weak self] _ in self?.updateActivationPolicy() }
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.updateActivationPolicy()
+                }
+            }
         )
         windowObservers.append(
             nc.addObserver(

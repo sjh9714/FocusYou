@@ -10,9 +10,16 @@ struct AppBlockView: View {
     @State private var viewModel = BlockListViewModel()
     @State private var installedApps: [BlockListViewModel.InstalledApp] = []
     @State private var isLoading = true
+    let selectedProfile: BlockProfile?
+
+    private var scopedBlockedApps: [BlockedApp] {
+        blockedApps.filter { app in
+            app.profile?.persistentModelID == selectedProfile?.persistentModelID
+        }
+    }
 
     private var blockedBundleIds: Set<String> {
-        Set(blockedApps.map(\.bundleId))
+        Set(scopedBlockedApps.map(\.bundleId))
     }
 
     var body: some View {
@@ -135,7 +142,8 @@ struct AppBlockView: View {
                     viewModel.toggleApp(
                         app,
                         isBlocked: newValue,
-                        modelContext: modelContext
+                        modelContext: modelContext,
+                        profile: selectedProfile
                     )
                 }
             ))
@@ -183,7 +191,7 @@ extension View {
 }
 
 #Preview {
-    AppBlockView()
+    AppBlockView(selectedProfile: nil)
         .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,

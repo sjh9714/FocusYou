@@ -10,6 +10,13 @@ struct WebsiteBlockView: View {
     private var sites: [BlockedSite]
     @State private var viewModel = BlockListViewModel()
     @State private var hoveredSiteID: PersistentIdentifier?
+    let selectedProfile: BlockProfile?
+
+    private var scopedSites: [BlockedSite] {
+        sites.filter { site in
+            site.profile?.persistentModelID == selectedProfile?.persistentModelID
+        }
+    }
 
     var body: some View {
         VStack(spacing: Constants.Design.spacingMD) {
@@ -39,7 +46,10 @@ struct WebsiteBlockView: View {
                     .textFieldStyle(.plain)
                     .accessibilityLabel("차단할 웹사이트 주소 입력")
                     .onSubmit {
-                        viewModel.addWebsite(modelContext: modelContext)
+                        viewModel.addWebsite(
+                            modelContext: modelContext,
+                            profile: selectedProfile
+                        )
                     }
             }
             .padding(.horizontal, Constants.Design.spacingMD)
@@ -51,7 +61,10 @@ struct WebsiteBlockView: View {
             )
 
             Button {
-                viewModel.addWebsite(modelContext: modelContext)
+                viewModel.addWebsite(
+                    modelContext: modelContext,
+                    profile: selectedProfile
+                )
             } label: {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 24))
@@ -67,18 +80,18 @@ struct WebsiteBlockView: View {
 
     private var siteList: some View {
         List {
-            if sites.isEmpty {
+            if scopedSites.isEmpty {
                 ContentUnavailableView(
                     "차단된 사이트 없음",
                     systemImage: "globe",
                     description: Text("위에서 차단할 사이트를 추가하세요")
                 )
             } else {
-                ForEach(sites) { site in
+                ForEach(scopedSites) { site in
                     siteRow(site)
                 }
                 .onDelete { indexSet in
-                    let toDelete = indexSet.map { sites[$0] }
+                    let toDelete = indexSet.map { scopedSites[$0] }
                     viewModel.deleteSites(toDelete, modelContext: modelContext)
                 }
             }
@@ -145,7 +158,7 @@ struct WebsiteBlockView: View {
 }
 
 #Preview {
-    WebsiteBlockView()
+    WebsiteBlockView(selectedProfile: nil)
         .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,

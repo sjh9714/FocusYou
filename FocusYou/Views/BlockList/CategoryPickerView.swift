@@ -11,6 +11,7 @@ struct CategoryPickerView: View {
     @State private var viewModel = BlockListViewModel()
     @State private var failedCategory: String?
     @State private var hoveredCategory: String?
+    let selectedProfile: BlockProfile?
 
     var body: some View {
         VStack(spacing: Constants.Design.spacingLG) {
@@ -53,14 +54,16 @@ struct CategoryPickerView: View {
                 if isApplied {
                     viewModel.removePreset(
                         category: category,
-                        modelContext: modelContext
+                        modelContext: modelContext,
+                        profile: selectedProfile
                     )
                     failedCategory = nil
                 } else {
                     if viewModel.loadPreset(category: category) != nil {
                         viewModel.applyPreset(
                             category: category,
-                            modelContext: modelContext
+                            modelContext: modelContext,
+                            profile: selectedProfile
                         )
                         failedCategory = nil
                     } else {
@@ -126,15 +129,21 @@ struct CategoryPickerView: View {
     }
 
     private var appliedCategories: Set<String> {
+        let scopedSites = sites.filter {
+            $0.profile?.persistentModelID == selectedProfile?.persistentModelID
+        }
+        let scopedApps = apps.filter {
+            $0.profile?.persistentModelID == selectedProfile?.persistentModelID
+        }
         let modelCategories = Set(
-            sites.compactMap(\.category) + apps.compactMap(\.category)
+            scopedSites.compactMap(\.category) + scopedApps.compactMap(\.category)
         )
         return Set(Constants.Category.all.filter { modelCategories.contains($0) })
     }
 }
 
 #Preview {
-    CategoryPickerView()
+    CategoryPickerView(selectedProfile: nil)
         .environment(ThemeManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,

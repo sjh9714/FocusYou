@@ -10,10 +10,8 @@ struct MainDashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
 
-    @Query(filter: #Predicate<BlockedSite> { $0.isEnabled })
-    private var enabledSites: [BlockedSite]
-    @Query(filter: #Predicate<BlockedApp> { $0.isEnabled })
-    private var enabledApps: [BlockedApp]
+    @Query(sort: \BlockProfile.createdAt)
+    private var profiles: [BlockProfile]
     @Query(sort: \FocusSession.startedAt, order: .reverse)
     private var sessions: [FocusSession]
 
@@ -56,6 +54,12 @@ struct MainDashboardView: View {
         }
         .background(themeManager.background)
         .animation(.quickEase, value: appState.showPrivateRelayWarning)
+        .onAppear {
+            appState.ensureActiveProfile(in: profiles)
+        }
+        .onChange(of: profiles.count) { _, _ in
+            appState.ensureActiveProfile(in: profiles)
+        }
     }
 
     // MARK: - 에러 패널
@@ -201,6 +205,8 @@ struct MainDashboardView: View {
                     .font(.headline)
             }
 
+            activeProfilePicker
+
             // 모드 피커
             HStack(spacing: 4) {
                 SegmentedPill(
@@ -238,8 +244,8 @@ struct MainDashboardView: View {
             }
 
             HStack(spacing: Constants.Design.spacingMD) {
-                Label("\(enabledSites.count)개 사이트", systemImage: "globe")
-                Label("\(enabledApps.count)개 앱", systemImage: "app.fill")
+                Label("\(activeSites.count)개 사이트", systemImage: "globe")
+                Label("\(activeApps.count)개 앱", systemImage: "app.fill")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -251,9 +257,43 @@ struct MainDashboardView: View {
                 Label(startButtonTitle, systemImage: "bolt.fill")
             }
             .primaryActionStyle(color: themeManager.startButton)
-            .disabled(isSessionActionInFlight)
+            .disabled(isSessionActionInFlight || activeProfile == nil)
         }
         .frostedCard()
+    }
+
+    private var activeProfilePicker: some View {
+        HStack(spacing: Constants.Design.spacingSM) {
+            ForEach(profiles) { profile in
+                let isActive = profile.persistentModelID == activeProfile?.persistentModelID
+
+                Button {
+                    appState.setActiveProfile(profile)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: profile.icon)
+                            .font(.caption)
+                        Text(profile.name)
+                            .font(.caption.weight(.medium))
+                    }
+                    .padding(.horizontal, Constants.Design.spacingSM)
+                    .padding(.vertical, 5)
+                    .background(
+                        Color(hex: profile.color).opacity(isActive ? 0.2 : 0.08),
+                        in: Capsule()
+                    )
+                    .foregroundStyle(Color(hex: profile.color))
+                    .overlay(
+                        Capsule()
+                            .stroke(
+                                Color(hex: profile.color).opacity(isActive ? 0.55 : 0),
+                                lineWidth: 1
+                            )
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     // MARK: - 자유 모드 설정
@@ -706,6 +746,20 @@ struct MainDashboardView: View {
 
     // MARK: - 데이터
 
+    private var activeProfile: BlockProfile? {
+        appState.activeProfile(from: profiles) ?? profiles.first
+    }
+
+    private var activeSites: [BlockedSite] {
+        guard let activeProfile else { return [] }
+        return activeProfile.blockedSites.filter(\.isEnabled)
+    }
+
+    private var activeApps: [BlockedApp] {
+        guard let activeProfile else { return [] }
+        return activeProfile.blockedApps.filter(\.isEnabled)
+    }
+
     private var todaySessions: [FocusSession] {
         let start = Date().startOfDay
         return sessions.filter { $0.startedAt >= start }
@@ -748,8 +802,8 @@ struct MainDashboardView: View {
         Task { @MainActor in
             await appState.startFocusSession(
                 duration: selectedDuration,
-                sites: enabledSites,
-                apps: enabledApps,
+                sites: activeSites,
+                apps: activeApps,
                 modelContext: modelContext,
                 mode: quickStartMode,
                 pomodoroConfiguration: pomodoroConfiguration

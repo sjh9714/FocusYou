@@ -30,6 +30,7 @@ final class AppState {
     private(set) var timerMode: TimerMode = .free
     private(set) var currentPomodoroPhase: PomodoroEngine.Phase?
     private(set) var pomodoroCycleProgressText = ""
+    private(set) var activeProfileID: PersistentIdentifier?
     private(set) var lastCompletedMode: TimerMode = .free
     private(set) var lastCompletedFocusDuration: TimeInterval = 0
     private(set) var lastCompletedPomodoroCycles = 0
@@ -256,10 +257,10 @@ final class AppState {
     /// 프로필의 타이머 설정으로 즉시 세션 시작
     func startSessionFromProfile(
         _ profile: BlockProfile,
-        sites: [BlockedSite],
-        apps: [BlockedApp],
         modelContext: ModelContext
     ) async {
+        setActiveProfile(profile)
+
         let mode: TimerMode = switch profile.timerMode {
         case "pomodoro": .pomodoro
         case "flowmodoro": .flowmodoro
@@ -279,10 +280,13 @@ final class AppState {
         case .flowmodoro: Constants.Timer.flowmodoroMaxDuration
         }
 
+        let profileSites = profile.blockedSites.filter(\.isEnabled)
+        let profileApps = profile.blockedApps.filter(\.isEnabled)
+
         await startFocusSession(
             duration: duration,
-            sites: sites,
-            apps: apps,
+            sites: profileSites,
+            apps: profileApps,
             modelContext: modelContext,
             mode: mode,
             pomodoroConfiguration: pomodoroConfig
@@ -472,7 +476,11 @@ final class AppState {
             isBlockingActive = false
         } catch {
             logger.error("플로우모도로 휴식 전환 차단 해제 실패: \(error.localizedDescription)")
-            isBlockingActive = false
+            isBlockingActive = true
+            presentError(
+                "플로우모도로 휴식 전환 중 차단 해제에 실패했습니다. \(error.localizedDescription)",
+                canRetryDeactivation: true
+            )
         }
 
         // 휴식 카운트다운 시작
@@ -730,5 +738,35 @@ final class AppState {
         errorMessage = message
         canRetryBlockingDeactivation = canRetryDeactivation
         showError = true
+    }
+
+    // MARK: - 활성 프로필
+
+    func setActiveProfile(_ profile: BlockProfile?) {
+        activeProfileID = profile?.persistentModelID
+    }
+
+    func ensureActiveProfile(in profiles: [BlockProfile]) {
+        guard !profiles.isEmpty else {
+            activeProfileID = nil
+            return
+        }
+
+        if let activeProfileID,
+           profiles.contains(where: { $0.persistentModelID == activeProfileID }) {
+            return
+        }
+
+        if let defaultProfile = profiles.first(where: \.isDefault) {
+            activeProfileID = defaultProfile.persistentModelID
+            return
+        }
+
+        activeProfileID = profiles.first?.persistentModelID
+    }
+
+    func activeProfile(from profiles: [BlockProfile]) -> BlockProfile? {
+        guard let activeProfileID else { return nil }
+        return profiles.first(where: { $0.persistentModelID == activeProfileID })
     }
 }

@@ -6,14 +6,7 @@ import SwiftData
 struct MenuBarView: View {
     @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
-
-    @Query(filter: #Predicate<BlockedSite> { $0.isEnabled })
-    private var enabledSites: [BlockedSite]
-
-    @Query(filter: #Predicate<BlockedApp> { $0.isEnabled })
-    private var enabledApps: [BlockedApp]
 
     @State private var blockingPulse = false
 
@@ -37,10 +30,7 @@ struct MenuBarView: View {
             Group {
                 switch appState.focusState {
                 case .idle:
-                    IdleContentView(
-                        sites: enabledSites,
-                        apps: enabledApps
-                    )
+                    IdleContentView()
                 case .focusing, .paused:
                     FocusingContentView()
                 case .completed:

@@ -13,17 +13,79 @@ struct IdleContentView: View {
     @Query(sort: \BlockProfile.createdAt)
     private var profiles: [BlockProfile]
 
-    let sites: [BlockedSite]
-    let apps: [BlockedApp]
-
     var body: some View {
         VStack(spacing: Constants.Design.spacingLG) {
+            profileSelector
             modePicker
             timerDisplay
             timerOptions
             blockSummary
             startButton
             profileQuickStart
+        }
+        .onAppear {
+            appState.ensureActiveProfile(in: profiles)
+        }
+        .onChange(of: profiles.count) { _, _ in
+            appState.ensureActiveProfile(in: profiles)
+        }
+    }
+
+    private var activeProfile: BlockProfile? {
+        appState.activeProfile(from: profiles) ?? profiles.first
+    }
+
+    private var activeSites: [BlockedSite] {
+        guard let activeProfile else { return [] }
+        return activeProfile.blockedSites.filter(\.isEnabled)
+    }
+
+    private var activeApps: [BlockedApp] {
+        guard let activeProfile else { return [] }
+        return activeProfile.blockedApps.filter(\.isEnabled)
+    }
+
+    // MARK: - 프로필 선택
+
+    @ViewBuilder
+    private var profileSelector: some View {
+        if !profiles.isEmpty {
+            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
+                Text("현재 프로필")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+
+                HStack(spacing: Constants.Design.spacingSM) {
+                    ForEach(profiles) { profile in
+                        let isActive = profile.persistentModelID == activeProfile?.persistentModelID
+                        Button {
+                            appState.setActiveProfile(profile)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: profile.icon)
+                                    .font(.caption2)
+                                Text(profile.name)
+                                    .font(.caption.weight(.medium))
+                            }
+                            .padding(.horizontal, Constants.Design.spacingSM)
+                            .padding(.vertical, 5)
+                            .background(
+                                Color(hex: profile.color).opacity(isActive ? 0.2 : 0.08),
+                                in: Capsule()
+                            )
+                            .foregroundStyle(Color(hex: profile.color))
+                            .overlay(
+                                Capsule()
+                                    .stroke(
+                                        Color(hex: profile.color).opacity(isActive ? 0.55 : 0),
+                                        lineWidth: 1
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
         }
     }
 
@@ -152,13 +214,13 @@ struct IdleContentView: View {
 
     @ViewBuilder
     private var blockSummary: some View {
-        if !sites.isEmpty || !apps.isEmpty {
+        if !activeSites.isEmpty || !activeApps.isEmpty {
             HStack(spacing: Constants.Design.spacingMD) {
-                if !sites.isEmpty {
-                    Label("\(sites.count)개 사이트", systemImage: "globe")
+                if !activeSites.isEmpty {
+                    Label("\(activeSites.count)개 사이트", systemImage: "globe")
                 }
-                if !apps.isEmpty {
-                    Label("\(apps.count)개 앱", systemImage: "app.fill")
+                if !activeApps.isEmpty {
+                    Label("\(activeApps.count)개 앱", systemImage: "app.fill")
                 }
             }
             .font(.caption)
@@ -173,8 +235,8 @@ struct IdleContentView: View {
             Task {
                 await appState.startFocusSession(
                     duration: viewModel.initialDurationSeconds,
-                    sites: sites,
-                    apps: apps,
+                    sites: activeSites,
+                    apps: activeApps,
                     modelContext: modelContext,
                     mode: viewModel.selectedMode.appStateMode,
                     pomodoroConfiguration: viewModel.pomodoroConfiguration
@@ -187,6 +249,7 @@ struct IdleContentView: View {
             )
         }
         .primaryActionStyle(color: themeManager.startButton)
+        .disabled(activeProfile == nil)
         .accessibilityLabel("집중 시작")
         .accessibilityHint("타이머를 시작하고 사이트와 앱 차단을 활성화합니다")
     }
@@ -216,8 +279,6 @@ struct IdleContentView: View {
             Task {
                 await appState.startSessionFromProfile(
                     profile,
-                    sites: sites,
-                    apps: apps,
                     modelContext: modelContext
                 )
             }
@@ -727,7 +788,7 @@ private struct ConfettiParticle: Identifiable {
 // MARK: - Previews
 
 #Preview("유휴 상태") {
-    IdleContentView(sites: [], apps: [])
+    IdleContentView()
         .environment(AppState())
         .environment(ThemeManager.shared)
         .frame(width: 340)
