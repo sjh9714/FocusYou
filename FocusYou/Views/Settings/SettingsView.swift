@@ -9,25 +9,45 @@ struct SettingsView: View {
     @State private var isPreviewPlaying = false
 
     var body: some View {
-        Form {
-            generalSection
-            focusExperienceSection
-            ambientSoundSection
-            themeSection
-            scheduleSection
-            focusModeSection
-            appDimmingSection
-            burnoutSection
-            calendarSection
-            diagnosticsSection
+        TabView {
+            // 탭 1: 일반
+            Form {
+                generalSection
+                themeSection
+                infoSection
+            }
+            .formStyle(.grouped)
+            .tabItem { Label("일반", systemImage: "gearshape") }
 
-            #if DEBUG
-            debugSection
-            #endif
+            // 탭 2: 집중
+            Form {
+                focusExperienceSection
+                ambientSoundSection
+                burnoutSection
+            }
+            .formStyle(.grouped)
+            .tabItem { Label("집중", systemImage: "brain.head.profile") }
 
-            infoSection
+            // 탭 3: 연동
+            Form {
+                focusModeSection
+                calendarSection
+                scheduleSection
+                appDimmingSection
+            }
+            .formStyle(.grouped)
+            .tabItem { Label("연동", systemImage: "link") }
+
+            // 탭 4: 고급
+            Form {
+                diagnosticsSection
+                #if DEBUG
+                debugSection
+                #endif
+            }
+            .formStyle(.grouped)
+            .tabItem { Label("고급", systemImage: "wrench.and.screwdriver") }
         }
-        .formStyle(.grouped)
     }
 
     // MARK: - 일반

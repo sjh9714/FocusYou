@@ -151,9 +151,9 @@ enum Constants {
 
         // 의도 입력 & 회고 (v1.1)
         static let showIntentionInputKey = "showIntentionInput"
-        static let showIntentionInputDefault = false
+        static let showIntentionInputDefault = true
         static let showRetrospectKey = "showRetrospect"
-        static let showRetrospectDefault = false
+        static let showRetrospectDefault = true
 
         // 회고 레벨 (v1.5)
         static let retrospectLevelKey = "retrospectLevel"
@@ -191,7 +191,7 @@ enum Constants {
 
         // 번아웃 방지 (v1.5)
         static let enableBurnoutWarningsKey = "enableBurnoutWarnings"
-        static let enableBurnoutWarningsDefault = false
+        static let enableBurnoutWarningsDefault = true
         static let burnoutDailyLimitHoursKey = "burnoutDailyLimitHours"
     }
 

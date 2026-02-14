@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.1] - 2026-02-15
+
+### Changed
+- 설정 화면을 4탭 구조로 개편 (일반/집중/연동/고급).
+- 핵심 기능 기본값 ON으로 변경: 의도 입력, 회고, 번아웃 방지.
+- 프로비저닝 프로파일 에러 수정 (ad-hoc 서명 설정 추가).
+
+### Testing
+- 211 tests, 0 failures.
+
 ## [1.5.0] - 2026-02-15
 
 ### Added

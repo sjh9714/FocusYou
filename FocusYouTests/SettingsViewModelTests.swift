@@ -82,15 +82,15 @@ final class SettingsViewModelTests: XCTestCase {
     // MARK: - 의도 입력 & 회고 (v1.1)
 
     @MainActor
-    func testIntentionInputDefaultIsFalse() {
+    func testIntentionInputDefaultIsTrue() {
         let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertFalse(viewModel.showIntentionInput)
+        XCTAssertTrue(viewModel.showIntentionInput)
     }
 
     @MainActor
-    func testRetrospectDefaultIsFalse() {
+    func testRetrospectDefaultIsTrue() {
         let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertFalse(viewModel.showRetrospect)
+        XCTAssertTrue(viewModel.showRetrospect)
     }
 
     @MainActor
@@ -263,9 +263,9 @@ final class SettingsViewModelTests: XCTestCase {
     // MARK: - 번아웃 방지 (v1.5)
 
     @MainActor
-    func testBurnoutWarningsDefaultsOff() {
+    func testBurnoutWarningsDefaultsOn() {
         let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertFalse(viewModel.enableBurnoutWarnings)
+        XCTAssertTrue(viewModel.enableBurnoutWarnings)
     }
 
     @MainActor
