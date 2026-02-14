@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.1] - 2026-02-14
+
+### Added
+- 기본 프로필 부트스트랩: 앱 시작 시 기본 프로필 보장 및 legacy `profile == nil` 차단 항목 자동 이관.
+- 프로필 스코프 회귀 테스트 추가 (`AppState`, `BlockListViewModel`, `PrivateRelayDetector`, `ProfileBootstrapper`).
+
+### Changed
+- 세션 시작/차단 목록/온보딩/대시보드가 활성 프로필 기준으로 일관 동작하도록 연동 강화.
+- `PrivateRelayDetector` 파서를 구조 의존 방식에서 재귀 탐색 방식으로 개선.
+- AppDelegate 윈도우 정책 옵저버의 main actor 호출 경고 정리.
+
+### Fixed
+- 플로우모도로 집중→휴식 전환 시 차단 해제 실패하면 `isBlockingActive`와 재시도 UI 상태가 정확히 유지되도록 수정.
+- 프로필 모드 라벨 버그 수정 (`flowmodoro`가 `자유`로 보이던 문제 수정).
+
+### Testing
+- `xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -destination 'platform=macOS' test` (132 tests, 0 failures)
+- `./scripts/qa_focusyou_state.sh assert-helper-ready`
+- `./scripts/qa_focusyou_state.sh assert-clean`
+
 ## [1.0.0] - 2026-02-14
 
 ### Added
