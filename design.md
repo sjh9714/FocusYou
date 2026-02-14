@@ -85,11 +85,14 @@ v3.0  "플랫폼"                 ← AI + iOS + 확장
 - 완료: 시스템 알림 + 사운드
 
 **웹사이트 차단**
-- /etc/hosts 파일 수정 (127.0.0.1 리다이렉트)
+- /etc/hosts 파일 수정 (0.0.0.0 리다이렉트)
+- IPv4 + IPv6 loopback + IPv6 link-local 3중 차단
+  (0.0.0.0 · ::1 · fe80::1%lo0 — macOS IPv6 우선 해석 대응)
 - 마커: `# === Focus You BEGIN ===` ~ `# === Focus You END ===`
+- 도메인 형식 검증 (정규식, hosts 파일 인젝션 방지)
 - www 서브도메인 자동 추가
-- AuthorizationServices sudo 권한
-- DNS 캐시 flush (dscacheutil + mDNSResponder)
+- osascript "do shell script ... with administrator privileges" 권한 상승
+- DNS 캐시 flush (dscacheutil + mDNSResponder 재시작)
 - 시작 시 백업, 해제 시 마커 구간 제거
 
 **앱 차단**
@@ -294,16 +297,27 @@ v3.0  "플랫폼"                 ← AI + iOS + 확장
 - [x] 프로필 3개 기본 제공 + 커스텀 프로필 생성/수정/삭제
 - [ ] 프로필 선택 → 원클릭 시작 (프로필-세션 연동은 v1.0으로 이관)
 - [x] 오늘의 집중 시간 + 뽀모도로 수 표시
+- [x] 주간/월간 통계 + Swift Charts 바/도넛 차트
 - [x] 모든 세션 기록 SwiftData 저장
 - [x] 설정 화면 (테마 선택, 일반 설정)
+- [x] 메인 대시보드 윈도우 (별도 윈도우)
 - [ ] 지인 3명에게 테스트 배포 → 치명적 버그 없음
 
 #### v0.5에서 추가 구현된 것 (원래 스펙에 없었던 것)
 - 메인 대시보드 윈도우 (별도 윈도우로 통계/프로필/설정 허브 제공)
 - Dynamic Activation Policy (윈도우 열림 → Dock/Cmd+Tab 노출, 닫힘 → 메뉴바 전용)
 - 시스템 슬립/웨이크 타이머 보정 (슬립 시간 자동 제외)
-- IPv6 3중 차단 (127.0.0.1 + ::1 + fe80::1%lo0, macOS IPv6 우선 해석 대응)
+- IPv6 3중 차단 (0.0.0.0 + ::1 + fe80::1%lo0, macOS IPv6 우선 해석 대응)
 - 도메인 형식 검증 (hosts 파일 인젝션 방지)
+- Private Relay 감지 및 경고 (iCloud Private Relay 켜져있을 시 Safari 차단 우회 경고)
+- 테마 라이브 프리뷰 패널 (대시보드/팝오버 실시간 미리보기)
+- 대시보드 시간 설정 UI (자유/뽀모도로 모드 선택 + 프리셋 + 슬라이더)
+- 완료 축하 애니메이션 (체크마크 스케일인 + 컨페티 버스트)
+- 뽀모도로 완료 요약 (총 집중 시간, 사이클 수, 휴식 시간)
+- 뽀모도로 페이즈 뱃지 애니메이션 (집중/휴식 전환 시 바운스)
+- 디버그 Fast Timer 모드 (1분을 1~30초로 압축, #if DEBUG)
+- QA 자동화 커맨드 시스템 (셸 스크립트 → UserDefaults 브리지 → JSON 결과)
+- 릴리스 프리플라이트 검증 스크립트 (main/develop/CHANGELOG 정합성)
 - QA 하드닝: 하드코딩 색상 제거, Swift 6 동시성 수정, 옵저버 정리, 중복 삽입 방지
 
 ---
@@ -376,9 +390,10 @@ v3.0  "플랫폼"                 ← AI + iOS + 확장
 #### 완료 기준
 - [ ] Flowmodoro: 카운트업 → 정지 → 비례 휴식 자동 계산 → 휴식 카운트다운
 - [ ] Flowmodoro 중 차단 유지, 휴식 중 해제
-- [ ] 주간 바 차트 표시 (Swift Charts)
+- [x] 주간 바 차트 표시 (Swift Charts) — v0.5에서 선행 구현
 - [ ] 스트릭 계산 + 표시
 - [ ] 온보딩 3스텝 동작
+- [x] 완료 애니메이션: 체크마크 + 컨페티 — v0.5에서 선행 구현
 - [ ] Gumroad / 개인 사이트에 배포 페이지 생성
 - [ ] 모든 v0.1~v0.5 기능 안정적 동작
 
@@ -668,6 +683,15 @@ AppState (@Observable)
 ├── 현재 프로필
 ├── 오늘의 통계 (캐시)
 └── 프로그레시브 디스클로저 레벨
+
+SystemUtilities
+├── HostsFileManager (hosts 파일 마커 관리)
+├── PrivilegedHelper (osascript 권한 상승)
+├── DNSManager (DNS 캐시 플러시)
+└── PrivateRelayDetector (iCloud Private Relay 상태 감지)
+
+QAAutomation (#if DEBUG)
+└── QAAutomationController (셸 브리지 → UserDefaults 폴링)
 ```
 
 ### 데이터 모델
@@ -692,12 +716,14 @@ AppState (@Observable)
 @Model class BlockedSite {
     var domain: String              // "facebook.com"
     var category: String?           // "SNS"
+    var isEnabled: Bool = true
 }
 
 @Model class BlockedApp {
     var bundleId: String            // "com.tinyspeck.slackmacgap"
     var name: String                // "Slack"
     var category: String?
+    var isEnabled: Bool = true
 }
 
 @Model class FocusSession {

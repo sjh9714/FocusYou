@@ -143,7 +143,8 @@ FocusYou/
 │   ├── Stats/                           # v0.5+
 │   │   └── StatsView.swift              # 기본 통계 (Swift Charts)
 │   ├── Settings/
-│   │   └── SettingsView.swift           # 설정 + 테마 선택 통합
+│   │   ├── SettingsView.swift           # 설정 + 테마 선택 통합
+│   │   └── ThemeLivePreviewPanel.swift  # 테마 라이브 프리뷰 (v0.5+)
 │   ├── Onboarding/                      # v1.0 예정
 │   │   └── OnboardingView.swift
 │   └── Components/
@@ -163,7 +164,10 @@ FocusYou/
 │   ├── System/
 │   │   ├── HostsFileManager.swift       # hosts 파일 마커 관리
 │   │   ├── PrivilegedHelper.swift       # osascript 권한 상승
-│   │   └── DNSManager.swift             # DNS 캐시 플러시
+│   │   ├── DNSManager.swift             # DNS 캐시 플러시
+│   │   └── PrivateRelayDetector.swift   # Private Relay 감지 (v0.5+)
+│   ├── QA/                              # DEBUG 전용
+│   │   └── QAAutomationController.swift # 셸 브리지 자동화 (v0.5+)
 │   ├── Theme/
 │   │   └── ThemeManager.swift           # v0.5+ 테마 단일 진실 원천
 │   └── Notification/
@@ -184,7 +188,12 @@ FocusYou/
     ├── Constants.swift
     └── FocusYouError.swift              # LocalizedError 열거형
 
+scripts/
+├── qa_focusyou_state.sh                 # QA 스냅샷/자동화
+└── release_preflight.sh                 # 릴리스 검증
+
 FocusYouTests/
+├── AppStateLifecycleTests.swift         # 앱 상태 전이 테스트
 ├── BlockingCoordinatorTests.swift
 ├── HostsFileManagerTests.swift
 ├── NotificationServiceSettingsTests.swift
