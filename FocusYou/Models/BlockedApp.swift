@@ -20,7 +20,8 @@ final class BlockedApp {
     /// 생성 일시
     var createdAt: Date
 
-    /// 소속 프로필
+    /// 소속 프로필. ProfileBootstrapper가 기본 프로필을 할당하므로 런타임에 nil이 아니어야 하지만,
+    /// SwiftData 마이그레이션 호환을 위해 Optional 유지.
     var profile: BlockProfile?
 
     init(bundleId: String, name: String, category: String? = nil) {

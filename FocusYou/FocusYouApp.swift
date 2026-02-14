@@ -8,6 +8,7 @@ struct FocusYouApp: App {
     @State private var appState: AppState
     @State private var settingsViewModel: SettingsViewModel
     @State private var themeManager: ThemeManager
+    @State private var didBootstrap = false
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     /// 모든 Scene에서 공유하는 단일 ModelContainer
@@ -22,9 +23,6 @@ struct FocusYouApp: App {
                 FocusSession.self
             )
             modelContainer = container
-            ProfileBootstrapper.ensureDefaultProfileAndMigrateOrphans(
-                modelContext: container.mainContext
-            )
         } catch {
             fatalError("ModelContainer 생성 실패: \(error)")
         }
@@ -52,6 +50,13 @@ struct FocusYouApp: App {
                 .environment(appState)
                 .environment(settingsViewModel)
                 .environment(themeManager)
+                .task {
+                    guard !didBootstrap else { return }
+                    didBootstrap = true
+                    ProfileBootstrapper.ensureDefaultProfileAndMigrateOrphans(
+                        modelContext: modelContainer.mainContext
+                    )
+                }
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: appState.menuBarIcon)

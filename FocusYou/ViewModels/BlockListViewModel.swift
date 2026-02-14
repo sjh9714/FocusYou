@@ -38,13 +38,15 @@ final class BlockListViewModel {
         }
 
         // 중복 확인
-        let descriptor = FetchDescriptor<BlockedSite>()
-        if let existingSites = try? modelContext.fetch(descriptor),
-           existingSites.contains(
-            where: {
-                $0.domain == normalized && belongsToProfile($0.profile, selectedProfile: profile)
-            }
-           ) {
+        let isDuplicate: Bool
+        if let profile {
+            isDuplicate = profile.blockedSites.contains { $0.domain == normalized }
+        } else {
+            let descriptor = FetchDescriptor<BlockedSite>()
+            isDuplicate = (try? modelContext.fetch(descriptor))?
+                .contains { $0.domain == normalized && $0.profile == nil } ?? false
+        }
+        if isDuplicate {
             errorMessage = "이미 추가된 사이트입니다"
             return
         }
@@ -125,18 +127,19 @@ final class BlockListViewModel {
         modelContext: ModelContext,
         profile: BlockProfile? = nil
     ) {
+        let bundleId = installedApp.bundleId
+
         if isBlocked {
-            // 중복 확인 (applyPreset과 동일 패턴)
-            let bundleId = installedApp.bundleId
-            let descriptor = FetchDescriptor<BlockedApp>()
-            if let blockedApps = try? modelContext.fetch(descriptor),
-               blockedApps.contains(
-                where: {
-                    $0.bundleId == bundleId && belongsToProfile($0.profile, selectedProfile: profile)
-                }
-               ) {
-                return
+            // 중복 확인
+            let alreadyBlocked: Bool
+            if let profile {
+                alreadyBlocked = profile.blockedApps.contains { $0.bundleId == bundleId }
+            } else {
+                let descriptor = FetchDescriptor<BlockedApp>()
+                alreadyBlocked = (try? modelContext.fetch(descriptor))?
+                    .contains { $0.bundleId == bundleId && $0.profile == nil } ?? false
             }
+            guard !alreadyBlocked else { return }
 
             let app = BlockedApp(
                 bundleId: installedApp.bundleId,
@@ -147,14 +150,16 @@ final class BlockListViewModel {
             logger.info("앱 차단 추가: \(installedApp.name)")
         } else {
             // 제거
-            let bundleId = installedApp.bundleId
-            let descriptor = FetchDescriptor<BlockedApp>()
-
-            if let blockedApps = try? modelContext.fetch(descriptor) {
-                for app in blockedApps {
-                    guard app.bundleId == bundleId else { continue }
-                    guard belongsToProfile(app.profile, selectedProfile: profile) else { continue }
+            if let profile {
+                for app in profile.blockedApps where app.bundleId == bundleId {
                     modelContext.delete(app)
+                }
+            } else {
+                let descriptor = FetchDescriptor<BlockedApp>()
+                if let blockedApps = try? modelContext.fetch(descriptor) {
+                    for app in blockedApps where app.bundleId == bundleId && app.profile == nil {
+                        modelContext.delete(app)
+                    }
                 }
             }
             logger.info("앱 차단 제거: \(installedApp.name)")
@@ -204,22 +209,27 @@ final class BlockListViewModel {
     ) {
         guard let preset = loadPreset(category: category) else { return }
 
-        let siteDescriptor = FetchDescriptor<BlockedSite>()
-        let existingSites = (try? modelContext.fetch(siteDescriptor)) ?? []
-        let appDescriptor = FetchDescriptor<BlockedApp>()
-        let existingApps = (try? modelContext.fetch(appDescriptor)) ?? []
+        let existingSites: [BlockedSite]
+        let existingApps: [BlockedApp]
+
+        if let profile {
+            existingSites = profile.blockedSites
+            existingApps = profile.blockedApps
+        } else {
+            existingSites = (try? modelContext.fetch(FetchDescriptor<BlockedSite>())) ?? []
+            existingApps = (try? modelContext.fetch(FetchDescriptor<BlockedApp>())) ?? []
+        }
 
         // 사이트 추가 (중복 방지)
         for domain in preset.sites {
             let normalized = domain.normalizedDomain
-            let exists = existingSites.contains(
-                where: {
-                    $0.domain == normalized && belongsToProfile($0.profile, selectedProfile: profile)
-                }
-            )
-            if exists {
-                continue
+            let exists: Bool
+            if profile != nil {
+                exists = existingSites.contains { $0.domain == normalized }
+            } else {
+                exists = existingSites.contains { $0.domain == normalized && $0.profile == nil }
             }
+            guard !exists else { continue }
 
             let site = BlockedSite(domain: normalized, category: category)
             site.profile = profile
@@ -229,14 +239,13 @@ final class BlockListViewModel {
         // 앱 추가 (중복 방지)
         for presetApp in preset.apps {
             let bundleId = presetApp.bundleId
-            let exists = existingApps.contains(
-                where: {
-                    $0.bundleId == bundleId && belongsToProfile($0.profile, selectedProfile: profile)
-                }
-            )
-            if exists {
-                continue
+            let exists: Bool
+            if profile != nil {
+                exists = existingApps.contains { $0.bundleId == bundleId }
+            } else {
+                exists = existingApps.contains { $0.bundleId == bundleId && $0.profile == nil }
             }
+            guard !exists else { continue }
 
             let app = BlockedApp(
                 bundleId: presetApp.bundleId,
@@ -257,24 +266,32 @@ final class BlockListViewModel {
         profile: BlockProfile? = nil
     ) {
         // 해당 카테고리의 사이트 제거
-        let sitePredicate = #Predicate<BlockedSite> { $0.category == category }
-        let siteDescriptor = FetchDescriptor<BlockedSite>(predicate: sitePredicate)
-
-        if let sites = try? modelContext.fetch(siteDescriptor) {
-            for site in sites {
-                guard belongsToProfile(site.profile, selectedProfile: profile) else { continue }
+        if let profile {
+            for site in profile.blockedSites where site.category == category {
                 modelContext.delete(site)
+            }
+        } else {
+            let sitePredicate = #Predicate<BlockedSite> { $0.category == category }
+            let siteDescriptor = FetchDescriptor<BlockedSite>(predicate: sitePredicate)
+            if let sites = try? modelContext.fetch(siteDescriptor) {
+                for site in sites where site.profile == nil {
+                    modelContext.delete(site)
+                }
             }
         }
 
         // 해당 카테고리의 앱 제거
-        let appPredicate = #Predicate<BlockedApp> { $0.category == category }
-        let appDescriptor = FetchDescriptor<BlockedApp>(predicate: appPredicate)
-
-        if let apps = try? modelContext.fetch(appDescriptor) {
-            for app in apps {
-                guard belongsToProfile(app.profile, selectedProfile: profile) else { continue }
+        if let profile {
+            for app in profile.blockedApps where app.category == category {
                 modelContext.delete(app)
+            }
+        } else {
+            let appPredicate = #Predicate<BlockedApp> { $0.category == category }
+            let appDescriptor = FetchDescriptor<BlockedApp>(predicate: appPredicate)
+            if let apps = try? modelContext.fetch(appDescriptor) {
+                for app in apps where app.profile == nil {
+                    modelContext.delete(app)
+                }
             }
         }
 
@@ -285,6 +302,7 @@ final class BlockListViewModel {
         _ candidate: BlockProfile?,
         selectedProfile: BlockProfile?
     ) -> Bool {
-        candidate?.persistentModelID == selectedProfile?.persistentModelID
+        guard let selected = selectedProfile else { return candidate == nil }
+        return candidate?.persistentModelID == selected.persistentModelID
     }
 }

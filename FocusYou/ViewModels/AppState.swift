@@ -283,6 +283,10 @@ final class AppState {
         let profileSites = profile.blockedSites.filter(\.isEnabled)
         let profileApps = profile.blockedApps.filter(\.isEnabled)
 
+        if profileSites.isEmpty && profileApps.isEmpty {
+            logger.warning("프로필 '\(profile.name, privacy: .public)'에 활성 차단 항목 없음 — 타이머만 시작")
+        }
+
         await startFocusSession(
             duration: duration,
             sites: profileSites,
