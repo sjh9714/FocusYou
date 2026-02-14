@@ -77,7 +77,8 @@ struct PieChartTimerView: View {
     /// 4) 끝점 글로우 도트
     private var endPointDot: some View {
         let angle = Angle.degrees(-90 + 360 * clampedProgress)
-        let radius: CGFloat = (190 - 8) / 2
+        // .stroke()는 경로 중심(190/2)에 선을 그리므로, 도트도 같은 반지름에 배치
+        let radius: CGFloat = 190 / 2
         let x = radius * cos(CGFloat(angle.radians))
         let y = radius * sin(CGFloat(angle.radians))
 

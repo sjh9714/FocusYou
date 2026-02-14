@@ -1,11 +1,9 @@
 import SwiftUI
-import AppKit
 
 // MARK: - 설정 내 테마 실시간 프리뷰 패널
 
 struct ThemeLivePreviewPanel: View {
     @Environment(ThemeManager.self) private var themeManager
-    @Environment(\.openWindow) private var openWindow
 
     @State private var previewSurface: PreviewSurface = .dashboard
 
@@ -27,14 +25,6 @@ struct ThemeLivePreviewPanel: View {
                 }
             }
             .transition(.opacity.combined(with: .scale(scale: 0.98)))
-
-            Button {
-                openDashboardForLivePreview()
-            } label: {
-                Label("대시보드 나란히 열기", systemImage: "rectangle.split.2x1")
-                    .frame(maxWidth: .infinity)
-            }
-            .secondaryActionStyle(color: themeManager.primary)
 
             Label("테마 선택은 즉시 자동 저장됩니다.", systemImage: "checkmark.circle.fill")
                 .font(.caption)
@@ -113,47 +103,6 @@ struct ThemeLivePreviewPanel: View {
             RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
                 .stroke(themeManager.primary.opacity(0.12), lineWidth: 0.5)
         )
-    }
-
-    private func openDashboardForLivePreview() {
-        openWindow(id: Constants.UI.mainDashboardWindowID)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.UI.livePreviewArrangeDelay) {
-            guard let dashboardWindow = NSApp.windows.first(where: {
-                $0.title == Constants.UI.mainDashboardWindowTitle
-            }) else {
-                return
-            }
-            guard let settingsWindow = NSApp.keyWindow ?? NSApp.windows.first(where: {
-                $0.title == Constants.UI.settingsWindowTitle
-            }) else {
-                return
-            }
-
-            alignDashboardWindow(dashboardWindow, nextTo: settingsWindow)
-            dashboardWindow.orderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-        }
-    }
-
-    private func alignDashboardWindow(_ dashboardWindow: NSWindow, nextTo settingsWindow: NSWindow) {
-        guard let screen = settingsWindow.screen ?? dashboardWindow.screen ?? NSScreen.main else { return }
-
-        let visibleFrame = screen.visibleFrame
-        var frame = dashboardWindow.frame
-        let gap = Constants.UI.livePreviewWindowGap
-
-        var targetX = settingsWindow.frame.maxX + gap
-        if targetX + frame.width > visibleFrame.maxX {
-            targetX = settingsWindow.frame.minX - frame.width - gap
-        }
-        targetX = min(max(targetX, visibleFrame.minX), visibleFrame.maxX - frame.width)
-
-        var targetY = settingsWindow.frame.maxY - frame.height
-        targetY = min(max(targetY, visibleFrame.minY), visibleFrame.maxY - frame.height)
-
-        frame.origin = CGPoint(x: targetX, y: targetY)
-        dashboardWindow.setFrame(frame, display: true, animate: true)
     }
 
     private func statusBadge(title: String, color: Color) -> some View {

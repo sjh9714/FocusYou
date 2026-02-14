@@ -65,6 +65,7 @@
 		EBBE4690B5997DA436CC2E71 /* BlockListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F591BC59259AC45E8F15287 /* BlockListView.swift */; };
 		F2FD603D4559E67260548B5F /* FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3E26060BA507E42D48663C /* FocusSession.swift */; };
 		F50384EFF52B64498DA2426D /* HostsFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */; };
+		F6AFCE54B68AA4B083623DA1 /* PrivateRelayDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D987542C32F7CBC95E87758 /* PrivateRelayDetector.swift */; };
 		FC55AD7F2656D9A9B4E38265 /* MainDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */; };
 /* End PBXBuildFile section */
 
@@ -93,6 +94,7 @@
 		1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		2B3E26060BA507E42D48663C /* FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSession.swift; sourceTree = "<group>"; };
 		2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceSettingsTests.swift; sourceTree = "<group>"; };
+		2D987542C32F7CBC95E87758 /* PrivateRelayDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateRelayDetector.swift; sourceTree = "<group>"; };
 		2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListViewModel.swift; sourceTree = "<group>"; };
 		38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedApp.swift; sourceTree = "<group>"; };
 		3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsViewModel.swift; sourceTree = "<group>"; };
@@ -349,6 +351,7 @@
 			children = (
 				56C2057280949E9F448AE711 /* DNSManager.swift */,
 				944A6E1949B015C2817CE009 /* HostsFileManager.swift */,
+				2D987542C32F7CBC95E87758 /* PrivateRelayDetector.swift */,
 				946DE288441FC826623C09C6 /* PrivilegedHelper.swift */,
 			);
 			path = System;
@@ -551,6 +554,7 @@
 				E2E1EFAAE13D7F4FF3403212 /* PieChartTimerView.swift in Sources */,
 				AB6B9AF0E73DBC0D2E9B6477 /* PomodoroConfigView.swift in Sources */,
 				CDF704D151A76F2E52DDCFDD /* PomodoroEngine.swift in Sources */,
+				F6AFCE54B68AA4B083623DA1 /* PrivateRelayDetector.swift in Sources */,
 				0FE63215E95C413DF29917E1 /* PrivilegedHelper.swift in Sources */,
 				0F63113E064387FB6FDCAA45 /* ProfileEditorView.swift in Sources */,
 				4BDFD390A0691774D076EFEC /* ProfileListView.swift in Sources */,

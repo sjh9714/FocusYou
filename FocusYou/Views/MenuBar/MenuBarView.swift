@@ -28,6 +28,10 @@ struct MenuBarView: View {
                 inlineErrorPanel
             }
 
+            if appState.showPrivateRelayWarning {
+                privateRelayWarningPanel
+            }
+
             Rectangle().fill(.quaternary).frame(height: 0.5)
 
             Group {
@@ -52,6 +56,7 @@ struct MenuBarView: View {
         .padding()
         .frame(width: Constants.UI.popoverWidth)
         .animation(.quickEase, value: appState.showError)
+        .animation(.quickEase, value: appState.showPrivateRelayWarning)
         .task {
             guard !Self.hasAutoOpenedDashboard else { return }
             Self.hasAutoOpenedDashboard = true
@@ -147,6 +152,57 @@ struct MenuBarView: View {
         .overlay(
             RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
                 .stroke(themeManager.stopButton.opacity(0.15), lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - Private Relay 경고 패널
+
+    private var privateRelayWarningPanel: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
+            Label(
+                "Private Relay가 Safari 차단을 우회 중",
+                systemImage: "exclamationmark.shield.fill"
+            )
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.orange)
+
+            Text("iCloud Private Relay가 켜져 있어 Safari에서 웹사이트 차단이 우회됩니다. 아래 방법 중 하나를 선택하세요.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
+                // 1. 정보성 — 다른 브라우저 안내
+                Label {
+                    Text("Chrome, Firefox 등에서는 정상 차단됩니다.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } icon: {
+                    Image(systemName: "globe")
+                        .foregroundStyle(.secondary)
+                }
+
+                // 2. Private Relay 설정 열기
+                Button {
+                    appState.openPrivateRelaySettings()
+                } label: {
+                    Label("Private Relay 설정 열기", systemImage: "gear")
+                        .frame(maxWidth: .infinity)
+                }
+                .primaryActionStyle(color: .orange)
+            }
+
+            Button {
+                appState.dismissPrivateRelayWarning()
+            } label: {
+                Text("닫기")
+                    .frame(maxWidth: .infinity)
+            }
+            .secondaryActionStyle(color: .secondary)
+        }
+        .frostedCard()
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
+                .stroke(Color.orange.opacity(0.15), lineWidth: 0.5)
         )
     }
 

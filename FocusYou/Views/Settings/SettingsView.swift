@@ -24,14 +24,6 @@ struct SettingsView: View {
                     isOn: Bindable(viewModel).showBlockedAppNotification
                 )
 
-                Toggle(
-                    "강력 웹 차단 (브라우저 앱 종료 포함)",
-                    isOn: Bindable(viewModel).strictBrowserBlocking
-                )
-
-                Text("켜면 세션 시작 시 Safari/Chrome 같은 브라우저 앱이 종료되고 실행이 차단됩니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
 
             themeSection

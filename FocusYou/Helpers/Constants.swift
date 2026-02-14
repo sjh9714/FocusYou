@@ -63,16 +63,6 @@ enum Constants {
         static let helperPath = "/usr/local/bin/focusyou-helper"
         /// sudoers 엔트리 (헬퍼 NOPASSWD 허용)
         static let sudoersPath = "/etc/sudoers.d/focusyou"
-        /// 강력 웹 차단 시 함께 차단할 브라우저 번들 ID
-        static let strictBrowserBundleIDs: [String] = [
-            "com.apple.Safari",
-            "com.google.Chrome",
-            "com.microsoft.edgemac",
-            "org.mozilla.firefox",
-            "company.thebrowser.Browser",
-            "com.operasoftware.Opera",
-            "com.brave.Browser",
-        ]
     }
 
     // MARK: - 앱 정보
@@ -121,7 +111,7 @@ enum Constants {
         static let showMenuBarTimeKey = "showMenuBarTime"
         static let playCompletionSoundKey = "playCompletionSound"
         static let showBlockedAppNotificationKey = "showBlockedAppNotification"
-        static let strictBrowserBlockingKey = "strictBrowserBlocking"
+
         static let selectedThemeIDKey = "selectedThemeID"
         static let debugFastTimerEnabledKey = "debugFastTimerEnabled"
         static let debugSecondsPerMinuteKey = "debugSecondsPerMinute"
@@ -133,7 +123,7 @@ enum Constants {
         static let showMenuBarTimeDefault = true
         static let playCompletionSoundDefault = true
         static let showBlockedAppNotificationDefault = true
-        static let strictBrowserBlockingDefault = false
+
         static let selectedThemeIDDefault = "crimson-focus"
         static let debugFastTimerEnabledDefault = false
         static let debugSecondsPerMinuteDefault = 5.0

@@ -17,7 +17,9 @@ struct MainDashboardView: View {
     private var sessions: [FocusSession]
 
     @State private var quickStartMode: AppState.TimerMode = .free
-    @State private var selectedFreeMinutes: Int = Constants.Timer.presets.first ?? 25
+    @State private var customFreeMinutes: Double = Double(Constants.Timer.presets.first ?? 25)
+    @State private var selectedFreePreset: Int? = Constants.Timer.presets.first ?? 25
+    @State private var pomodoroConfiguration: PomodoroConfiguration = .default
     @State private var isSessionActionInFlight = false
     @State private var showThemePicker = false
     @Namespace private var dashModeNamespace
@@ -29,6 +31,9 @@ struct MainDashboardView: View {
                 if appState.showError {
                     dashboardErrorPanel
                 }
+                if appState.showPrivateRelayWarning {
+                    dashboardPrivateRelayPanel
+                }
                 heroCard
                 todayStatsRow
                 quickActionsBar
@@ -37,6 +42,7 @@ struct MainDashboardView: View {
             .padding(Constants.Design.spacingXL)
         }
         .background(themeManager.background)
+        .animation(.quickEase, value: appState.showPrivateRelayWarning)
     }
 
     // MARK: - 에러 패널
@@ -77,6 +83,55 @@ struct MainDashboardView: View {
         .overlay(
             RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
                 .stroke(themeManager.stopButton.opacity(0.15), lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - Private Relay 경고 패널
+
+    private var dashboardPrivateRelayPanel: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
+            Label(
+                "Private Relay가 Safari 차단을 우회 중",
+                systemImage: "exclamationmark.shield.fill"
+            )
+            .font(.callout.weight(.semibold))
+            .foregroundStyle(.orange)
+
+            Text("iCloud Private Relay가 켜져 있어 Safari에서 웹사이트 차단이 우회됩니다. 아래 방법 중 하나를 선택하세요.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
+                Label {
+                    Text("Chrome, Firefox 등에서는 정상 차단됩니다.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                } icon: {
+                    Image(systemName: "globe")
+                        .foregroundStyle(.secondary)
+                }
+
+                Button {
+                    appState.openPrivateRelaySettings()
+                } label: {
+                    Label("Private Relay 설정 열기", systemImage: "gear")
+                        .frame(maxWidth: .infinity)
+                }
+                .primaryActionStyle(color: .orange)
+            }
+
+            Button {
+                appState.dismissPrivateRelayWarning()
+            } label: {
+                Text("닫기")
+                    .frame(maxWidth: .infinity)
+            }
+            .secondaryActionStyle(color: .secondary)
+        }
+        .frostedCard()
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
+                .stroke(Color.orange.opacity(0.15), lineWidth: 0.5)
         )
     }
 
@@ -154,21 +209,9 @@ struct MainDashboardView: View {
             .background(Color.secondary.opacity(0.06), in: Capsule())
 
             if quickStartMode == .free {
-                HStack(spacing: Constants.Design.spacingSM) {
-                    ForEach(Constants.Timer.presets, id: \.self) { minutes in
-                        ChipButton(
-                            title: "\(minutes)분",
-                            isSelected: selectedFreeMinutes == minutes,
-                            color: themeManager.primary
-                        ) {
-                            selectedFreeMinutes = minutes
-                        }
-                    }
-                }
+                freeTimerConfig
             } else {
-                Text("기본 설정: 집중 \(Constants.Timer.pomodoroFocusDefaultMinutes)분 · \(Constants.Timer.pomodoroCyclesDefault)사이클")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                pomodoroTimerConfig
             }
 
             HStack(spacing: Constants.Design.spacingMD) {
@@ -181,17 +224,94 @@ struct MainDashboardView: View {
             Button {
                 startSessionFromDashboard()
             } label: {
-                Label(
-                    quickStartMode == .pomodoro
-                        ? "뽀모도로 시작"
-                        : "\(selectedFreeMinutes)분 집중 시작",
-                    systemImage: "bolt.fill"
-                )
+                Label(startButtonTitle, systemImage: "bolt.fill")
             }
             .primaryActionStyle(color: themeManager.startButton)
             .disabled(isSessionActionInFlight)
         }
         .frostedCard()
+    }
+
+    // MARK: - 자유 모드 설정
+
+    private var selectedDurationMinutes: Int {
+        selectedFreePreset ?? Int(customFreeMinutes)
+    }
+
+    private var freeTimerConfig: some View {
+        VStack(spacing: Constants.Design.spacingMD) {
+            // 큰 시간 표시
+            Text(TimeInterval(selectedDurationMinutes * 60).formattedAsTimer)
+                .font(.system(size: 36, weight: .ultraLight, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(themeManager.primary)
+                .contentTransition(.numericText())
+
+            // 프리셋 칩
+            HStack(spacing: Constants.Design.spacingSM) {
+                ForEach(Constants.Timer.presets, id: \.self) { minutes in
+                    ChipButton(
+                        title: "\(minutes)분",
+                        isSelected: selectedFreePreset == minutes,
+                        color: themeManager.primary
+                    ) {
+                        selectedFreePreset = minutes
+                        customFreeMinutes = Double(minutes)
+                    }
+                }
+            }
+
+            // 커스텀 슬라이더
+            VStack(spacing: Constants.Design.spacingXS) {
+                Slider(
+                    value: $customFreeMinutes,
+                    in: Double(Constants.Timer.minimumMinutes)...Double(Constants.Timer.maximumMinutes),
+                    step: 1
+                ) {
+                    Text("시간 설정")
+                } minimumValueLabel: {
+                    Text("\(Constants.Timer.minimumMinutes)")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                } maximumValueLabel: {
+                    Text("\(Constants.Timer.maximumMinutes)")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+                .tint(themeManager.primary)
+                .onChange(of: customFreeMinutes) { _, newValue in
+                    let rounded = Int(newValue)
+                    if Constants.Timer.presets.contains(rounded) {
+                        selectedFreePreset = rounded
+                    } else {
+                        selectedFreePreset = nil
+                    }
+                }
+            }
+        }
+        .animation(.quickEase, value: selectedDurationMinutes)
+    }
+
+    // MARK: - 뽀모도로 설정
+
+    private var pomodoroTimerConfig: some View {
+        VStack(spacing: Constants.Design.spacingMD) {
+            // 큰 시간 표시 (집중 시간)
+            Text(TimeInterval(pomodoroConfiguration.focusMinutes * 60).formattedAsTimer)
+                .font(.system(size: 36, weight: .ultraLight, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(themeManager.primary)
+                .contentTransition(.numericText())
+
+            PomodoroConfigView(configuration: $pomodoroConfiguration)
+        }
+        .animation(.quickEase, value: pomodoroConfiguration.focusMinutes)
+    }
+
+    private var startButtonTitle: String {
+        quickStartMode == .pomodoro
+            ? "뽀모도로 시작"
+            : "\(selectedDurationMinutes)분 집중 시작"
     }
 
     // 진행 중 → 라이브 타이머
@@ -533,8 +653,8 @@ struct MainDashboardView: View {
         isSessionActionInFlight = true
 
         let selectedDuration = quickStartMode == .free
-            ? TimeInterval(selectedFreeMinutes * 60)
-            : TimeInterval(Constants.Timer.pomodoroFocusDefaultMinutes * 60)
+            ? TimeInterval(selectedDurationMinutes * 60)
+            : TimeInterval(pomodoroConfiguration.focusMinutes * 60)
 
         Task { @MainActor in
             await appState.startFocusSession(
@@ -543,7 +663,7 @@ struct MainDashboardView: View {
                 apps: enabledApps,
                 modelContext: modelContext,
                 mode: quickStartMode,
-                pomodoroConfiguration: .default
+                pomodoroConfiguration: pomodoroConfiguration
             )
             isSessionActionInFlight = false
         }

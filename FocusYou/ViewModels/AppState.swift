@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import SwiftData
 import os
@@ -40,6 +41,10 @@ final class AppState {
     var errorMessage: String?
     var showError = false
     var canRetryBlockingDeactivation = false
+
+    /// Private Relay 경고 표시 여부
+    var showPrivateRelayWarning = false
+    private var privateRelayWarningDismissedThisSession = false
 
     // MARK: - 타이머
 
@@ -150,11 +155,7 @@ final class AppState {
         do {
             // 1. 차단 활성화
             let enabledDomains = sites.filter(\.isEnabled).map(\.domain)
-            let selectedBundleIds = apps.filter(\.isEnabled).map(\.bundleId)
-            let effectiveBundleIds = resolvedBlockedAppBundleIDs(
-                domains: enabledDomains,
-                selectedBundleIds: selectedBundleIds
-            )
+            let effectiveBundleIds = apps.filter(\.isEnabled).map(\.bundleId)
 
             logger.info("차단 대상: 사이트 \(enabledDomains.count)개, 앱 \(effectiveBundleIds.count)개")
 
@@ -169,6 +170,14 @@ final class AppState {
             isBlockingActive = !enabledDomains.isEmpty || !effectiveBundleIds.isEmpty
             sessionBlockedDomains = enabledDomains
             sessionBlockedAppBundleIds = effectiveBundleIds
+
+            // Private Relay 경고 (웹 차단 + 미닫힘)
+            if isBlockingActive && !enabledDomains.isEmpty
+               && !privateRelayWarningDismissedThisSession {
+                if PrivateRelayDetector.detect() == .enabled {
+                    showPrivateRelayWarning = true
+                }
+            }
 
             // 2. 타이머 시작
             timerMode = mode
@@ -493,27 +502,6 @@ final class AppState {
         return TimeInterval(totalBreakMinutes * 60)
     }
 
-    private func resolvedBlockedAppBundleIDs(
-        domains: [String],
-        selectedBundleIds: [String]
-    ) -> [String] {
-        guard !domains.isEmpty, isStrictBrowserBlockingEnabled else {
-            return selectedBundleIds
-        }
-
-        let merged = Set(selectedBundleIds).union(Constants.Blocking.strictBrowserBundleIDs)
-        logger.info("강력 웹 차단 적용: 브라우저 \(Constants.Blocking.strictBrowserBundleIDs.count)개 자동 포함")
-        return merged.sorted()
-    }
-
-    private var isStrictBrowserBlockingEnabled: Bool {
-        let defaults = UserDefaults.standard
-        guard defaults.object(forKey: Constants.Settings.strictBrowserBlockingKey) != nil else {
-            return Constants.Settings.strictBrowserBlockingDefault
-        }
-        return defaults.bool(forKey: Constants.Settings.strictBrowserBlockingKey)
-    }
-
     #if DEBUG
     private func debugScaledDuration(_ seconds: TimeInterval) -> TimeInterval {
         let defaults = UserDefaults.standard
@@ -571,6 +559,22 @@ final class AppState {
         showError = false
         errorMessage = nil
         canRetryBlockingDeactivation = false
+    }
+
+    // MARK: - Private Relay 경고 액션
+
+    /// Private Relay 경고를 닫고 이번 세션 내 재표시를 방지합니다.
+    func dismissPrivateRelayWarning() {
+        showPrivateRelayWarning = false
+        privateRelayWarningDismissedThisSession = true
+    }
+
+    /// 경고에서 "Private Relay 설정 열기" 선택 시 — 시스템 설정으로 이동
+    func openPrivateRelaySettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preferences.AppleIDPrefPane") {
+            NSWorkspace.shared.open(url)
+        }
+        dismissPrivateRelayWarning()
     }
 
     /// 공통 에러 표시 헬퍼

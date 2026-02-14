@@ -29,11 +29,6 @@ final class SettingsViewModelTests: XCTestCase {
             viewModel.showBlockedAppNotification,
             Constants.Settings.showBlockedAppNotificationDefault
         )
-        XCTAssertEqual(
-            viewModel.strictBrowserBlocking,
-            Constants.Settings.strictBrowserBlockingDefault
-        )
-
         #if DEBUG
         XCTAssertEqual(viewModel.debugFastTimerEnabled, Constants.Settings.debugFastTimerEnabledDefault)
         XCTAssertEqual(
@@ -49,7 +44,6 @@ final class SettingsViewModelTests: XCTestCase {
         firstViewModel.showMenuBarTime = false
         firstViewModel.playCompletionSound = false
         firstViewModel.showBlockedAppNotification = false
-        firstViewModel.strictBrowserBlocking = false
 
         #if DEBUG
         firstViewModel.debugFastTimerEnabled = true
@@ -61,7 +55,6 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertFalse(secondViewModel.showMenuBarTime)
         XCTAssertFalse(secondViewModel.playCompletionSound)
         XCTAssertFalse(secondViewModel.showBlockedAppNotification)
-        XCTAssertFalse(secondViewModel.strictBrowserBlocking)
 
         #if DEBUG
         XCTAssertTrue(secondViewModel.debugFastTimerEnabled)
