@@ -10,9 +10,9 @@ enum AmbientSoundTrack: String, CaseIterable, Sendable {
 
     var displayName: String {
         switch self {
-        case .whiteNoise: "화이트 노이즈"
-        case .brownNoise: "브라운 노이즈"
-        case .pinkNoise: "핑크 노이즈"
+        case .whiteNoise: String(localized: "sound_white_noise")
+        case .brownNoise: String(localized: "sound_brown_noise")
+        case .pinkNoise: String(localized: "sound_pink_noise")
         }
     }
 

@@ -90,7 +90,7 @@ final class BlockProfile {
 
     /// 기본 프로필 생성
     static func createDefault() -> BlockProfile {
-        let profile = BlockProfile(name: "기본 프로필")
+        let profile = BlockProfile(name: String(localized: "default_profile_name"))
         profile.isDefault = true
         return profile
     }

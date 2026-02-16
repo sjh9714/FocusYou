@@ -176,7 +176,7 @@ final class DailyFocusEntryTests: XCTestCase {
         XCTAssertEqual(entry.focusMinutes, 30.0, accuracy: 0.01)
     }
 
-    func testDayLabelKorean() {
+    func testDayLabelUsesSystemLocale() {
         // 특정 날짜 (2026-02-14 토요일)
         var components = DateComponents()
         components.year = 2026
@@ -185,6 +185,10 @@ final class DailyFocusEntryTests: XCTestCase {
         let date = Calendar.current.date(from: components)!
 
         let entry = DailyFocusEntry(date: date, focusSeconds: 100)
-        XCTAssertEqual(entry.dayLabel, "토")
+        // 시스템 로케일에 따라 "토" (Korean) 또는 "Sat" (English) 등
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        let expected = formatter.string(from: date)
+        XCTAssertEqual(entry.dayLabel, expected)
     }
 }

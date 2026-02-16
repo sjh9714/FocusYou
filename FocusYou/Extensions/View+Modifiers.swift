@@ -139,7 +139,7 @@ struct SegmentedPill<T: Hashable>: View {
                 selection = tag
             }
         } label: {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.callout.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -175,7 +175,7 @@ struct ChipButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.callout.weight(.medium))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 7)

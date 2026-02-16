@@ -118,7 +118,7 @@ struct OnboardingBlockStepView: View {
                         size: 44
                     )
 
-                    Text(category)
+                    Text(Constants.Category.displayName(category))
                         .font(.callout.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
@@ -161,7 +161,7 @@ struct OnboardingBlockStepView: View {
             hoveredCategory = hovering ? category : nil
         }
         .accessibilityLabel(
-            "\(category) 카테고리, \(isApplied ? "선택됨" : "선택 안 됨")"
+            "\(Constants.Category.displayName(category)) 카테고리, \(isApplied ? "선택됨" : "선택 안 됨")"
         )
     }
 
@@ -171,7 +171,7 @@ struct OnboardingBlockStepView: View {
         HStack(spacing: Constants.Design.spacingSM) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(themeManager.stopButton)
-            Text("'\(category)' 프리셋을 불러올 수 없습니다")
+            Text("'\(Constants.Category.displayName(category))' 프리셋을 불러올 수 없습니다")
         }
         .font(.caption)
         .foregroundStyle(themeManager.stopButton)

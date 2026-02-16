@@ -55,12 +55,18 @@ struct FocusYouApp: App {
                 .environment(settingsViewModel)
                 .environment(themeManager)
                 .environment(licenseManager)
+                .preferredColorScheme(settingsViewModel.preferredColorScheme)
                 .task {
                     guard !didBootstrap else { return }
                     didBootstrap = true
                     ProfileBootstrapper.ensureDefaultProfileAndMigrateOrphans(
                         modelContext: modelContainer.mainContext
                     )
+
+                    // StoreKit 2 초기화 (v2.0)
+                    await SubscriptionManager.shared.refreshEntitlements()
+                    await SubscriptionManager.shared.loadProducts()
+                    await SubscriptionManager.shared.listenForTransactionUpdates()
 
                     // 스케줄 모니터링 시작 (v1.3)
                     if settingsViewModel.enableSchedule {
@@ -105,6 +111,7 @@ struct FocusYouApp: App {
                 .environment(settingsViewModel)
                 .environment(themeManager)
                 .environment(licenseManager)
+                .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 840, height: 620)
 
@@ -115,6 +122,7 @@ struct FocusYouApp: App {
                 .environment(appState)
                 .environment(themeManager)
                 .environment(licenseManager)
+                .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 520, height: 450)
 
@@ -124,6 +132,7 @@ struct FocusYouApp: App {
                 .modelContainer(modelContainer)
                 .environment(themeManager)
                 .environment(licenseManager)
+                .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 520, height: 400)
 
@@ -133,6 +142,7 @@ struct FocusYouApp: App {
                 .modelContainer(modelContainer)
                 .environment(themeManager)
                 .environment(licenseManager)
+                .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 620, height: 700)
 
@@ -143,6 +153,7 @@ struct FocusYouApp: App {
                 .environment(settingsViewModel)
                 .environment(themeManager)
                 .environment(licenseManager)
+                .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 420, height: 360)
     }
@@ -159,9 +170,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isTerminationCleanupInProgress = false
     private var windowObservers: [Any] = []
 
-    /// 앱 윈도우로 인식할 타이틀 (MenuBarExtra 팝오버 제외)
-    private static let appWindowTitles: Set<String> = [
-        "Focus You 대시보드", "차단 목록 관리", "프로필", "통계", "설정"
+    /// 앱 윈도우로 인식할 Window Scene ID (로케일 무관)
+    private static let appWindowIDs: Set<String> = [
+        "main-dashboard", "block-list", "profiles", "stats", "settings"
     ]
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -203,7 +214,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateActivationPolicy() {
         let hasAppWindows = NSApp.windows.contains { window in
-            window.isVisible && Self.appWindowTitles.contains(window.title)
+            guard window.isVisible, let id = window.identifier?.rawValue else { return false }
+            return Self.appWindowIDs.contains(id)
         }
         let newPolicy: NSApplication.ActivationPolicy =
             hasAppWindows ? .regular : .accessory

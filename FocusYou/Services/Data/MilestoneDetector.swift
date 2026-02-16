@@ -13,50 +13,50 @@ struct Milestone: Identifiable, Equatable {
     // MARK: - 스트릭 마일스톤
 
     static let streak7 = Milestone(
-        id: "streak_7", title: "일주일 전사", emoji: "🔥",
-        desc: "7일 연속 집중 달성"
+        id: "streak_7", title: String(localized: "milestone_streak_7_title"), emoji: "🔥",
+        desc: String(localized: "milestone_streak_7_desc")
     )
     static let streak30 = Milestone(
-        id: "streak_30", title: "한 달의 힘", emoji: "💪",
-        desc: "30일 연속 집중 달성"
+        id: "streak_30", title: String(localized: "milestone_streak_30_title"), emoji: "💪",
+        desc: String(localized: "milestone_streak_30_desc")
     )
     static let streak100 = Milestone(
-        id: "streak_100", title: "백일의 기적", emoji: "⭐",
-        desc: "100일 연속 집중 달성"
+        id: "streak_100", title: String(localized: "milestone_streak_100_title"), emoji: "⭐",
+        desc: String(localized: "milestone_streak_100_desc")
     )
     static let streak365 = Milestone(
-        id: "streak_365", title: "일 년의 대장정", emoji: "👑",
-        desc: "365일 연속 집중 달성"
+        id: "streak_365", title: String(localized: "milestone_streak_365_title"), emoji: "👑",
+        desc: String(localized: "milestone_streak_365_desc")
     )
 
     // MARK: - 누적 시간 마일스톤
 
     static let hours50 = Milestone(
-        id: "hours_50", title: "50시간 달성", emoji: "⏱️",
-        desc: "총 50시간 집중 달성"
+        id: "hours_50", title: String(localized: "milestone_hours_50_title"), emoji: "⏱️",
+        desc: String(localized: "milestone_hours_50_desc")
     )
     static let hours100 = Milestone(
-        id: "hours_100", title: "100시간 달성", emoji: "🎯",
-        desc: "총 100시간 집중 달성"
+        id: "hours_100", title: String(localized: "milestone_hours_100_title"), emoji: "🎯",
+        desc: String(localized: "milestone_hours_100_desc")
     )
     static let hours500 = Milestone(
-        id: "hours_500", title: "500시간 마스터", emoji: "🏆",
-        desc: "총 500시간 집중 달성"
+        id: "hours_500", title: String(localized: "milestone_hours_500_title"), emoji: "🏆",
+        desc: String(localized: "milestone_hours_500_desc")
     )
 
     // MARK: - 세션 수 마일스톤
 
     static let sessions100 = Milestone(
-        id: "sessions_100", title: "100회 집중", emoji: "💯",
-        desc: "100회 집중 세션 완료"
+        id: "sessions_100", title: String(localized: "milestone_sessions_100_title"), emoji: "💯",
+        desc: String(localized: "milestone_sessions_100_desc")
     )
     static let sessions500 = Milestone(
-        id: "sessions_500", title: "500회 집중", emoji: "🚀",
-        desc: "500회 집중 세션 완료"
+        id: "sessions_500", title: String(localized: "milestone_sessions_500_title"), emoji: "🚀",
+        desc: String(localized: "milestone_sessions_500_desc")
     )
     static let sessions1000 = Milestone(
-        id: "sessions_1000", title: "1000회 전설", emoji: "🌟",
-        desc: "1000회 집중 세션 완료"
+        id: "sessions_1000", title: String(localized: "milestone_sessions_1000_title"), emoji: "🌟",
+        desc: String(localized: "milestone_sessions_1000_desc")
     )
 
     static let all: [Milestone] = [

@@ -1,0 +1,817 @@
+/* English Localization — Focus You
+   Korean key → English value.
+   SwiftUI Text("한국어") automatically looks up these keys. */
+
+// ============================================================
+// MARK: - 공통 (Common)
+// ============================================================
+
+"취소" = "Cancel";
+"닫기" = "Close";
+"저장" = "Save";
+"삭제" = "Delete";
+"편집" = "Edit";
+"완료" = "Done";
+"다시 시도" = "Retry";
+"오류" = "Error";
+"건너뛰기" = "Skip";
+"이전" = "Back";
+"다음" = "Next";
+"시작" = "Start";
+"중지" = "Stop";
+
+// ============================================================
+// MARK: - 타이머 모드 (Timer Modes)
+// ============================================================
+
+"자유" = "Free";
+"뽀모도로" = "Pomodoro";
+"플로우" = "Flow";
+"플로우모도로" = "Flowmodoro";
+"자유 타이머" = "Free Timer";
+
+// ============================================================
+// MARK: - 메뉴바 / 팝오버 (MenuBar / Popover)
+// ============================================================
+
+"차단 중" = "Blocking";
+"대기 중" = "Idle";
+"차단 목록" = "Block List";
+"대시보드" = "Dashboard";
+"설정" = "Settings";
+
+// ============================================================
+// MARK: - 집중 상태 (Focus States)
+// ============================================================
+
+"집중 중" = "Focusing";
+"집중 진행 중" = "Focus in progress";
+"일시정지" = "Paused";
+"세션 완료" = "Session complete";
+"세션 완료!" = "Session complete!";
+"재개" = "Resume";
+"경과 시간" = "Elapsed time";
+"남은 시간" = "Time remaining";
+"집중 시작" = "Start Focus";
+"집중 완료" = "Complete Focus";
+"새 세션 시작" = "Start New Session";
+"뽀모도로 진행 중" = "Pomodoro in progress";
+"플로우 진행 중" = "Flow in progress";
+"플로우 휴식 중" = "Flow break";
+"새 집중 세션을 시작해보세요" = "Start a new focus session";
+
+// ============================================================
+// MARK: - 의도 입력 (Intention Input)
+// ============================================================
+
+"이번 세션의 의도" = "Session Intention";
+"무엇에 집중할까요?" = "What will you focus on?";
+"예: 보고서 작성, 코드 리뷰..." = "e.g. Report writing, code review...";
+"최근 의도" = "Recent Intentions";
+
+// ============================================================
+// MARK: - 뽀모도로 설정 (Pomodoro Config)
+// ============================================================
+
+"집중" = "Focus";
+"짧은 휴식" = "Short Break";
+"긴 휴식" = "Long Break";
+"사이클" = "Cycles";
+"분" = "min";
+"회" = "cycles";
+
+// ============================================================
+// MARK: - 회고 (Retrospect)
+// ============================================================
+
+"이번 세션은 어땠나요?" = "How was this session?";
+"만족도" = "Satisfaction";
+"방해 요소" = "Disruptions";
+"어떤 작업을 했나요?" = "What did you work on?";
+"좋았어" = "Good";
+"보통" = "Okay";
+"힘들었어" = "Tough";
+"몰입!" = "Flow!";
+
+// ============================================================
+// MARK: - 차단 목록 (Block List)
+// ============================================================
+
+"웹사이트" = "Websites";
+"앱" = "Apps";
+"카테고리" = "Categories";
+"사이트 추가" = "Add Site";
+"키워드로 차단" = "Block by Keyword";
+"키워드 차단 모드" = "Keyword Blocking Mode";
+"주요 TLD(.com, .net, .org, .io, .co)에 키워드를 조합하여 차단합니다." = "Blocks keywords combined with major TLDs (.com, .net, .org, .io, .co).";
+"차단된 사이트 없음" = "No Blocked Sites";
+"위에서 차단할 사이트를 추가하세요" = "Add sites to block above";
+"키워드" = "Keyword";
+"키워드 (예: reddit)" = "Keyword (e.g. reddit)";
+"example.com (https:// 제외)" = "example.com (exclude https://)";
+"차단할 키워드 입력" = "Enter keyword to block";
+"차단할 웹사이트 주소 입력" = "Enter website address to block";
+"앱 검색..." = "Search apps...";
+"설치된 앱 검색" = "Search installed apps";
+"설치된 앱 없음" = "No installed apps";
+"검색 결과 없음" = "No results found";
+"차단할 수 있는 앱이 없습니다" = "No apps available to block";
+"카테고리 프리셋을 선택하여 한 번에 추가하세요" = "Select category presets to add all at once";
+"제거하기" = "Remove";
+"추가하기" = "Add";
+
+// ============================================================
+// MARK: - 프로필 (Profiles)
+// ============================================================
+
+"차단 프로필" = "Block Profiles";
+"새 프로필" = "New Profile";
+"새 프로필 추가" = "Add New Profile";
+"프로필이 없습니다" = "No Profiles";
+"프로필을 만들면 상황별로 다른 차단 설정을 빠르게 적용할 수 있습니다." = "Create profiles to quickly apply different blocking settings for different situations.";
+"첫 프로필 만들기" = "Create First Profile";
+"기본" = "Default";
+"프로필 편집" = "Edit Profile";
+"프로필 이름" = "Profile Name";
+"예: 업무 집중" = "e.g. Work Focus";
+"아이콘" = "Icon";
+"색상" = "Color";
+"타이머 설정" = "Timer Settings";
+"차단 모드" = "Blocking Mode";
+"차단 목록" = "Blocklist";
+"허용 목록" = "Allowlist";
+"목록에 있는 사이트만 허용하고 나머지를 모두 차단합니다." = "Allow only sites in the list and block all others.";
+"목록에 있는 사이트만 차단합니다." = "Block only sites in the list.";
+"하드코어 모드" = "Hardcore Mode";
+"타이머 완료 전까지 차단을 해제할 수 없습니다." = "Cannot unblock until timer is complete.";
+"취소 강도" = "Cancellation Intensity";
+"강함" = "Strong";
+"하드코어" = "Hardcore";
+"확인 다이얼로그로 중지합니다." = "Stop with confirmation dialog.";
+"잠금 시간" = "Lockout Duration";
+"세션 시작 후 설정한 시간 동안 중지할 수 없습니다." = "Cannot stop for the set duration after session starts.";
+"중지가 불가능합니다. 비상 해제만 가능합니다 (2분 대기, 1일 1회)." = "Stopping is not allowed. Emergency unlock only (2 min wait, once per day).";
+
+// ============================================================
+// MARK: - 스케줄 (Schedule)
+// ============================================================
+
+"스케줄" = "Schedule";
+"새 스케줄" = "New Schedule";
+"스케줄 편집" = "Edit Schedule";
+"스케줄 이름" = "Schedule Name";
+"예: 오전 딥워크" = "e.g. Morning Deep Work";
+"요일" = "Weekdays";
+"시간" = "Time";
+"종료" = "End";
+"프로필" = "Profile";
+"프로필을 먼저 생성해주세요" = "Please create a profile first";
+"스케줄 없음" = "No Schedules";
+"요일별 자동 집중 스케줄을 추가하세요" = "Add automatic focus schedules by weekday";
+
+// ============================================================
+// MARK: - 통계 (Stats)
+// ============================================================
+
+"집중 통계" = "Focus Stats";
+"내보내기" = "Export";
+"일별 집중 시간" = "Daily Focus Time";
+"데이터가 없습니다" = "No Data";
+"모드 비율" = "Mode Ratio";
+"총 집중" = "Total Focus";
+"총 세션" = "Total Sessions";
+"완료율" = "Completion Rate";
+"현재 스트릭" = "Current Streak";
+"균형 점수" = "Balance Score";
+"세션 기록" = "Session History";
+"기록된 세션이 없습니다" = "No sessions recorded";
+"완료" = "Completed";
+"히트맵은 Pro에서 확인" = "Heatmap available in Pro";
+"월간 트렌드는 Pro에서 확인" = "Monthly trend available in Pro";
+"집중 히트맵" = "Focus Heatmap";
+"적음" = "Less";
+"많음" = "More";
+"의도별 분석" = "Analysis by Intention";
+"의도를 입력한 세션이 없습니다" = "No sessions with intention input";
+"설정 → 의도 입력을 활성화해 보세요" = "Try enabling Settings → Intention Input";
+"집중 트렌드" = "Focus Trend";
+"배지" = "Badges";
+"아직 획득한 배지가 없어요" = "No badges earned yet";
+
+// ============================================================
+// MARK: - 성장 (Growth)
+// ============================================================
+
+"성장" = "Growth";
+"최고 단계 달성!" = "Highest stage achieved!";
+
+// ============================================================
+// MARK: - 데이터 내보내기 (Export)
+// ============================================================
+
+"데이터 내보내기" = "Export Data";
+"포맷" = "Format";
+"기간" = "Period";
+"저장 완료" = "Saved";
+"저장 실패" = "Save Failed";
+
+// ============================================================
+// MARK: - 설정 (Settings)
+// ============================================================
+
+"일반" = "General";
+"연동" = "Integration";
+"고급" = "Advanced";
+"구독" = "Subscription";
+"Pro" = "Pro";
+"무료" = "Free";
+"모든 기능을 사용 중입니다." = "All features are active.";
+"일부 기능이 제한됩니다." = "Some features are limited.";
+"업그레이드" = "Upgrade";
+"외관" = "Appearance";
+"시스템" = "System";
+"라이트" = "Light";
+"다크" = "Dark";
+"메뉴바에 남은 시간 표시" = "Show remaining time in menu bar";
+"완료 시 사운드 재생" = "Play sound on completion";
+"차단된 앱 알림" = "Blocked app notification";
+"로그인 시 자동 시작" = "Auto-start at login";
+"집중 경험" = "Focus Experience";
+"의도 입력" = "Intention Input";
+"세션 시작 전 집중할 내용을 입력합니다." = "Enter what to focus on before starting a session.";
+"회고" = "Retrospect";
+"세션 완료 후 간단한 회고를 기록합니다." = "Record a brief retrospect after session completion.";
+"회고 레벨" = "Retrospect Level";
+"정보" = "Info";
+"버전" = "Version";
+"개발" = "Developer";
+"주변음" = "Ambient Sound";
+"집중 시 배경 소리" = "Background sound during focus";
+"세션 중 배경 노이즈를 재생합니다. 뽀모도로 휴식에는 자동 정지됩니다." = "Plays background noise during sessions. Auto-stops during Pomodoro breaks.";
+"소리 종류" = "Sound Type";
+"앰비언트 볼륨" = "Ambient Volume";
+"미리듣기" = "Preview";
+"미리듣기 중지" = "Stop Preview";
+"테마" = "Theme";
+"선택한 테마는 메뉴바/타이머/버튼에 즉시 반영됩니다." = "Selected theme applies immediately to menu bar/timer/buttons.";
+"자동 스케줄" = "Auto Schedule";
+"요일별로 자동 집중 세션을 시작합니다." = "Automatically start focus sessions by weekday.";
+"macOS Focus Mode" = "macOS Focus Mode";
+"Focus Mode 연동" = "Focus Mode Integration";
+"macOS 집중 모드 활성화 시 자동으로 집중 세션을 시작합니다." = "Automatically start focus sessions when macOS Focus Mode is enabled.";
+"앱 디밍" = "App Dimming";
+"비활성 앱 디밍" = "Inactive App Dimming";
+"차단 앱 윈도우를 어둡게 표시하여 사용을 자제합니다." = "Dim blocked app windows to discourage usage.";
+"불투명도" = "Opacity";
+"번아웃 방지" = "Burnout Prevention";
+"번아웃 경고" = "Burnout Warning";
+"일일 집중 한계에 가까워지면 긍정적 톤의 알림을 표시합니다." = "Show positive alerts when approaching the daily focus limit.";
+"일일 한계" = "Daily Limit";
+"90분 연속 집중 시 스트레칭 알림도 발송됩니다." = "Stretching reminders are also sent after 90 minutes of continuous focus.";
+"Apple Calendar" = "Apple Calendar";
+"완료 세션 캘린더에 기록" = "Record completed sessions in calendar";
+"완료된 집중 세션이 Focus You 캘린더에 자동 기록됩니다." = "Completed focus sessions are automatically recorded in Focus You calendar.";
+"진단" = "Diagnostics";
+"개발자" = "Developer";
+"Fast Timer (디버그)" = "Fast Timer (Debug)";
+"세션 QA를 빠르게 검증할 때만 사용됩니다." = "Use only for quick session QA validation.";
+"온보딩 재설정" = "Reset Onboarding";
+
+// ============================================================
+// MARK: - 건강 진단 (Health Check)
+// ============================================================
+
+"차단 상태 진단" = "Blocking Status Diagnostics";
+"Safari Private Relay" = "Safari Private Relay";
+"활성화됨 — hosts 차단이 우회될 수 있습니다." = "Enabled — hosts blocking may be bypassed.";
+"비활성화됨 — 정상" = "Disabled — normal";
+"확인 불가" = "Unable to verify";
+"진단 중..." = "Diagnosing...";
+"설정 열기" = "Open Settings";
+"hosts 파일 차단" = "Hosts File Blocking";
+"활성 차단 중" = "Active blocking";
+"비활성 (정상 대기)" = "Inactive (normal standby)";
+"DNS 캐시" = "DNS Cache";
+"차단이 적용되지 않을 때 플러시하세요." = "Flush when blocking is not applied.";
+"DNS 플러시" = "Flush DNS";
+"DNS 캐시 플러시 완료" = "DNS cache flushed";
+"플러시 실패: %@" = "Flush failed: %@";
+
+// ============================================================
+// MARK: - 테마 미리보기 (Theme Preview)
+// ============================================================
+
+"미리보기" = "Preview";
+"팝오버" = "Popover";
+"대시보드 미리보기" = "Dashboard Preview";
+"오늘 집중" = "Focus Today";
+"메뉴바 팝오버 미리보기" = "Menu bar popover preview";
+"테마 선택은 즉시 자동 저장됩니다." = "Theme selection auto-saves immediately.";
+"테마 선택" = "Select Theme";
+
+// ============================================================
+// MARK: - 온보딩 (Onboarding)
+// ============================================================
+
+"Focus You에 오신 걸\n환영합니다" = "Welcome to\nFocus You";
+"방해 요소를 차단하고\n집중에만 몰입하세요" = "Block distractions and\nimmerse yourself in focus";
+"타이머 시작 = 차단 시작" = "Start timer = Start blocking";
+"원클릭으로 집중 모드 진입" = "One-click focus mode entry";
+"웹사이트 & 앱 차단" = "Block websites & apps";
+"SNS, 뉴스, 동영상을 한 번에 차단" = "Block SNS, news, videos all at once";
+"집중 습관 추적" = "Track focus habits";
+"일일 통계와 연속 집중 기록" = "Daily stats and streak tracking";
+"시작하기" = "Get Started";
+"차단할 사이트/앱을\n선택하세요" = "Select sites/apps\nto block";
+"집중을 방해하는 카테고리를 선택하면\n관련 웹사이트와 앱이 자동으로 추가됩니다" = "Select categories that distract you\nRelated websites and apps will be added automatically";
+"카테고리를 선택하지 않아도 진행할 수 있습니다" = "You can proceed without selecting categories";
+"준비 완료" = "Ready";
+"준비 완료!" = "All Set!";
+"첫 집중 세션을 시작해보세요" = "Start your first focus session";
+"메뉴바 아이콘을 클릭하면 빠르게 타이머를 시작할 수 있어요" = "Click the menu bar icon to quickly start a timer";
+"차단 목록은 언제든 설정에서 수정할 수 있어요" = "You can modify the block list anytime in settings";
+
+// ============================================================
+// MARK: - Private Relay 경고
+// ============================================================
+
+"Private Relay가 Safari 차단을 우회 중" = "Private Relay is bypassing Safari blocking";
+"iCloud Private Relay가 켜져 있어 Safari에서 웹사이트 차단이 우회됩니다. 아래 방법 중 하나를 선택하세요." = "iCloud Private Relay is enabled, bypassing website blocking in Safari. Choose one of the options below.";
+"Chrome, Firefox 등에서는 정상 차단됩니다." = "Blocking works normally in Chrome, Firefox, etc.";
+"Private Relay 설정 열기" = "Open Private Relay Settings";
+
+// ============================================================
+// MARK: - 구독 / 페이월 (Subscription / Paywall)
+// ============================================================
+
+"Pro로 업그레이드" = "Upgrade to Pro";
+"무제한 차단 / 타이머 / 프로필" = "Unlimited blocks / timers / profiles";
+"70+ 프리미엄 테마" = "70+ premium themes";
+"앰비언트 사운드" = "Ambient Sound";
+"고급 통계 + 히트맵" = "Advanced stats + heatmap";
+"스케줄 · 캘린더 · Shortcuts" = "Schedule · Calendar · Shortcuts";
+"데이터 내보내기 (CSV/JSON)" = "Data export (CSV/JSON)";
+"/년" = "/year";
+"/월" = "/month";
+"App Store 출시 시 이용 가능" = "Available when launched on App Store";
+"Pro로 업그레이드하면\n사용할 수 있습니다." = "Available with\nPro upgrade.";
+
+// Paywall reasons
+"무료 버전은 최대 10개의 사이트를 차단할 수 있습니다." = "Free version can block up to 10 sites.";
+"무료 버전은 최대 5개의 앱을 차단할 수 있습니다." = "Free version can block up to 5 apps.";
+"무료 버전은 1개의 프로필을 사용할 수 있습니다." = "Free version supports 1 profile.";
+"무료 버전은 최대 2시간 타이머를 사용할 수 있습니다." = "Free version supports timers up to 2 hours.";
+"10개 이상의 테마는 Pro에서 사용할 수 있습니다." = "10+ themes available in Pro.";
+"월간/연간 통계는 Pro에서 확인할 수 있습니다." = "Monthly/yearly stats available in Pro.";
+"상세 회고 기능은 Pro에서 사용할 수 있습니다." = "Detailed retrospect available in Pro.";
+"Overflow 모드는 Pro 기능입니다." = "Overflow mode is a Pro feature.";
+"앰비언트 사운드는 Pro 기능입니다." = "Ambient sound is a Pro feature.";
+"자동 스케줄은 Pro 기능입니다." = "Auto schedule is a Pro feature.";
+"키워드 차단은 Pro 기능입니다." = "Keyword blocking is a Pro feature.";
+"화이트리스트 모드는 Pro 기능입니다." = "Allowlist mode is a Pro feature.";
+"하드코어 모드는 Pro 기능입니다." = "Hardcore mode is a Pro feature.";
+"Focus Mode 연동은 Pro 기능입니다." = "Focus Mode integration is a Pro feature.";
+"Shortcuts 자동화는 Pro 기능입니다." = "Shortcuts automation is a Pro feature.";
+"캘린더 동기화는 Pro 기능입니다." = "Calendar sync is a Pro feature.";
+"앱 디밍은 Pro 기능입니다." = "App dimming is a Pro feature.";
+"데이터 내보내기는 Pro 기능입니다." = "Data export is a Pro feature.";
+"무제한 차단은 Pro 기능입니다." = "Unlimited blocking is a Pro feature.";
+"무제한 타이머는 Pro 기능입니다." = "Unlimited timer is a Pro feature.";
+"무제한 프로필은 Pro 기능입니다." = "Unlimited profiles is a Pro feature.";
+"프리미엄 테마는 Pro 기능입니다." = "Premium themes are a Pro feature.";
+"고급 통계는 Pro 기능입니다." = "Advanced stats is a Pro feature.";
+"상세 회고는 Pro 기능입니다." = "Detailed retrospect is a Pro feature.";
+
+// ============================================================
+// MARK: - 대시보드 (Dashboard)
+// ============================================================
+
+"집중 세션 관리 및 통계" = "Manage focus sessions and stats";
+"알 수 없는 오류가 발생했습니다." = "An unknown error occurred.";
+"Focus You Dashboard" = "Focus You Dashboard";
+"오늘 집중 시간" = "Focus Time Today";
+"완료한 뽀모도로" = "Pomodoros Completed";
+"세션 완료율" = "Session Completion Rate";
+"연속 집중" = "Focus Streak";
+"원하는 만큼 집중하세요" = "Focus as long as you want";
+"집중 시간의 1/5이 휴식으로 자동 부여됩니다" = "1/5 of focus time is automatically granted as break";
+"뽀모도로 시작" = "Start Pomodoro";
+"플로우 시작" = "Start Flow";
+"오늘 세션" = "Today's Sessions";
+"아직 기록된 세션이 없습니다." = "No sessions recorded yet.";
+
+// ============================================================
+// MARK: - 명언 (Quote)
+// ============================================================
+
+"명언" = "Quote";
+"탭하여 다른 명언 보기" = "Tap to see another quote";
+
+// ============================================================
+// MARK: - 마일스톤 (Milestone)
+// ============================================================
+
+"마일스톤 달성!" = "Milestone Achieved!";
+
+// ============================================================
+// MARK: - 시간 설정 (Time Picker)
+// ============================================================
+
+"시간 설정" = "Set Time";
+
+// ============================================================
+// MARK: - 위젯 (Widget)
+// ============================================================
+
+"집중 상태" = "Focus Status";
+"현재 집중 상태와 남은 시간을 표시합니다." = "Displays current focus status and remaining time.";
+"집중할 준비가 되셨나요?" = "Ready to focus?";
+"집중 스트릭" = "Focus Streak";
+"연속 집중 기록을 표시합니다." = "Displays consecutive focus records.";
+"일 연속" = "day streak";
+"세션" = "sessions";
+
+// ============================================================
+// MARK: - 윈도우 타이틀 (Window Titles)
+// ============================================================
+
+"Focus You 대시보드" = "Focus You Dashboard";
+"차단 목록 관리" = "Block List Manager";
+"프로필" = "Profiles";
+"통계" = "Stats";
+
+// ============================================================
+// MARK: - 프로그래매틱 문자열 (Programmatic — String(localized:))
+// ============================================================
+
+// -- TimerViewModel displayName --
+"timer_mode_free" = "Free";
+"timer_mode_pomodoro" = "Pomodoro";
+"timer_mode_flowmodoro" = "Flow";
+
+// -- PomodoroEngine.PhaseType displayName --
+"phase_focus" = "Focus";
+"phase_short_break" = "Short Break";
+"phase_long_break" = "Long Break";
+
+// -- FlowmodoroEngine.PhaseType displayName --
+"flowmodoro_phase_focus" = "Focus";
+"flowmodoro_phase_rest" = "Break";
+
+// -- AmbientSoundTrack displayName --
+"sound_white_noise" = "White Noise";
+"sound_brown_noise" = "Brown Noise";
+"sound_pink_noise" = "Pink Noise";
+
+// -- GrowthStage name --
+"growth_seed" = "Seed";
+"growth_sprout" = "Sprout";
+"growth_tree" = "Tree";
+"growth_forest" = "Forest";
+"growth_garden" = "Garden";
+
+// -- Constants: Category names --
+"category_sns" = "SNS";
+"category_news" = "News";
+"category_video" = "Video";
+"category_games" = "Games";
+
+// -- Constants: Theme categories --
+"theme_category_minimal" = "Minimal";
+"theme_category_warm" = "Warm";
+"theme_category_cool" = "Cool";
+"theme_category_nature" = "Nature";
+"theme_category_neon" = "Neon";
+"theme_category_pastel" = "Pastel";
+
+// -- Constants: Weekday symbols --
+"weekday_sun" = "Sun";
+"weekday_mon" = "Mon";
+"weekday_tue" = "Tue";
+"weekday_wed" = "Wed";
+"weekday_thu" = "Thu";
+"weekday_fri" = "Fri";
+"weekday_sat" = "Sat";
+
+// -- Constants: Disruption tags --
+"disruption_sns" = "SNS";
+"disruption_email" = "Email";
+"disruption_phone" = "Phone";
+"disruption_noise" = "Noise";
+"disruption_tired" = "Tired";
+
+// -- Constants: Retrospect levels --
+"retrospect_level_1" = "Simple (Emoji)";
+"retrospect_level_2" = "Standard (Emoji+Notes)";
+"retrospect_level_3" = "Detailed (Rating+Disruptions)";
+
+// -- Constants: Stats periods --
+"stats_today" = "Today";
+"stats_this_week" = "This Week";
+"stats_this_month" = "This Month";
+"stats_this_year" = "This Year";
+
+// -- AppState: completedSummaryText --
+"completed_pomodoro_summary %@ %lld" = "%@ focused · %lld cycles completed";
+"completed_flowmodoro_summary %@" = "Focused in flow for %@";
+"completed_free_summary %@" = "Focused for %@";
+
+// -- AppState: completedDetailText --
+"completed_pomodoro_break %@" = "Break %@";
+"completed_flowmodoro_break %@" = "Auto break %@";
+
+// -- AppState: completedStreakText --
+"completed_streak %lld" = "%lld day focus streak!";
+
+// -- AppState: pomodoroSummaryText --
+"pomodoro_summary %lld %lld %lld %lld" = "Focus %lld / Short %lld / Long %lld · %lld cycles";
+
+// -- AppState: cycle progress --
+"pomodoro_cycle_progress %lld %lld" = "Cycle %lld/%lld";
+
+// -- AppState: error messages --
+"error_invalid_pomodoro_config" = "Pomodoro configuration is invalid.";
+"error_startup_cleanup_failed %@" = "Failed to recover blocking at app startup. %@";
+"error_deactivation_failed %@" = "Failed to deactivate blocking. %@";
+"error_retry_deactivation_failed %@" = "Failed to retry deactivating blocking. %@";
+"error_phase_activation_failed %@" = "Failed to activate focus stage blocking and terminated session. %@";
+"error_phase_activation_and_cleanup_failed %@ %@" = "Failed to activate focus stage blocking and cleanup also failed. Activation: %@ Cleanup: %@";
+"error_break_deactivation_failed %@" = "Failed to deactivate break stage blocking. %@";
+"error_flowmodoro_break_deactivation_failed %@" = "Failed to deactivate blocking during flowmodoro break transition. %@";
+"error_completion_deactivation_failed %@" = "Failed to deactivate blocking after timer completion. %@";
+
+// -- BlockListViewModel: error messages --
+"error_enter_keyword" = "Please enter a keyword";
+"error_duplicate_keyword" = "This keyword is already added";
+"error_invalid_url" = "Please enter a valid URL";
+"error_duplicate_site" = "This site is already added";
+
+// -- ProfileViewModel: error messages --
+"error_enter_profile_name" = "Please enter a profile name";
+
+// -- NotificationService --
+"notification_timer_complete_title" = "Focus Session Complete!";
+"notification_timer_complete_body %@" = "You focused for %@. Great job!";
+"notification_app_blocked_title" = "App Blocked";
+"notification_app_blocked_body %@" = "%@ was blocked during your focus session.";
+"notification_blocking_deactivated_title" = "Blocking Deactivated";
+"notification_blocking_deactivated_body" = "All website and app blocking has been deactivated.";
+"notification_pomodoro_phase_title" = "Pomodoro Transition";
+"notification_pomodoro_phase_body %@ %@" = "%@ started · %@";
+"notification_stretch_title" = "How about some stretching?";
+"notification_stretch_body" = "You've been focused for over 90 minutes. Do some stretching to relax!";
+
+// -- Date+Extensions: formattedAsReadable --
+"duration_hours_minutes %lld %lld" = "%lld hr %lld min";
+"duration_minutes %lld" = "%lld min";
+
+// -- BurnoutDetector --
+"burnout_approaching %lld" = "You're doing great! About %lld min left until today's limit.";
+"burnout_exceeded %lld" = "You've exceeded today's limit by %lld min. How about taking a break?";
+
+// -- IntentError (LocalizedStringResource) --
+"Focus You 앱이 실행 중이어야 합니다." = "Focus You must be running.";
+"이미 집중 세션이 진행 중입니다." = "A focus session is already active.";
+"진행 중인 집중 세션이 없습니다." = "No active focus session.";
+
+// -- MilestoneDetector --
+"milestone_streak_7_title" = "Weekly Warrior";
+"milestone_streak_7_desc" = "7 days consecutive focus";
+"milestone_streak_30_title" = "Monthly Strength";
+"milestone_streak_30_desc" = "30 days consecutive focus";
+"milestone_streak_100_title" = "Hundred Day Miracle";
+"milestone_streak_100_desc" = "100 days consecutive focus";
+"milestone_streak_365_title" = "Year Long Journey";
+"milestone_streak_365_desc" = "365 days consecutive focus";
+"milestone_hours_50_title" = "50 Hours Achieved";
+"milestone_hours_50_desc" = "50 total hours focused";
+"milestone_hours_100_title" = "100 Hours Achieved";
+"milestone_hours_100_desc" = "100 total hours focused";
+"milestone_hours_500_title" = "500 Hours Master";
+"milestone_hours_500_desc" = "500 total hours focused";
+"milestone_sessions_100_title" = "100 Focus Sessions";
+"milestone_sessions_100_desc" = "Completed 100 focus sessions";
+"milestone_sessions_500_title" = "500 Focus Sessions";
+"milestone_sessions_500_desc" = "Completed 500 focus sessions";
+"milestone_sessions_1000_title" = "1000 Session Legend";
+"milestone_sessions_1000_desc" = "Completed 1000 focus sessions";
+
+// -- Flowmodoro notification --
+"flowmodoro_rest_phase" = "Flow Break";
+"flowmodoro_rest_seconds %lld" = "%lld sec";
+
+// -- Widget mode display names --
+"widget_mode_pomodoro" = "Pomodoro";
+"widget_mode_flowmodoro" = "Flowmodoro";
+"widget_mode_free" = "Free Timer";
+
+// -- Default profile --
+"default_profile_name" = "Default Profile";
+
+// ============================================================
+// MARK: - FocusYouError
+// ============================================================
+
+"error_hosts_access_denied" = "Hosts file access denied. Administrator privileges required.";
+"error_hosts_read_failed" = "Unable to read hosts file.";
+"error_hosts_write_failed" = "Unable to write to hosts file.";
+"error_dns_flush_failed" = "Unable to flush DNS cache.";
+"error_app_not_found %@" = "App not found: %@";
+"error_app_termination_failed %@" = "Unable to terminate %@.";
+"error_timer_already_running" = "Timer is already running.";
+"error_timer_not_running" = "No timer is running.";
+"error_blocking_already_active" = "Blocking is already active.";
+"error_authorization_failed" = "Unable to obtain administrator privileges.";
+"error_authorization_cancelled" = "Administrator privileges request was cancelled.";
+"error_launch_agent_failed" = "Unable to install safety mechanism (LaunchAgent).";
+"error_preset_load_failed %@" = "Unable to load %@ preset.";
+
+// ============================================================
+// MARK: - CalendarSyncService
+// ============================================================
+
+"calendar_focus" = "Focus";
+"calendar_session_header" = "Focus You Focus Session";
+"calendar_profile %@" = "Profile: %@";
+"calendar_intention %@" = "Intention: %@";
+"calendar_retrospect %@" = "Retrospect: %@";
+"calendar_status_completed" = "Completed";
+"calendar_status_cancelled" = "Cancelled";
+"calendar_status %@" = "Status: %@";
+
+// ============================================================
+// MARK: - ExportService
+// ============================================================
+
+"export_panel_title" = "Export Focus Sessions";
+"export_panel_filename" = "File name:";
+
+// ============================================================
+// MARK: - Settings Language
+// ============================================================
+
+"언어" = "Language";
+"시스템 언어" = "System Language";
+"한국어" = "한국어";
+"언어 변경" = "Change Language";
+"앱 재시작" = "Restart App";
+"나중에" = "Later";
+"언어 변경을 적용하려면 앱을 재시작해야 합니다." = "Please restart the app to apply the language change.";
+"%lld시간" = "%lld hr";
+"1분 = %lld초" = "1 min = %lld sec";
+
+// ============================================================
+// MARK: - Accessibility Labels
+// ============================================================
+
+"타이머 시간 설정: %lld분" = "Timer setting: %lld min";
+"번아웃 방지 알림: %@" = "Burnout prevention alert: %@";
+"닫기 버튼으로 해제할 수 있습니다" = "Can be dismissed with close button";
+"방해요소: %@" = "Disruption: %@";
+"별점 %lld점" = "%lld star rating";
+"마일스톤 달성: %@. %@" = "Milestone achieved: %@. %@";
+"%@ 단계, 레벨 %lld, 진행률 %lld%%" = "%@ stage, level %lld, progress %lld%%";
+"%@ — %lld시간 누적" = "%@ — %lld hours total";
+", 차단 활성화 상태" = ", blocking active";
+"%@ 차단 토글" = "Toggle %@ blocking";
+"차단 안 함" = "Not blocked";
+"적용됨" = "Applied";
+"미적용" = "Not applied";
+"획득" = "Earned";
+"미획득" = "Not earned";
+"현재" = "Current";
+"달성" = "Achieved";
+"미달성" = "Not achieved";
+"레벨업! 레벨 %lld 달성" = "Level Up! Reached Level %lld";
+"레벨 %lld, 총 %lld XP, 진행률 %lld%%" = "Level %lld, %lld total XP, %lld%% progress";
+"%@ 프로필 선택" = "Select %@ profile";
+"프로필 추가" = "Add Profile";
+"남은 시간 %@" = "Time remaining %@";
+"%@ 회고" = "%@ retrospect";
+"%lld분 프리셋" = "%lld min preset";
+"플로우모도로 — 시간 제한 없음" = "Flowmodoro — no time limit";
+"%@ 프로필로 집중 시작" = "Start focus with %@ profile";
+"%@ 삭제" = "Delete %@";
+"%@ 메뉴" = "%@ menu";
+"%@ 단계, %@" = "%@ stage, %@";
+", 선택됨" = ", selected";
+"%@ 포맷%@" = "%@ format%@";
+
+// ============================================================
+// MARK: - AppIntents (LocalizedStringResource)
+// ============================================================
+
+// StartFocusIntent
+"지정한 시간만큼 집중 세션을 시작합니다." = "Starts a focus session for the specified duration.";
+"시간 (분)" = "Duration (min)";
+"집중 시작 (%lld분)" = "Start Focus (%lld min)";
+"이미 집중 중입니다." = "Already focusing.";
+"%lld분 집중을 시작합니다." = "Starting %lld min focus.";
+
+// StopFocusIntent
+"집중 중지" = "Stop Focus";
+"현재 진행 중인 집중 세션을 중지합니다." = "Stops the current focus session.";
+"진행 중인 세션이 없습니다." = "No session in progress.";
+"현재 취소 강도 설정으로 인해 세션을 중지할 수 없습니다." = "Cannot stop session due to current cancellation intensity setting.";
+"집중 세션을 중지했습니다." = "Focus session stopped.";
+
+// TogglePauseIntent
+"일시정지 토글" = "Toggle Pause";
+"집중 세션을 일시정지하거나 재개합니다." = "Pauses or resumes the focus session.";
+"집중을 일시정지했습니다." = "Focus paused.";
+"집중을 재개했습니다." = "Focus resumed.";
+
+// GetFocusStatusIntent
+"집중 상태 확인" = "Check Focus Status";
+"현재 집중 세션 상태를 확인합니다." = "Checks the current focus session status.";
+"현재 집중 세션이 없습니다." = "No current focus session.";
+"일시정지 중입니다. 남은 시간: %@" = "Paused. Time remaining: %@";
+"집중 세션이 완료되었습니다." = "Focus session completed.";
+
+// GetStreakIntent
+"집중 스트릭 확인" = "Check Focus Streak";
+"현재 연속 집중 기록을 확인합니다." = "Checks the current consecutive focus record.";
+
+// StartProfileIntent
+"프로필로 집중 시작" = "Start Focus with Profile";
+"지정한 프로필 설정으로 집중 세션을 시작합니다." = "Starts a focus session with the specified profile settings.";
+"프로필 이름" = "Profile Name";
+
+// FocusYouShortcuts
+"프로필을 찾을 수 없습니다" = "Profile not found";
+
+// ============================================================
+// MARK: - 동적 포맷 문자열 (Dynamic Format Strings)
+// ============================================================
+
+// -- 분/일/회 단위 (Unit suffixes) --
+"%lld분" = "%lld min";
+"%lld일" = "%lld days";
+"%lld회" = "%lld";
+
+// -- 차단 요약 (Block summary) --
+"%lld개 사이트" = "%lld sites";
+"%lld개 앱" = "%lld apps";
+"%lld사이트 %lld앱" = "%lld sites %lld apps";
+
+// -- 시작 버튼 (Start button) --
+"%lld분 집중 시작" = "Start %lld min Focus";
+
+// -- 상태 뱃지 (Status badges) --
+"휴식 카운트다운" = "Break Countdown";
+"휴식 중" = "On Break";
+"플로우 중" = "In Flow";
+"일시정지됨" = "Paused";
+"집중 중..." = "Focusing...";
+
+// -- 집중 중 UI (Focusing UI) --
+"집중을 중지하시겠습니까?" = "Stop focusing?";
+"차단이 해제되고 세션이 기록됩니다." = "Blocking will be deactivated and the session will be recorded.";
+"계속 집중" = "Continue Focus";
+"비상 해제" = "Emergency Unlock";
+"비상 해제 확인" = "Confirm Emergency Unlock";
+"중지 잠금 %lld초 남음" = "Stop locked: %lld sec left";
+"오늘 비상 해제를 이미 사용했습니다" = "Emergency unlock already used today";
+"하드코어 모드 — 비상 해제만 가능" = "Hardcore mode — emergency unlock only";
+"%lld초 대기 중..." = "Waiting %lld sec...";
+"멈추면 %@ 휴식" = "Stop for %@ break";
+"%@ 시작" = "Started at %@";
+
+// -- 완료 UI (Completed UI) --
+"집중 완료!" = "Focus Complete!";
+"확인" = "OK";
+"%lld일 연속" = "%lld day streak";
+"%lld일 연속 집중!" = "%lld day focus streak!";
+
+// -- 프로필 (Profile) --
+"현재 프로필" = "Current Profile";
+"빠른 시작" = "Quick Start";
+"단계" = "stage";
+
+// -- 뽀모도로 접근성 (Pomodoro Accessibility) --
+"%lld사이클: 집중 %lld분, 휴식 %lld분" = "%lld cycles: Focus %lld min, Break %lld min";
+
+// -- 성장 (Growth) --
+"%lld시간 누적" = "%lld hours total";
+"다음 단계까지 %lld시간" = "%lld hours to next stage";
+
+// -- 레벨 시스템 (Level System, v1.x) --
+"성장" = "Growth";
+"레벨 업!" = "Level Up!";
+"레벨 %lld에 도달했습니다!" = "You've reached Level %lld!";
+
+// -- 명언 설정 (Quote Settings, v1.x) --
+"동기부여 명언" = "Motivation Quotes";
+"집중 중과 완료 화면에 동기부여 명언을 표시합니다." = "Show motivational quotes during focus and on completion screen.";
+
+// -- StoreKit 2 구독 (v2.0) --
+"subscription_period_month" = "/mo";
+"subscription_period_year" = "/yr";
+"subscription_period_lifetime" = "Lifetime";
+"subscription_purchase_button %@" = "Subscribe for %@";
+"subscription_restore" = "Restore Purchases";
+"subscription_restore_success" = "Purchases restored successfully.";
+"subscription_restore_no_purchases" = "No purchases to restore.";
+"subscription_purchase_error %@" = "Purchase error: %@";
+"error_subscription_verification_failed" = "Purchase verification failed.";
+"error_subscription_product_not_found" = "Product not found.";

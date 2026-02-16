@@ -16,9 +16,9 @@ extension TimeInterval {
         let minutes = totalMinutes % 60
 
         if hours > 0 {
-            return "\(hours)시간 \(minutes)분"
+            return String(localized: "duration_hours_minutes \(hours) \(minutes)")
         }
-        return "\(minutes)분"
+        return String(localized: "duration_minutes \(minutes)")
     }
 }
 

@@ -24,7 +24,7 @@ struct CategoryPickerView: View {
                 HStack(spacing: Constants.Design.spacingSM) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(themeManager.stopButton)
-                    Text("'\(failed)' 프리셋을 불러올 수 없습니다")
+                    Text("'\(Constants.Category.displayName(failed))' 프리셋을 불러올 수 없습니다")
                 }
                 .font(.caption)
                 .foregroundStyle(themeManager.stopButton)
@@ -80,7 +80,7 @@ struct CategoryPickerView: View {
                         size: 40
                     )
 
-                    Text(category)
+                    Text(Constants.Category.displayName(category))
                         .font(.callout.weight(.semibold))
 
                     Text(isApplied ? "제거하기" : "추가하기")
@@ -125,7 +125,7 @@ struct CategoryPickerView: View {
         .onHover { hovering in
             hoveredCategory = hovering ? category : nil
         }
-        .accessibilityLabel("\(category) 카테고리 프리셋, \(isApplied ? "적용됨" : "미적용")")
+        .accessibilityLabel("\(Constants.Category.displayName(category)) 카테고리 프리셋, \(isApplied ? "적용됨" : "미적용")")
     }
 
     private var appliedCategories: Set<String> {

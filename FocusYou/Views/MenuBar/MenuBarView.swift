@@ -94,7 +94,7 @@ struct MenuBarView: View {
         let stage = GrowthManager.currentStage(totalHours: totalHours)
         return Text(stage.emoji)
             .font(.caption)
-            .help("\(stage.name) — \(Int(totalHours))시간 누적")
+            .help(String(localized: "\(stage.name) — \(Int(totalHours))시간 누적"))
     }
 
     private var blockingBadge: some View {
@@ -240,14 +240,14 @@ struct MenuBarView: View {
                 Image(systemName: symbol)
                     .font(.system(size: 15))
                     .frame(width: 36, height: 28)
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.caption2)
             }
             .foregroundStyle(.secondary)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(title)
+        .accessibilityLabel(Text(LocalizedStringKey(title)))
     }
 }
 

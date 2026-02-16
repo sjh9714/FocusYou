@@ -145,6 +145,10 @@ enum Constants {
         static let qaAutomationEnabledDefault = false
         static let debugSecondsPerMinuteRange: ClosedRange<Double> = 1...30
 
+        // 외관 모드
+        static let appearanceModeKey = "appearanceMode"
+        static let appearanceModeDefault = "system"  // "system" | "light" | "dark"
+
         // 온보딩 (v1.0)
         static let hasCompletedOnboardingKey = "hasCompletedOnboarding"
         static let hasCompletedOnboardingDefault = false
@@ -193,6 +197,14 @@ enum Constants {
         static let enableBurnoutWarningsKey = "enableBurnoutWarnings"
         static let enableBurnoutWarningsDefault = true
         static let burnoutDailyLimitHoursKey = "burnoutDailyLimitHours"
+
+        // 앱 언어 설정
+        static let appLanguageKey = "appLanguage"
+        static let appLanguageDefault = "system"  // "system" | "ko" | "en"
+
+        // 동기부여 명언 (v1.x)
+        static let showMotivationQuotesKey = "showMotivationQuotes"
+        static let showMotivationQuotesDefault = true
     }
 
     // MARK: - 사운드
@@ -222,13 +234,22 @@ enum Constants {
     enum Schedule {
         /// 스케줄 체크 간격 (초)
         static let checkIntervalSeconds: TimeInterval = 60
-        /// 요일 한글 심볼 (1=일, 2=월, ..., 7=토)
-        static let weekdaySymbols = ["일", "월", "화", "수", "목", "금", "토"]
+        /// 요일 심볼 (1=일, 2=월, ..., 7=토)
+        static let weekdaySymbols: [String] = [
+            String(localized: "weekday_sun"),
+            String(localized: "weekday_mon"),
+            String(localized: "weekday_tue"),
+            String(localized: "weekday_wed"),
+            String(localized: "weekday_thu"),
+            String(localized: "weekday_fri"),
+            String(localized: "weekday_sat"),
+        ]
     }
 
     // MARK: - 테마 카테고리 (v1.3)
 
     enum ThemeCategory {
+        /// 내부 ID (ThemeCatalog.json 키와 일치) — 비교/필터용
         static let all = ["미니멀", "따뜻한", "차가운", "자연", "네온", "파스텔"]
         static let icons: [String: String] = [
             "미니멀": "square.3.layers.3d.down.left",
@@ -238,15 +259,42 @@ enum Constants {
             "네온": "sparkles",
             "파스텔": "paintpalette.fill",
         ]
+        static func displayName(_ id: String) -> String {
+            switch id {
+            case "미니멀": String(localized: "theme_category_minimal")
+            case "따뜻한": String(localized: "theme_category_warm")
+            case "차가운": String(localized: "theme_category_cool")
+            case "자연": String(localized: "theme_category_nature")
+            case "네온": String(localized: "theme_category_neon")
+            case "파스텔": String(localized: "theme_category_pastel")
+            default: id
+            }
+        }
     }
 
     // MARK: - 회고 (v1.5)
 
     enum Retrospect {
-        /// 방해요소 태그 목록
-        static let disruptionTags = ["SNS", "이메일", "전화", "소음", "피곤"]
+        /// 방해요소 태그 내부 ID (SwiftData에 저장됨)
+        static let disruptionTagIDs = ["SNS", "이메일", "전화", "소음", "피곤"]
+        /// 방해요소 태그 표시용 이름
+        static let disruptionTags: [String] = disruptionTagIDs.map { disruptionTagDisplayName($0) }
         /// 레벨 이름
-        static let levelNames = ["간단 (이모지)", "보통 (이모지+메모)", "상세 (별점+방해요소)"]
+        static let levelNames: [String] = [
+            String(localized: "retrospect_level_1"),
+            String(localized: "retrospect_level_2"),
+            String(localized: "retrospect_level_3"),
+        ]
+        static func disruptionTagDisplayName(_ id: String) -> String {
+            switch id {
+            case "SNS": String(localized: "disruption_sns")
+            case "이메일": String(localized: "disruption_email")
+            case "전화": String(localized: "disruption_phone")
+            case "소음": String(localized: "disruption_noise")
+            case "피곤": String(localized: "disruption_tired")
+            default: id
+            }
+        }
     }
 
     // MARK: - 번아웃 방지 (v1.5)
@@ -327,6 +375,21 @@ enum Constants {
         ]
     }
 
+    // MARK: - XP / 레벨 (v1.x)
+
+    enum XP {
+        /// 분당 기본 XP
+        static let xpPerMinute: Double = 1.0
+        /// 완료 보너스 배율 (+20%)
+        static let completionBonusMultiplier: Double = 0.2
+        /// 스트릭 일당 추가 배율 (+5%)
+        static let streakBonusPerDay: Double = 0.05
+        /// 스트릭 보너스 최대치 (10일 이상 = +50%)
+        static let streakBonusCap: Double = 0.5
+        /// 레벨 공식 계수: Level N threshold = N * (N-1) * multiplier
+        static let thresholdMultiplier: Int = 25
+    }
+
     // MARK: - 구독 (v2.0)
 
     enum Subscription {
@@ -338,22 +401,34 @@ enum Constants {
         static let freeThemeLimit = 10
         static let freeRetrospectMaxLevel = 1
 
-        // 무료 통계 기간
-        static let freeStatsPeriods: Set<String> = ["오늘", "이번 주"]
+        // 무료 통계 기간 (Period rawValue 기반)
+        static let freeStatsPeriods: Set<String> = ["today", "week"]
 
         // UserDefaults key
         static let isProKey = "subscription_isPro"
 
-        // 가격 표시 문자열
+        // 가격 표시 문자열 (StoreKit 로드 실패 시 폴백)
         static let monthlyPrice = "$2.99"
         static let annualPrice = "$14.99"
         static let annualDiscountPrice = "$9.99"
         static let lifetimePrice = "$49.99"
+
+        // StoreKit 2 Product ID
+        static let monthlyProductID = "com.sungjh.focusyou.pro.monthly"
+        static let annualProductID = "com.sungjh.focusyou.pro.annual"
+        static let lifetimeProductID = "com.sungjh.focusyou.pro.lifetime"
+        static let allProductIDs: Set<String> = [
+            monthlyProductID, annualProductID, lifetimeProductID
+        ]
+
+        // Subscription Group
+        static let subscriptionGroupID = "focusyou_pro"
     }
 
     // MARK: - 카테고리
 
     enum Category {
+        /// 내부 ID (SwiftData・JSON 프리셋에 저장됨 — 변경 금지)
         static let sns = "SNS"
         static let news = "뉴스"
         static let video = "동영상"
@@ -367,5 +442,16 @@ enum Constants {
             video: "play.rectangle.fill",
             games: "gamecontroller.fill"
         ]
+
+        /// UI 표시용 이름
+        static func displayName(_ id: String) -> String {
+            switch id {
+            case sns: String(localized: "category_sns")
+            case news: String(localized: "category_news")
+            case video: String(localized: "category_video")
+            case games: String(localized: "category_games")
+            default: id
+            }
+        }
     }
 }

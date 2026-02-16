@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 // MARK: - 페이월 뷰 (v2.0)
 // 무료 한도 초과 시 자연스럽게 Pro 업그레이드를 안내하는 시트
@@ -9,6 +10,11 @@ struct PaywallView: View {
 
     /// 페이월 트리거 이유
     let reason: PaywallReason
+
+    @State private var products: [Product] = []
+    @State private var isPurchasing = false
+    @State private var selectedProduct: Product?
+    @State private var errorMessage: String?
 
     var body: some View {
         VStack(spacing: Constants.Design.spacingXL) {
@@ -27,7 +33,10 @@ struct PaywallView: View {
             Spacer()
         }
         .padding(Constants.Design.spacingXL)
-        .frame(minWidth: 360, maxWidth: 360, minHeight: 420)
+        .frame(minWidth: 360, maxWidth: 360, minHeight: 480)
+        .task {
+            await loadProducts()
+        }
     }
 
     // MARK: - 헤더
@@ -80,16 +89,45 @@ struct PaywallView: View {
     private var pricingSection: some View {
         VStack(spacing: Constants.Design.spacingXS) {
             HStack(spacing: Constants.Design.spacingSM) {
+                if let annual = product(for: Constants.Subscription.annualProductID) {
+                    pricingBadge(
+                        product: annual,
+                        period: String(localized: "subscription_period_year"),
+                        highlight: selectedProduct?.id == annual.id
+                    )
+                    .onTapGesture { selectedProduct = annual }
+                } else {
+                    pricingBadgeFallback(
+                        price: Constants.Subscription.annualDiscountPrice,
+                        period: String(localized: "subscription_period_year"),
+                        highlight: true
+                    )
+                }
+
+                if let monthly = product(for: Constants.Subscription.monthlyProductID) {
+                    pricingBadge(
+                        product: monthly,
+                        period: String(localized: "subscription_period_month"),
+                        highlight: selectedProduct?.id == monthly.id
+                    )
+                    .onTapGesture { selectedProduct = monthly }
+                } else {
+                    pricingBadgeFallback(
+                        price: Constants.Subscription.monthlyPrice,
+                        period: String(localized: "subscription_period_month"),
+                        highlight: false
+                    )
+                }
+            }
+
+            // 평생 구매 옵션
+            if let lifetime = product(for: Constants.Subscription.lifetimeProductID) {
                 pricingBadge(
-                    price: Constants.Subscription.annualDiscountPrice,
-                    period: "/년",
-                    highlight: true
+                    product: lifetime,
+                    period: String(localized: "subscription_period_lifetime"),
+                    highlight: selectedProduct?.id == lifetime.id
                 )
-                pricingBadge(
-                    price: Constants.Subscription.monthlyPrice,
-                    period: "/월",
-                    highlight: false
-                )
+                .onTapGesture { selectedProduct = lifetime }
             }
 
             Text("출시 기념 50% 할인 (정가 \(Constants.Subscription.annualPrice)/년)")
@@ -98,7 +136,33 @@ struct PaywallView: View {
         }
     }
 
-    private func pricingBadge(price: String, period: String, highlight: Bool) -> some View {
+    private func pricingBadge(product: Product, period: String, highlight: Bool) -> some View {
+        VStack(spacing: 2) {
+            Text(product.displayPrice)
+                .font(.title3.bold())
+            Text(period)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Constants.Design.spacingMD)
+        .background(
+            highlight
+                ? AnyShapeStyle(themeManager.primary.opacity(0.1))
+                : AnyShapeStyle(Color.secondary.opacity(0.06)),
+            in: RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
+                .stroke(
+                    highlight ? themeManager.primary.opacity(0.3) : Color.clear,
+                    lineWidth: 1
+                )
+        )
+    }
+
+    /// 상품 로드 실패 시 폴백 배지
+    private func pricingBadgeFallback(price: String, period: String, highlight: Bool) -> some View {
         VStack(spacing: 2) {
             Text(price)
                 .font(.title3.bold())
@@ -127,20 +191,97 @@ struct PaywallView: View {
 
     private var actionSection: some View {
         VStack(spacing: Constants.Design.spacingSM) {
-            Button {
-                // App Store 출시 시 StoreKit 2 구매 연결
-            } label: {
-                Label("App Store 출시 시 이용 가능", systemImage: "clock.fill")
+            if isPurchasing {
+                ProgressView()
+                    .controlSize(.regular)
+                    .padding(.vertical, Constants.Design.spacingSM)
+            } else {
+                Button {
+                    Task { await purchaseSelected() }
+                } label: {
+                    if let selected = selectedProduct {
+                        Label(
+                            String(localized: "subscription_purchase_button \(selected.displayPrice)"),
+                            systemImage: "crown.fill"
+                        )
+                    } else {
+                        Label("Pro로 업그레이드", systemImage: "crown.fill")
+                    }
+                }
+                .primaryActionStyle(color: themeManager.primary)
+                .disabled(selectedProduct == nil)
             }
-            .primaryActionStyle(color: themeManager.primary)
-            .disabled(true)
-            .opacity(0.6)
+
+            Button {
+                Task { await restorePurchases() }
+            } label: {
+                Text(String(localized: "subscription_restore"))
+            }
+            .secondaryActionStyle(color: themeManager.primary)
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+            }
 
             Button("닫기") {
                 dismiss()
             }
-            .secondaryActionStyle(color: themeManager.primary)
+            .buttonStyle(.plain)
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
+    }
+
+    // MARK: - 헬퍼
+
+    private func product(for id: String) -> Product? {
+        products.first { $0.id == id }
+    }
+
+    private func loadProducts() async {
+        await SubscriptionManager.shared.loadProducts()
+        products = await SubscriptionManager.shared.products
+        // 연간을 기본 선택
+        selectedProduct = product(for: Constants.Subscription.annualProductID)
+    }
+
+    private func purchaseSelected() async {
+        guard let selected = selectedProduct else { return }
+        isPurchasing = true
+        errorMessage = nil
+
+        do {
+            let transaction = try await SubscriptionManager.shared.purchase(selected)
+            if transaction != nil {
+                dismiss()
+            }
+        } catch {
+            errorMessage = String(localized: "subscription_purchase_error \(error.localizedDescription)")
+        }
+
+        isPurchasing = false
+    }
+
+    private func restorePurchases() async {
+        isPurchasing = true
+        errorMessage = nil
+
+        do {
+            try await SubscriptionManager.shared.restorePurchases()
+            let purchased = await SubscriptionManager.shared.purchasedProductIDs
+            if purchased.isEmpty {
+                errorMessage = String(localized: "subscription_restore_no_purchases")
+            } else {
+                dismiss()
+            }
+        } catch {
+            errorMessage = String(localized: "subscription_purchase_error \(error.localizedDescription)")
+        }
+
+        isPurchasing = false
     }
 }
 

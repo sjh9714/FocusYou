@@ -55,16 +55,27 @@ final class BlockScheduleModelTests: XCTestCase {
 
     func testWeekdayDisplayText() {
         let schedule = BlockSchedule(name: "평일", weekdays: "2,3,4,5,6")
-        XCTAssertEqual(schedule.weekdayDisplayText, "월화수목금")
+        let expected = [
+            String(localized: "weekday_mon"), String(localized: "weekday_tue"),
+            String(localized: "weekday_wed"), String(localized: "weekday_thu"),
+            String(localized: "weekday_fri"),
+        ].joined()
+        XCTAssertEqual(schedule.weekdayDisplayText, expected)
     }
 
     func testWeekdayDisplayTextSingleDay() {
         let schedule = BlockSchedule(name: "일요일", weekdays: "1")
-        XCTAssertEqual(schedule.weekdayDisplayText, "일")
+        XCTAssertEqual(schedule.weekdayDisplayText, String(localized: "weekday_sun"))
     }
 
     func testWeekdayDisplayTextAllDays() {
         let schedule = BlockSchedule(name: "매일", weekdays: "1,2,3,4,5,6,7")
-        XCTAssertEqual(schedule.weekdayDisplayText, "일월화수목금토")
+        let expected = [
+            String(localized: "weekday_sun"), String(localized: "weekday_mon"),
+            String(localized: "weekday_tue"), String(localized: "weekday_wed"),
+            String(localized: "weekday_thu"), String(localized: "weekday_fri"),
+            String(localized: "weekday_sat"),
+        ].joined()
+        XCTAssertEqual(schedule.weekdayDisplayText, expected)
     }
 }

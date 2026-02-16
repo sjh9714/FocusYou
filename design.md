@@ -45,6 +45,19 @@ Focus You의 답: **타이머 시작 → 차단 자동 활성, 타이머 종료 
 
 ---
 
+### 현재 프로젝트 현황 (스냅샷)
+
+```
+버전: v2.0.1 (build 16)
+Swift 소스: 98 파일 | 테스트: 30 파일, 258 테스트 (238 XCTest + 23 Swift Testing)
+테마: 72개 (6 카테고리 × 12) | 로컬라이제이션: 한국어 + 영어
+위젯: 2개 (FocusStatus, Streak) | Shortcuts: 6개 인텐트
+Pro/Free 분리: LicenseManager + PaywallView 구현 완료
+빌드: xcodegen (project.yml) | Swift 6.0, macOS 14+
+```
+
+---
+
 ## 2. 버전 로드맵
 
 > 핵심 규칙: 각 버전은 **그 상태로 배포해도 사용 가능한 완성품**이다.
@@ -52,13 +65,13 @@ Focus You의 답: **타이머 시작 → 차단 자동 활성, 타이머 종료 
 ### 전체 흐름
 
 ```
-v0.1  "차단되는 타이머"        ← 내가 매일 쓸 수 있는 최소 제품
-v0.3  "뽀모도로 차단 앱"       ← 지인에게 보여줄 수 있는 수준
-v0.5  "예쁜 집중 앱"           ← 베타 테스트 배포
-v1.0  "출시할 수 있는 앱"      ← 첫 공개 배포 (Gumroad 등)
-v1.x  "사용자가 원하는 기능"   ← 피드백 기반 반복
-v2.0  "Pro + App Store"        ← 수익화 시작
-v3.0  "플랫폼"                 ← AI + iOS + 확장
+v0.1  "차단되는 타이머"        ✅ 완료
+v0.3  "뽀모도로 차단 앱"       ✅ 완료
+v0.5  "예쁜 집중 앱"           ✅ 완료
+v1.0  "출시할 수 있는 앱"      ✅ 완료
+v1.x  "사용자가 원하는 기능"   ✅ 거의 완료 (21/23 구현)
+v2.0  "Pro + App Store"        🔄 준비 중 (Pro 인프라 + StoreKit 2 결제 완료, NE 미연결)
+v3.0  "플랫폼"                 ❌ 미착수
 ```
 
 ---
@@ -305,7 +318,7 @@ v3.0  "플랫폼"                 ← AI + iOS + 확장
 #### 완료 기준
 - [x] 테마 10개 적용, 테마 변경 시 전체 UI 색상 변경
 - [x] 프로필 3개 기본 제공 + 커스텀 프로필 생성/수정/삭제
-- [ ] 프로필 선택 → 원클릭 시작 (프로필-세션 연동은 v1.0으로 이관)
+- [x] 프로필 선택 → 원클릭 시작 (프로필-세션 연동)
 - [x] 오늘의 집중 시간 + 뽀모도로 수 표시
 - [x] 주간/월간 통계 + Swift Charts 바/도넛 차트
 - [x] 모든 세션 기록 SwiftData 저장
@@ -419,144 +432,173 @@ v3.0  "플랫폼"                 ← AI + iOS + 확장
 ### v1.x — 피드백 기반 기능 추가
 
 > 원칙: 사용자가 실제로 요청하는 것만 만든다.
-> 아래는 후보 백로그. 우선순위는 출시 후 피드백으로 결정.
+> 아래는 후보 백로그를 **구현 완료 / 미구현**으로 분류한 현황이다.
 
 각 기능은 독립적인 마이너 버전으로 출시 가능하다.
 한 번에 1~2개씩, 1~2주 간격으로 릴리스한다.
 
-#### 백로그 A: 높은 확률 (대부분의 사용자가 원할 것)
+#### ✅ 구현 완료 (22개)
 
-**차단 상태 진단(Health Check)**
+**1. 차단 상태 진단(Health Check)** — `HealthCheckView.swift`
 ```
-- 차단이 실제로 동작하는지 사용자에게 증거를 보여주는 뷰
-- Safari: Private Relay 상태 (ON → 일부 우회 가능 경고)
-- Chrome/Firefox: 정상 차단 확인
-- DNS flush 성공/실패 표시
-- hosts 변경 성공/실패 표시
-- 해결 버튼: "Safari에서 Private Relay 끄기" 가이드 링크
-- 기존 PrivateRelayDetector + HostsFileManager 활용
-- 경쟁 앱들이 "잘 막는다" 주장만 하는 반면, 증거를 UI로 보여주는 앱은 없음
+- Safari Private Relay 상태 감지 (ON → 우회 경고 + 설정 열기 버튼)
+- hosts 파일 차단 활성/비활성 표시
+- DNS 캐시 플러시 버튼 + 결과 표시
+- PrivateRelayDetector + HostsFileManager 활용
 ```
 
-**세션 의도(Intention) 입력**
+**2. 세션 의도(Intention) 입력** — `IntentionInputView.swift`
 ```
-- 집중 시작 전: "이번 세션에서 무엇에 집중할까요?"
-- 텍스트 1줄, 이전 의도 자동 제안
-- 의도가 메뉴바, 집중 중 화면에 표시
-- 의도별 통계 필터링 → 카테고리 분석 기반
-- 프로그레시브 디스클로저: 처음에는 숨김, 설정에서 ON
-```
-
-**세션 후 회고 (3단계 강도)**
-```
-기본: OFF. 사용자가 직접 ON.
-
-Level 1 — 원탭:
-  😊 좋았어 / 😐 보통 / 😫 힘들었어 / 🔥 몰입!
-  0.5초면 끝.
-
-Level 2 — 보통:
-  이모지 + 텍스트 한 줄
-
-Level 3 — 상세:
-  텍스트 + 별점(⭐1~5) + 방해 요인 태그(#SNS #이메일 #전화)
-
-모든 레벨에서 "건너뛰기" 항상 가능.
+- 집중 시작 전 텍스트 1줄 입력
+- 이전 의도 자동 제안
+- 의도별 통계 분석 (IntentionAnalysisView)
+- 프로그레시브 디스클로저: 설정에서 ON/OFF
 ```
 
-**앰비언트 사운드**
+**3. 세션 후 회고 (3단계 강도)** — `RetrospectView.swift`
 ```
-- 집중 시 배경 사운드: 빗소리, 카페, 자연, 화이트노이즈
-- 프로필별 사운드 설정
+Level 1 — 원탭: 😊/😐/😫/🔥
+Level 2 — 이모지 + 텍스트
+Level 3 — 텍스트 + 별점(StarRatingView) + 방해 요인 태그(DisruptionTagPicker)
+기본 OFF, 모든 레벨에서 "건너뛰기" 가능
+```
+
+**4. 앰비언트 사운드** — `AmbientSoundManager.swift`
+```
+- 배경 사운드: 빗소리, 카페, 자연, 화이트노이즈
 - 볼륨 조절, 집중/휴식 시 다른 사운드
 - AVAudioEngine, 미사용 시 즉시 해제
 ```
 
-**테마 확장 (70+)**
+**5. 테마 72개 (6카테고리)** — `ThemeCatalog.json`
 ```
-- 카테고리: 미니멀, 따뜻한, 차가운, 자연, 네온, 파스텔
-- ThemeCatalog.json 확장
-- 테마 갤러리 UI 고도화
-```
-
-#### 백로그 B: 중간 확률 (특정 사용자가 강하게 원할 것)
-
-**취소 강도 옵션 (3단계)**
-```
-- 기본: 확인 다이얼로그 + 10~30초 쿨다운 (현재 v1.0 수준)
-- 강함(설정): 세션 시작 후 N분 동안 중지 비활성
-- 하드코어(Pro 후보): 세션 취소 불가 + Emergency Unlock(2분 대기, 하루 1회)
-- "사용자가 스스로 선택한 강제력"이 핵심 (Cold Turkey 모델)
-- 차단 앱 시장에서 "쉽게 못 끄게" = 핵심 가치
+- 카테고리: 미니멀(12), 따뜻한(12), 차가운(12), 자연(12), 네온(12), 파스텔(12)
+- 테마 갤러리 + 라이브 프리뷰 패널 (ThemeLivePreviewPanel)
 ```
 
-**스케줄 시스템**
+**6. 취소 강도 3단계** — `BlockProfile.cancelIntensity`
+```
+- Level 0 (기본): 확인 다이얼로그 + 쿨다운
+- Level 1 (강함): 세션 시작 후 N분간 중지 비활성 (cancelLockoutMinutes)
+- Level 2 (하드코어): 세션 취소 불가 (isHardcoreMode)
+```
+
+**7. 스케줄 시스템** — `ScheduleManager.swift`, `BlockSchedule` 모델
 ```
 - 요일별 자동 차단: 월~금 9-12시 딥워크 자동 시작
 - 프로필 연결, 여러 스케줄 동시 가능
+- UI: ScheduleListView + ScheduleEditorView
 ```
 
-**고급 차단**
+**8. 고급 차단** — `BlockedSite.isKeywordPattern`, `BlockProfile.blocklistMode`
 ```
-- 키워드 차단: URL에 키워드 포함 시 차단
-- 화이트리스트 모드: 허용 사이트만 접근
-- 하드코어 모드: 타이머 취소 절대 불가
+- 키워드 차단: URL에 키워드 포함 시 차단 (isKeywordPattern)
+- 허용 목록 모드: 허용 사이트만 접근 (blocklistMode = "allowlist")
+- 하드코어 모드: 타이머 취소 불가 (isHardcoreMode)
 ```
 
-**Apple Calendar 동기화**
+**9. Apple Calendar 동기화** — `CalendarSyncService.swift`
 ```
 - 완료 세션 → 캘린더 이벤트 자동 생성
-- Focus You 전용 캘린더
+- FocusSession.calendarEventID로 연결
 ```
 
-**Shortcuts / Siri 자동화**
+**10. Shortcuts / Siri 자동화** — `FocusYouShortcuts.swift` + 6개 Intent
 ```
-- AppIntents: 집중 시작, 중지, 상태 확인, 오늘 통계
-- "Focus You로 딥워크 시작해줘"
+- StartFocusIntent, StopFocusIntent, TogglePauseIntent
+- GetFocusStatusIntent, GetStreakIntent, StartProfileIntent
+- 한/영 Siri 구문 지원
 ```
 
-**macOS 집중 모드 연동**
+**11. macOS 집중 모드 연동** — `FocusModeObserver.swift`
 ```
 - Focus You 시작 → macOS 방해금지 자동 ON
-- macOS 집중 모드 활성 → Focus You 프로필 자동 시작
 ```
 
-**데스크톱 위젯 (WidgetKit)**
+**12. 데스크톱 위젯** — `FocusYouWidget/`
 ```
-- Small: 오늘 집중 시간 + 스트릭
-- Medium: 프로필 빠른 시작 버튼
-- Large: 주간 차트 미니
-```
-
-#### 백로그 C: 장기 비전 (확인 후 결정)
-
-**번아웃 방지 시스템**
-```
-- 일일 집중 상한 알림 (기본 6시간)
-- 밸런스 점수 (집중:휴식 비율)
-- 장시간 연속 스트레칭 제안
-- 긍정적 톤만, 죄책감 유발 금지
+- FocusStatusWidget: 현재 집중 상태 표시
+- StreakWidget: 스트릭 표시
+- SharedDataProvider로 앱↔위젯 데이터 공유
 ```
 
-**비주얼 성장 시스템**
+**13. 번아웃 방지** — `BurnoutDetector.swift`, `BurnoutBannerView.swift`
 ```
-- 집중 시간 누적 → "나만의 정원" 성장
-- 🌱→🌿→🌳→🌲→🏞️ (5단계)
-- 성장 단계마다 새 테마 언락
-```
-
-**동기부여 시스템**
-```
-- 차단 사이트 접속 시 명언 표시
-- 스트릭 마일스톤: 7일, 30일, 100일, 365일
-- 레벨 시스템 + 배지
+- 일일 집중 상한 감지
+- 밸런스 경고 배너
+- 긍정적 톤, 죄책감 유발 금지
 ```
 
-**비활성 앱 딤(Dim)**
+**14. 비주얼 성장 시스템** — `GrowthManager.swift`, `GrowthBadgeView.swift`, `GrowthView.swift`
+```
+- 집중 시간 누적 → 5단계 성장: 🌱→🌿→🌳→🌲→🏞️
+- 현재 단계 + 다음 단계까지 남은 시간 표시
+- 성장 타임라인 시각화
+```
+
+**15. 비활성 앱 딤(Dim)** — `AppDimmingManager.swift`
 ```
 - 집중 중 배경 앱 어둡게 (0~90%)
 - CALayer opacity 변경 (저자원)
 ```
+
+**16. 뱃지 / 마일스톤** — `Badge` 모델, `MilestoneDetector.swift`, `BadgeGalleryView.swift`
+```
+- 스트릭 마일스톤: 7일, 30일, 100일, 365일
+- 시간 마일스톤: 10시간, 50시간, 100시간 등
+- 달성 시 축하 애니메이션 (MilestoneCelebrationView)
+- 배지 갤러리에서 수집 현황 확인
+```
+
+**17. 데이터 내보내기** — `ExportService.swift`, `ExportView.swift`
+```
+- CSV/JSON 포맷 내보내기
+```
+
+**18. 로컬라이제이션** — `ko.lproj/` + `en.lproj/`
+```
+- 한국어 + 영어 완전 지원
+- 앱 내 언어 설정 변경 + 자동 재시작
+```
+
+**19. 명언 시스템 강화** — `QuoteView.swift`, `QuoteService`, `Quotes.json`
+```
+- 통계 화면에서 동기부여 명언 표시 (탭하여 새 명언)
+- 집중 중 명언 표시 (FocusingContentView, 설정 토글 연동)
+- 완료 화면에 명언 표시 (CompletedContentView)
+- 차단 앱 알림에 명언 추가 (NotificationService)
+- 현재 로케일 기반 명언 필터링 (ko/en)
+- 설정: "동기부여 명언" 토글 (SettingsView)
+- (브라우저 커스텀 페이지는 hosts 방식 한계로 v2.0 Network Extension에서 구현 예정)
+```
+
+**20. 히트맵 통계** — `HeatmapView.swift`
+```
+- 시간대별 집중 패턴 히트맵 시각화
+```
+
+**21. 의도 분석 / 월간 트렌드** — `IntentionAnalysisView.swift`, `MonthlyTrendView.swift`
+```
+- 의도별 통계 분석
+- 월간 추세 차트
+```
+
+**22. 레벨 시스템 (XP/등급)** — `LevelManager.swift`, `LevelBadgeView.swift`, `LevelUpCelebrationView.swift`
+```
+- XP 공식: 집중 1분 = 1 XP, 완료 +20%, 스트릭 +5%/일 (최대 +50%)
+- 레벨 공식: Level N threshold = N × (N-1) × 25 (이차 성장, 상한 없음)
+- LevelManager: @MainActor enum, 순수 static 함수, FocusSession에서 계산
+- LevelBadgeView: 원형 진행률 링 + 레벨 번호 (통계 성장 섹션)
+- LevelUpCelebrationView: 레벨업 오버레이 (spring 애니메이션)
+- AppState: 레벨업 감지 + pendingLevelUp + XP 획득량 표시
+- GrowthView: XP 진행 바 + LevelBadgeView 통합
+- CompletedContentView: "+N XP 획득" 요약행 + 레벨업 축하 오버레이
+- 10개 Swift Testing 테스트 (LevelManagerTests)
+```
+
+#### ❌ 미구현 (0개)
+
+> v1.x 백로그 전량 구현 완료.
 
 ---
 
@@ -564,6 +606,20 @@ Level 3 — 상세:
 
 > 목표: 수익화 시작. App Store 배포.
 > v1.x에서 추가된 기능 중 일부를 Pro 전용으로 전환.
+
+#### 현재 준비 상태
+
+```
+✅ LicenseManager (Pro 상태 관리, ProFeature enum, 기능 게이팅)
+✅ PaywallView (구독 유도 UI + 실제 구매 연결)
+✅ Pro/Free 기능 분리 (proGated 토글, 뱃지 표시)
+✅ 가격 상수 정의 (Constants.Subscription)
+✅ StoreKit 2 실제 결제 연결 (SubscriptionManager actor)
+✅ 구매 복원, 트랜잭션 실시간 감시, JWS on-device 검증
+✅ StoreKit Configuration 파일 (로컬 테스트용)
+❌ Network Extension (App Store 차단 엔진)
+❌ App Store 심사 제출
+```
 
 #### Pro 구독 도입
 
@@ -583,25 +639,26 @@ Level 3 — 상세:
 ✅ 프로필 1개
 ✅ 오늘 + 이번 주 통계
 ✅ 스트릭
-✅ 테마 10개
+✅ 기본 테마 10개
 ```
 
-**Pro 전용이 되는 것 (v1.x에서 추가된 기능 중)**
+**Pro 전용이 되는 것 (v1.x에서 구현 완료, Pro 게이팅 적용됨)**
 ```
 🔒 무제한 차단 / 무제한 타이머
 🔒 무제한 프로필
 🔒 Overflow 모드
-🔒 전체 70+ 테마
+🔒 전체 72개 프리미엄 테마
 🔒 앰비언트 사운드
 🔒 스케줄 시스템
-🔒 고급 차단 (키워드, 화이트리스트, 하드코어)
-🔒 월간/연간 통계, 카테고리 분석, 히트맵
+🔒 고급 차단 (키워드, 허용 목록, 하드코어)
+🔒 월간/연간 통계, 의도 분석, 히트맵
 🔒 회고 Level 2~3
 🔒 macOS 집중 모드 연동
 🔒 Shortcuts 자동화
 🔒 Calendar 동기화
 🔒 비활성 앱 딤
 🔒 데이터 내보내기 (CSV/JSON)
+🔒 성장 시스템 + 배지 갤러리
 ```
 
 **자연스러운 전환 포인트**
@@ -609,7 +666,7 @@ Level 3 — 상세:
 1. 통계를 더 보고 싶을 때 → "월간 통계와 패턴 분석을 Pro로"
 2. 프로필 2개째 → "Pro로 무제한 프로필"
 3. 차단 11번째 → "Pro로 무제한 차단"
-4. 테마 갤러리 탐색 → "70+ 프리미엄 테마"
+4. 테마 갤러리 탐색 → "72개 프리미엄 테마"
 절대 집중 중에 페이월 표시 안 함.
 ```
 
@@ -695,18 +752,18 @@ v1.0부터 SwiftData 모델을 iCloud 호환으로 설계한 이유:
 BlockingCoordinator (actor, singleton)
 ├── WebsiteBlocker (protocol)
 │   ├── HostsFileBlocker (v1, sudo, 직접 배포)
-│   └── NetworkExtensionBlocker (v2, App Store)
+│   └── NetworkExtensionBlocker (v2, App Store) — 미구현
 ├── AppBlocker (NSWorkspace Notification 기반)
 └── 상태: idle / blocking / error
 
-TimerCoordinator (actor)
+Timer
 ├── FreeTimer (카운트다운)
 ├── PomodoroEngine (사이클 상태 머신 + Overflow)
 └── FlowmodoroEngine (카운트업 + 비례 휴식)
 
 ThemeManager (@Observable, singleton)
 ├── 현재 테마
-├── 테마 카탈로그 (JSON)
+├── 테마 카탈로그 72개 (JSON)
 └── 모든 색상의 단일 진실 원천
 
 AppState (@Observable)
@@ -715,11 +772,46 @@ AppState (@Observable)
 ├── 오늘의 통계 (캐시)
 └── 프로그레시브 디스클로저 레벨
 
-SystemUtilities
+System
 ├── HostsFileManager (hosts 파일 마커 관리)
 ├── PrivilegedHelper (osascript 권한 상승)
 ├── DNSManager (DNS 캐시 플러시)
-└── PrivateRelayDetector (iCloud Private Relay 상태 감지)
+├── PrivateRelayDetector (iCloud Private Relay 상태 감지)
+├── AppDimmingManager (비활성 앱 딤 처리)
+├── FocusModeObserver (macOS 집중 모드 연동)
+└── LaunchAtLoginManager (로그인 시 자동 시작)
+
+Sound
+└── AmbientSoundManager (앰비언트 사운드 재생)
+
+Data
+├── GrowthManager (성장 5단계 계산)
+├── MilestoneDetector (마일스톤/배지 감지)
+├── BurnoutDetector (번아웃 경고)
+├── ExportService (CSV/JSON 내보내기)
+└── ProfileBootstrapper (기본 프로필 초기화)
+
+Schedule
+└── ScheduleManager (요일별 자동 차단 스케줄)
+
+Calendar
+└── CalendarSyncService (Apple Calendar 동기화)
+
+Intents (Shortcuts / Siri)
+├── FocusYouShortcuts (AppShortcutsProvider)
+├── StartFocusIntent, StopFocusIntent, TogglePauseIntent
+├── GetFocusStatusIntent, GetStreakIntent, StartProfileIntent
+└── IntentError
+
+Subscription
+├── LicenseManager (Pro 상태 관리, 기능 게이팅)
+└── SubscriptionManager (StoreKit 2 결제, 트랜잭션 감시, 권한 검증)
+
+Shared
+└── SharedDataProvider (앱↔위젯 데이터 공유)
+
+Notification
+└── NotificationService
 
 QAAutomation (#if DEBUG)
 └── QAAutomationController (셸 브리지 → UserDefaults 폴링)
@@ -728,7 +820,7 @@ QAAutomation (#if DEBUG)
 ### 데이터 모델
 
 ```swift
-// v1.0부터 iCloud 호환 타입만 사용 (향후 iOS 동기화 대비)
+// iCloud 호환 타입만 사용 (향후 iOS 동기화 대비)
 
 @Model class BlockProfile {
     var name: String
@@ -739,22 +831,34 @@ QAAutomation (#if DEBUG)
     var breakDuration: Int          // 초
     var longBreakDuration: Int      // 초
     var pomodoroCount: Int          // 긴 휴식까지 사이클 수
+    var isDefault: Bool
     @Relationship var blockedSites: [BlockedSite]
     @Relationship var blockedApps: [BlockedApp]
+    @Relationship var schedules: [BlockSchedule]   // v1.3
     var createdAt: Date
+    // v1.3 고급 차단 + 취소 강도
+    var blocklistMode: String?      // "blocklist" | "allowlist"
+    var isHardcoreMode: Bool?       // 타이머 취소 불가
+    var cancelIntensity: Int?       // 0=기본, 1=강함, 2=하드코어
+    var cancelLockoutMinutes: Int?  // Level 1 잠금 시간(분)
 }
 
 @Model class BlockedSite {
-    var domain: String              // "facebook.com"
+    var domain: String              // "facebook.com" 또는 키워드
     var category: String?           // "SNS"
-    var isEnabled: Bool = true
+    var isEnabled: Bool
+    var isKeywordPattern: Bool?     // v1.3: true → domain은 URL 키워드
+    var createdAt: Date
+    var profile: BlockProfile?
 }
 
 @Model class BlockedApp {
     var bundleId: String            // "com.tinyspeck.slackmacgap"
     var name: String                // "Slack"
     var category: String?
-    var isEnabled: Bool = true
+    var isEnabled: Bool
+    var createdAt: Date
+    var profile: BlockProfile?
 }
 
 @Model class FocusSession {
@@ -767,11 +871,31 @@ QAAutomation (#if DEBUG)
     var overflowDuration: Int       // Overflow 추가 초 (기본 0)
     var sessionType: String         // "focus" | "break" | "longBreak"
     var wasCompleted: Bool
-    // v1.x에서 추가될 필드 (미리 nullable로 정의)
-    var intention: String?
-    var retrospectEmoji: String?
-    var retrospectText: String?
-    var retrospectRating: Int?      // 1~5
+    var intention: String?          // v1.x 의도 입력
+    var retrospectEmoji: String?    // v1.x 회고 이모지
+    var retrospectText: String?     // v1.x 회고 텍스트
+    var retrospectRating: Int?      // v1.x 회고 별점 1~5
+    var calendarEventID: String?    // v1.3 캘린더 동기화
+}
+
+// v1.3 신규 모델
+@Model class BlockSchedule {
+    var name: String                // "오전 딥워크"
+    var weekdays: String            // "2,3,4,5,6" (1=일~7=토)
+    var startMinuteOfDay: Int       // 0~1439 (540 = 09:00)
+    var endMinuteOfDay: Int
+    var isEnabled: Bool
+    var profile: BlockProfile?
+    var createdAt: Date
+}
+
+// v1.5 신규 모델
+@Model class Badge {
+    var milestoneID: String         // "streak_7", "hours_50"
+    var title: String
+    var emoji: String
+    var desc: String
+    var achievedAt: Date
 }
 ```
 
@@ -863,7 +987,7 @@ struct DefaultTheme {
 | 회고 피로감 | 기본 OFF, 3단계, 건너뛰기 항상 가능 |
 | 알림 과다 | 집중 중 방해 금지, 모든 알림 개별 OFF |
 | 온보딩 이탈 | "30초 안에 첫 세션 시작" 목표 |
-| 차단 신뢰 불안 | Health Check 뷰 + Private Relay 감지 경고 + 상태 배지 (v1.x) |
+| 차단 신뢰 불안 | Health Check 뷰 + Private Relay 감지 경고 + 상태 배지 (✅ 구현 완료) |
 
 ---
 
@@ -876,7 +1000,7 @@ struct DefaultTheme {
 | **1Focus** | 가장 강력한 차단, 무료 기본 | 타이머 없음 | 차단 메커니즘, 카테고리 |
 | **Be Focused** | 뽀모도로 정석 | 차단 없음 | 메뉴바 UX, 세션 리포트 |
 | **Session** | 분석+자동화 최고, $39.99/년 | 차단 부가적 | 의도 입력, Overflow, Shortcuts |
-| **Ultimate Focus** | 비주얼 미학 최고 | 차단 없음 | 파이차트 타이머, 70+ 테마, 회고 |
+| **Ultimate Focus** | 비주얼 미학 최고 | 차단 없음 | 파이차트 타이머, 72 테마, 회고 |
 | **Focused Work** | Flowmodoro+자동차단, 4.9★ | 리소스 과다 | Flowmodoro 기법 (**직접 경쟁**) |
 | **Flow** | Pro 차단, 100K+ daily users | 무료 기능 제한적 | 앰비언트 사운드, 명언 |
 | **focusedOS** | 앱 딤 처리 | 타이머/통계 약함 | 비활성 앱 딤 |
@@ -894,7 +1018,7 @@ struct DefaultTheme {
 | ⭐ 차단+타이머 연동 | ❌ | ❌ | △ | ❌ | ✅ | ❌ | ✅ |
 | ⭐ 원복 안전장치 | △ | ❌ | △ | ❌ | △ | ❌ | ✅(3중) |
 | 한국형 프리셋 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| 테마 (70+) | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
+| 테마 (72개) | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
 | AI 인사이트 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅(v3) |
 
 ---
@@ -931,8 +1055,8 @@ secondary: website blocker, app blocker, concentration, visual timer
    화면: 주간 바 차트 + 오늘 요약 + 스트릭 배지
 
 5. 테마 갤러리
-   KR: "취향대로 꾸미기" / "10개 기본 테마, 확장 가능"
-   EN: "Make it yours" / "10 built-in themes"
+   KR: "취향대로 꾸미기" / "72개 테마, 6가지 무드"
+   EN: "Make it yours" / "72 themes, 6 moods"
    화면: 테마 그리드 + 라이브 프리뷰 패널
 ```
 

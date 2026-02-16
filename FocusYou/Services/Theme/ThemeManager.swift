@@ -113,7 +113,7 @@ final class ThemeManager {
 
     /// 카테고리별 테마 그룹
     var themesByCategory: [(category: String, themes: [AppTheme])] {
-        let grouped = Dictionary(grouping: availableThemes) { $0.category ?? "기타" }
+        let grouped = Dictionary(grouping: availableThemes) { $0.category ?? "other" }
         return Constants.ThemeCategory.all.compactMap { cat in
             guard let themes = grouped[cat], !themes.isEmpty else { return nil }
             return (category: cat, themes: themes)

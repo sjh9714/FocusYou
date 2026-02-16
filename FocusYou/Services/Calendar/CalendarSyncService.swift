@@ -110,9 +110,9 @@ final class CalendarSyncService {
 
     private func eventTitle(for session: FocusSession) -> String {
         let mode = switch session.timerMode {
-        case "pomodoro": "뽀모도로"
-        case "flowmodoro": "플로우"
-        default: "집중"
+        case "pomodoro": String(localized: "timer_mode_pomodoro")
+        case "flowmodoro": String(localized: "timer_mode_flowmodoro")
+        default: String(localized: "calendar_focus")
         }
 
         let duration = session.actualDuration.formattedAsReadable
@@ -120,21 +120,24 @@ final class CalendarSyncService {
     }
 
     private func eventNotes(for session: FocusSession) -> String {
-        var notes = "Focus You 집중 세션"
+        var notes = String(localized: "calendar_session_header")
 
         if let profileName = session.profileName {
-            notes += "\n프로필: \(profileName)"
+            notes += "\n" + String(localized: "calendar_profile \(profileName)")
         }
 
         if let intention = session.intention, !intention.isEmpty {
-            notes += "\n의도: \(intention)"
+            notes += "\n" + String(localized: "calendar_intention \(intention)")
         }
 
         if let emoji = session.retrospectEmoji {
-            notes += "\n회고: \(emoji)"
+            notes += "\n" + String(localized: "calendar_retrospect \(emoji)")
         }
 
-        notes += "\n완료: \(session.wasCompleted ? "정상" : "취소")"
+        let status = session.wasCompleted
+            ? String(localized: "calendar_status_completed")
+            : String(localized: "calendar_status_cancelled")
+        notes += "\n" + String(localized: "calendar_status \(status)")
         return notes
     }
 }
@@ -145,10 +148,10 @@ private extension Int {
     var formattedAsReadable: String {
         let minutes = self / 60
         if minutes < 60 {
-            return "\(minutes)분"
+            return String(localized: "duration_minutes \(minutes)")
         }
         let hours = minutes / 60
         let remainingMinutes = minutes % 60
-        return remainingMinutes > 0 ? "\(hours)시간 \(remainingMinutes)분" : "\(hours)시간"
+        return String(localized: "duration_hours_minutes \(hours) \(remainingMinutes)")
     }
 }

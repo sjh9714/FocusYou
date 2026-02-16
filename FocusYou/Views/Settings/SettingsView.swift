@@ -10,6 +10,8 @@ struct SettingsView: View {
     @State private var isPreviewPlaying = false
     @State private var showPaywall = false
     @State private var paywallReason: PaywallReason = .proFeature(.ambientSound)
+    @State private var expandedThemeCategory: String?
+    @State private var showRestartAlert = false
 
     var body: some View {
         TabView {
@@ -56,25 +58,36 @@ struct SettingsView: View {
             PaywallView(reason: paywallReason)
                 .environment(themeManager)
         }
+        .alert("언어 변경", isPresented: $showRestartAlert) {
+            Button("앱 재시작") {
+                relaunchApp()
+            }
+            Button("나중에", role: .cancel) {}
+        } message: {
+            Text("언어 변경을 적용하려면 앱을 재시작해야 합니다.")
+        }
     }
 
     // MARK: - 구독 (v2.0)
+
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
     private var subscriptionSection: some View {
         Section("구독") {
             HStack {
                 VStack(alignment: .leading, spacing: Constants.Design.spacingXS) {
                     HStack(spacing: Constants.Design.spacingSM) {
-                        Text(licenseManager.isPro ? "Pro" : "무료")
+                        Text(LocalizedStringKey(licenseManager.isPro ? "Pro" : "무료"))
                             .font(.callout.bold())
                         if licenseManager.isPro {
                             Image(systemName: "crown.fill")
                                 .foregroundStyle(themeManager.primary)
                         }
                     }
-                    Text(licenseManager.isPro
+                    Text(LocalizedStringKey(licenseManager.isPro
                          ? "모든 기능을 사용 중입니다."
-                         : "일부 기능이 제한됩니다.")
+                         : "일부 기능이 제한됩니다."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -89,13 +102,71 @@ struct SettingsView: View {
                     .secondaryActionStyle(color: themeManager.primary)
                 }
             }
+
+            // 구매 복원 버튼
+            if !licenseManager.isPro {
+                Button {
+                    Task { await restorePurchases() }
+                } label: {
+                    if isRestoring {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Text(String(localized: "subscription_restore"))
+                    }
+                }
+                .disabled(isRestoring)
+            }
+
+            if let restoreMessage {
+                Text(restoreMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
+    }
+
+    private func restorePurchases() async {
+        isRestoring = true
+        restoreMessage = nil
+
+        do {
+            try await SubscriptionManager.shared.restorePurchases()
+            let purchased = await SubscriptionManager.shared.purchasedProductIDs
+            if purchased.isEmpty {
+                restoreMessage = String(localized: "subscription_restore_no_purchases")
+            } else {
+                restoreMessage = String(localized: "subscription_restore_success")
+            }
+        } catch {
+            restoreMessage = String(localized: "subscription_purchase_error \(error.localizedDescription)")
+        }
+
+        isRestoring = false
     }
 
     // MARK: - 일반
 
     private var generalSection: some View {
         Section("일반") {
+            Picker("언어", selection: Binding(
+                get: { viewModel.appLanguage },
+                set: { newValue in
+                    viewModel.appLanguage = newValue
+                    showRestartAlert = true
+                }
+            )) {
+                Text("시스템 언어").tag("system")
+                Text("한국어").tag("ko")
+                Text("English").tag("en")
+            }
+
+            Picker("외관", selection: Bindable(viewModel).appearanceMode) {
+                Text("시스템").tag("system")
+                Text("라이트").tag("light")
+                Text("다크").tag("dark")
+            }
+
             Toggle(
                 "메뉴바에 남은 시간 표시",
                 isOn: Bindable(viewModel).showMenuBarTime
@@ -124,6 +195,11 @@ struct SettingsView: View {
         Section("집중 경험") {
             Toggle("의도 입력", isOn: Bindable(viewModel).showIntentionInput)
             Text("세션 시작 전 집중할 내용을 입력합니다.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Toggle("동기부여 명언", isOn: Bindable(viewModel).showMotivationQuotes)
+            Text("집중 중과 완료 화면에 동기부여 명언을 표시합니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -213,7 +289,7 @@ struct SettingsView: View {
                     toggleSoundPreview()
                 } label: {
                     Label(
-                        isPreviewPlaying ? "미리듣기 중지" : "미리듣기",
+                        LocalizedStringKey(isPreviewPlaying ? "미리듣기 중지" : "미리듣기"),
                         systemImage: isPreviewPlaying ? "stop.fill" : "play.fill"
                     )
                 }
@@ -249,16 +325,32 @@ struct SettingsView: View {
     private var themeSection: some View {
         Section("테마") {
             ForEach(themeManager.themesByCategory, id: \.category) { group in
-                DisclosureGroup {
+                DisclosureGroup(
+                    isExpanded: Binding(
+                        get: { expandedThemeCategory == group.category },
+                        set: { expandedThemeCategory = $0 ? group.category : nil }
+                    )
+                ) {
                     ForEach(group.themes) { theme in
                         themeRow(theme)
                     }
                 } label: {
                     Label(
-                        group.category,
+                        Constants.ThemeCategory.displayName(group.category),
                         systemImage: Constants.ThemeCategory.icons[group.category] ?? "circle.fill"
                     )
                     .font(.callout.weight(.medium))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation(.quickEase) {
+                            if expandedThemeCategory == group.category {
+                                expandedThemeCategory = nil
+                            } else {
+                                expandedThemeCategory = group.category
+                            }
+                        }
+                    }
                 }
             }
 
@@ -516,6 +608,17 @@ struct SettingsView: View {
     }
     #endif
 
+    // MARK: - 앱 재실행
+
+    private func relaunchApp() {
+        let appURL = Bundle.main.bundleURL
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/bin/sh")
+        task.arguments = ["-c", "sleep 0.5 && open \"\(appURL.path)\""]
+        try? task.run()
+        NSApplication.shared.terminate(nil)
+    }
+
     // MARK: - Pro 게이팅 헬퍼
 
     private func proGatedToggle(
@@ -524,7 +627,7 @@ struct SettingsView: View {
         feature: LicenseManager.ProFeature
     ) -> some View {
         HStack {
-            Toggle(title, isOn: Binding(
+            Toggle(LocalizedStringKey(title), isOn: Binding(
                 get: { isOn.wrappedValue },
                 set: { newValue in
                     if newValue && licenseManager.requiresPro(feature: feature) {

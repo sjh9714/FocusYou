@@ -15,11 +15,11 @@ final class TimerViewModel {
         var displayName: String {
             switch self {
             case .free:
-                return "자유"
+                return String(localized: "timer_mode_free")
             case .pomodoro:
-                return "뽀모도로"
+                return String(localized: "timer_mode_pomodoro")
             case .flowmodoro:
-                return "플로우"
+                return String(localized: "timer_mode_flowmodoro")
             }
         }
 
@@ -79,7 +79,7 @@ final class TimerViewModel {
 
     var pomodoroSummaryText: String {
         let config = pomodoroConfiguration
-        return "집중 \(config.focusMinutes) / 짧휴 \(config.shortBreakMinutes) / 긴휴 \(config.longBreakMinutes) · \(config.cycles)회"
+        return String(localized: "pomodoro_summary \(config.focusMinutes) \(config.shortBreakMinutes) \(config.longBreakMinutes) \(config.cycles)")
     }
 
     // MARK: - Methods
@@ -92,10 +92,10 @@ final class TimerViewModel {
 
     /// 커스텀 시간 변경 시 프리셋 해제
     func updateCustomMinutes(_ minutes: Double) {
-        customMinutes = minutes
+        customMinutes = minutes.rounded()
         // 프리셋과 일치하면 프리셋 선택, 아니면 해제
-        if Constants.Timer.presets.contains(Int(minutes)) {
-            selectedPreset = Int(minutes)
+        if Constants.Timer.presets.contains(Int(customMinutes)) {
+            selectedPreset = Int(customMinutes)
         } else {
             selectedPreset = nil
         }

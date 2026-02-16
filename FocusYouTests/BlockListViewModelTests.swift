@@ -51,7 +51,7 @@ final class BlockListViewModelTests: XCTestCase {
         // 중복 추가
         viewModel.newWebsiteURL = "example.com"
         viewModel.addWebsite(modelContext: context)
-        XCTAssertEqual(viewModel.errorMessage, "이미 추가된 사이트입니다")
+        XCTAssertEqual(viewModel.errorMessage, String(localized: "error_duplicate_site"))
     }
 
     func testAddWebsiteSuccessClearsInput() throws {
@@ -95,7 +95,7 @@ final class BlockListViewModelTests: XCTestCase {
 
         viewModel.newWebsiteURL = "same.com"
         viewModel.addWebsite(modelContext: context, profile: profile)
-        XCTAssertEqual(viewModel.errorMessage, "이미 추가된 사이트입니다")
+        XCTAssertEqual(viewModel.errorMessage, String(localized: "error_duplicate_site"))
     }
 
     // MARK: - 웹사이트 삭제

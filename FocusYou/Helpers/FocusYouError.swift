@@ -20,31 +20,31 @@ enum FocusYouError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .hostsFileAccessDenied:
-            return "hosts 파일 접근 권한이 없습니다. 관리자 권한이 필요합니다."
+            return String(localized: "error_hosts_access_denied")
         case .hostsFileReadFailed:
-            return "hosts 파일을 읽을 수 없습니다."
+            return String(localized: "error_hosts_read_failed")
         case .hostsFileWriteFailed:
-            return "hosts 파일에 쓸 수 없습니다."
+            return String(localized: "error_hosts_write_failed")
         case .dnsFlushFailed:
-            return "DNS 캐시를 플러시할 수 없습니다."
+            return String(localized: "error_dns_flush_failed")
         case .appNotFound(let bundleId):
-            return "앱을 찾을 수 없습니다: \(bundleId)"
+            return String(localized: "error_app_not_found \(bundleId)")
         case .appTerminationFailed(let name):
-            return "\(name) 앱을 종료할 수 없습니다."
+            return String(localized: "error_app_termination_failed \(name)")
         case .timerAlreadyRunning:
-            return "타이머가 이미 실행 중입니다."
+            return String(localized: "error_timer_already_running")
         case .timerNotRunning:
-            return "실행 중인 타이머가 없습니다."
+            return String(localized: "error_timer_not_running")
         case .blockingAlreadyActive:
-            return "차단이 이미 활성화되어 있습니다."
+            return String(localized: "error_blocking_already_active")
         case .authorizationFailed:
-            return "관리자 권한을 얻을 수 없습니다."
+            return String(localized: "error_authorization_failed")
         case .authorizationCancelled:
-            return "사용자가 관리자 권한 요청을 취소했습니다."
+            return String(localized: "error_authorization_cancelled")
         case .launchAgentInstallFailed:
-            return "안전장치(LaunchAgent)를 설치할 수 없습니다."
+            return String(localized: "error_launch_agent_failed")
         case .presetLoadFailed(let category):
-            return "\(category) 프리셋을 불러올 수 없습니다."
+            return String(localized: "error_preset_load_failed \(category)")
         }
     }
 }

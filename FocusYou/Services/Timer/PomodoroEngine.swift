@@ -32,11 +32,11 @@ final class PomodoroEngine {
         var displayName: String {
             switch self {
             case .focus:
-                return "집중"
+                return String(localized: "phase_focus")
             case .shortBreak:
-                return "짧은 휴식"
+                return String(localized: "phase_short_break")
             case .longBreak:
-                return "긴 휴식"
+                return String(localized: "phase_long_break")
             }
         }
     }

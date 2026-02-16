@@ -98,7 +98,7 @@ struct HealthCheckView: View {
                 Text("hosts 파일 차단")
                     .font(.callout.weight(.medium))
 
-                Text(hostsBlockingActive ? "활성 차단 중" : "비활성 (정상 대기)")
+                Text(LocalizedStringKey(hostsBlockingActive ? "활성 차단 중" : "비활성 (정상 대기)"))
                     .font(.caption)
                     .foregroundStyle(hostsBlockingActive ? themeManager.primary : .secondary)
             }
@@ -159,9 +159,9 @@ struct HealthCheckView: View {
     private func flushDNS() async {
         do {
             try await DNSManager.shared.flushDNSCache()
-            dnsFlushResult = "DNS 캐시 플러시 완료"
+            dnsFlushResult = String(localized: "DNS 캐시 플러시 완료")
         } catch {
-            dnsFlushResult = "플러시 실패: \(error.localizedDescription)"
+            dnsFlushResult = String(localized: "플러시 실패: \(error.localizedDescription)")
         }
     }
 

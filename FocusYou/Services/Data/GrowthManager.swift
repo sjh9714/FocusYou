@@ -23,11 +23,11 @@ enum GrowthStage: Int, CaseIterable, Comparable {
 
     var name: String {
         switch self {
-        case .seed: return "씨앗"
-        case .sprout: return "새싹"
-        case .tree: return "나무"
-        case .forest: return "숲"
-        case .garden: return "정원"
+        case .seed: return String(localized: "growth_seed")
+        case .sprout: return String(localized: "growth_sprout")
+        case .tree: return String(localized: "growth_tree")
+        case .forest: return String(localized: "growth_forest")
+        case .garden: return String(localized: "growth_garden")
         }
     }
 

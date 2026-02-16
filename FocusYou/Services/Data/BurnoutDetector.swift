@@ -70,10 +70,10 @@ final class BurnoutDetector {
         case .safe:
             showBanner = false
         case .approaching(let minutes):
-            bannerMessage = "잘하고 있어요! 오늘 한계까지 약 \(minutes)분 남았어요."
+            bannerMessage = String(localized: "burnout_approaching \(minutes)")
             showBanner = true
         case .exceeded(let minutes):
-            bannerMessage = "오늘 \(minutes)분 초과했어요. 잠시 쉬어볼까요?"
+            bannerMessage = String(localized: "burnout_exceeded \(minutes)")
             showBanner = true
         }
     }

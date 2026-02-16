@@ -82,7 +82,7 @@ final class ProfileViewModel {
     func save(modelContext: ModelContext) {
         let trimmedName = editorName.trimmingCharacters(in: .whitespaces)
         guard !trimmedName.isEmpty else {
-            validationError = "프로필 이름을 입력해주세요"
+            validationError = String(localized: "error_enter_profile_name")
             return
         }
 

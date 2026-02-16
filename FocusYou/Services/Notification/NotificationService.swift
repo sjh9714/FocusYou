@@ -45,8 +45,8 @@ actor NotificationService {
     /// 타이머 완료 알림
     func sendTimerCompleted(duration: TimeInterval) async {
         let content = UNMutableNotificationContent()
-        content.title = "집중 세션 완료!"
-        content.body = "\(duration.formattedAsReadable) 동안 집중했습니다. 잘 했어요!"
+        content.title = String(localized: "notification_timer_complete_title")
+        content.body = String(localized: "notification_timer_complete_body \(duration.formattedAsReadable)")
         content.sound = isCompletionSoundEnabled() ? .default : nil
 
         await send(content: content, identifier: "timer-completed")
@@ -60,8 +60,14 @@ actor NotificationService {
         }
 
         let content = UNMutableNotificationContent()
-        content.title = "앱 차단됨"
-        content.body = "\(appName)이(가) 집중 세션 중 차단되었습니다."
+        content.title = String(localized: "notification_app_blocked_title")
+
+        // 명언 설정 ON이면 본문에 명언 추가
+        if isMotivationQuotesEnabled(), let quoteText = QuoteService.randomQuoteText() {
+            content.body = String(localized: "notification_app_blocked_body \(appName)") + "\n\(quoteText)"
+        } else {
+            content.body = String(localized: "notification_app_blocked_body \(appName)")
+        }
         content.sound = nil
 
         await send(content: content, identifier: "app-blocked-\(appName)")
@@ -75,8 +81,8 @@ actor NotificationService {
         }
 
         let content = UNMutableNotificationContent()
-        content.title = "차단 해제"
-        content.body = "모든 웹사이트와 앱 차단이 해제되었습니다."
+        content.title = String(localized: "notification_blocking_deactivated_title")
+        content.body = String(localized: "notification_blocking_deactivated_body")
         content.sound = nil
 
         await send(content: content, identifier: "blocking-deactivated")
@@ -90,8 +96,8 @@ actor NotificationService {
         }
 
         let content = UNMutableNotificationContent()
-        content.title = "뽀모도로 전환"
-        content.body = "\(phaseTitle) 시작 · \(cycleText)"
+        content.title = String(localized: "notification_pomodoro_phase_title")
+        content.body = String(localized: "notification_pomodoro_phase_body \(phaseTitle) \(cycleText)")
         content.sound = nil
 
         await send(content: content, identifier: "pomodoro-phase-\(UUID().uuidString)")
@@ -100,8 +106,8 @@ actor NotificationService {
     /// 스트레칭 알림 (v1.5 번아웃 방지)
     func sendStretchReminder() async {
         let content = UNMutableNotificationContent()
-        content.title = "잠시 스트레칭 해볼까요?"
-        content.body = "90분 이상 집중했어요. 간단한 스트레칭으로 몸을 풀어주세요!"
+        content.title = String(localized: "notification_stretch_title")
+        content.body = String(localized: "notification_stretch_body")
         content.sound = .default
 
         await send(content: content, identifier: "stretch-reminder")
@@ -148,6 +154,13 @@ actor NotificationService {
         boolSetting(
             for: Constants.Settings.showBlockedAppNotificationKey,
             default: Constants.Settings.showBlockedAppNotificationDefault
+        )
+    }
+
+    func isMotivationQuotesEnabled() -> Bool {
+        boolSetting(
+            for: Constants.Settings.showMotivationQuotesKey,
+            default: Constants.Settings.showMotivationQuotesDefault
         )
     }
 }

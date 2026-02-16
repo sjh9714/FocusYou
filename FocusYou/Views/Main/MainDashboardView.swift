@@ -7,6 +7,7 @@ struct MainDashboardView: View {
     @Environment(AppState.self) private var appState
     @Environment(SettingsViewModel.self) private var settingsViewModel
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(LicenseManager.self) private var licenseManager
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
 
@@ -24,6 +25,7 @@ struct MainDashboardView: View {
     @State private var showDashIntentionInput = false
     @State private var dashIntentionText = ""
     @State private var dashRetrospectCompleted = false
+    @State private var showDashPaywall = false
     @Namespace private var dashModeNamespace
 
     var body: some View {
@@ -62,6 +64,10 @@ struct MainDashboardView: View {
         }
         .onChange(of: profiles.count) { _, _ in
             appState.ensureActiveProfile(in: profiles)
+        }
+        .sheet(isPresented: $showDashPaywall) {
+            PaywallView(reason: .timerLimit)
+                .environment(themeManager)
         }
     }
 
@@ -296,23 +302,14 @@ struct MainDashboardView: View {
                     startSessionFromDashboard(intention: trimmed.isEmpty ? nil : trimmed)
                 }
 
-            HStack(spacing: Constants.Design.spacingMD) {
-                Button {
-                    startSessionFromDashboard(intention: nil)
-                } label: {
-                    Text("건너뛰기")
-                }
-                .secondaryActionStyle(color: .secondary)
-
-                Button {
-                    let trimmed = dashIntentionText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    startSessionFromDashboard(intention: trimmed.isEmpty ? nil : trimmed)
-                } label: {
-                    Label("집중 시작", systemImage: "bolt.fill")
-                }
-                .primaryActionStyle(color: themeManager.startButton)
-                .disabled(isSessionActionInFlight)
+            Button {
+                let trimmed = dashIntentionText.trimmingCharacters(in: .whitespacesAndNewlines)
+                startSessionFromDashboard(intention: trimmed.isEmpty ? nil : trimmed)
+            } label: {
+                Label("집중 시작", systemImage: "bolt.fill")
             }
+            .primaryActionStyle(color: themeManager.startButton)
+            .disabled(isSessionActionInFlight)
         }
     }
 
@@ -348,6 +345,20 @@ struct MainDashboardView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(profile.name) 프로필 선택")
             }
+
+            Button {
+                openWindow(id: "profiles")
+                NSApp.activate(ignoringOtherApps: true)
+            } label: {
+                Image(systemName: "plus")
+                    .font(.caption.weight(.medium))
+                    .padding(.horizontal, Constants.Design.spacingSM)
+                    .padding(.vertical, 5)
+                    .background(Color.secondary.opacity(0.08), in: Capsule())
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("프로필 추가")
         }
     }
 
@@ -370,7 +381,7 @@ struct MainDashboardView: View {
             HStack(spacing: Constants.Design.spacingSM) {
                 ForEach(Constants.Timer.presets, id: \.self) { minutes in
                     ChipButton(
-                        title: "\(minutes)분",
+                        title: String(localized: "\(minutes)분"),
                         isSelected: selectedFreePreset == minutes,
                         color: themeManager.primary
                     ) {
@@ -382,30 +393,44 @@ struct MainDashboardView: View {
 
             // 커스텀 슬라이더
             VStack(spacing: Constants.Design.spacingXS) {
+                let dashSliderMax = licenseManager.isPro
+                    ? Constants.Timer.maximumMinutes
+                    : Constants.Subscription.freeTimerMaxMinutes
+
                 Slider(
                     value: $customFreeMinutes,
-                    in: Double(Constants.Timer.minimumMinutes)...Double(Constants.Timer.maximumMinutes),
-                    step: 1
-                ) {
-                    Text("시간 설정")
-                } minimumValueLabel: {
-                    Text("\(Constants.Timer.minimumMinutes)")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                } maximumValueLabel: {
-                    Text("\(Constants.Timer.maximumMinutes)")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
+                    in: Double(Constants.Timer.minimumMinutes)...Double(dashSliderMax)
+                )
                 .tint(themeManager.primary)
                 .onChange(of: customFreeMinutes) { _, newValue in
-                    let rounded = Int(newValue)
+                    customFreeMinutes = newValue.rounded()
+                    let rounded = Int(customFreeMinutes)
                     if Constants.Timer.presets.contains(rounded) {
                         selectedFreePreset = rounded
                     } else {
                         selectedFreePreset = nil
                     }
                 }
+
+                HStack {
+                    Text("\(Constants.Timer.minimumMinutes)분")
+                    Spacer()
+                    if !licenseManager.isPro {
+                        Button {
+                            showDashPaywall = true
+                        } label: {
+                            HStack(spacing: 2) {
+                                Text("\(dashSliderMax)분")
+                                ProBadge()
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Text("\(dashSliderMax)분")
+                    }
+                }
+                .font(.caption2)
+                .foregroundStyle(.secondary)
             }
         }
         .animation(.quickEase, value: selectedDurationMinutes)
@@ -449,11 +474,11 @@ struct MainDashboardView: View {
     private var startButtonTitle: String {
         switch quickStartMode {
         case .free:
-            return "\(selectedDurationMinutes)분 집중 시작"
+            return String(localized: "\(selectedDurationMinutes)분 집중 시작")
         case .pomodoro:
-            return "뽀모도로 시작"
+            return String(localized: "뽀모도로 시작")
         case .flowmodoro:
-            return "플로우 시작"
+            return String(localized: "플로우 시작")
         }
     }
 
@@ -476,7 +501,17 @@ struct MainDashboardView: View {
                             .font(.caption)
                             .lineLimit(1)
                     }
-                    .foregroundStyle(themeManager.primary.opacity(0.8))
+                    .foregroundStyle(themeManager.primary)
+                }
+
+                if let startedAt = appState.currentSession?.startedAt {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.caption2)
+                        Text("\(startedAt.formatted(date: .omitted, time: .shortened)) 시작")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
                 }
 
                 HStack(spacing: Constants.Design.spacingSM) {
@@ -505,7 +540,7 @@ struct MainDashboardView: View {
                             }
                         } label: {
                             Label(
-                                appState.focusState == .paused ? "재개" : "일시정지",
+                                LocalizedStringKey(appState.focusState == .paused ? "재개" : "일시정지"),
                                 systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
                             )
                         }
@@ -622,7 +657,7 @@ struct MainDashboardView: View {
             statCard(
                 icon: "chart.bar.fill",
                 color: themeManager.secondary,
-                value: "\(todayCompletedPomodoroCount)회",
+                value: String(localized: "\(todayCompletedPomodoroCount)회"),
                 label: "완료한 뽀모도로"
             )
             statCard(
@@ -634,7 +669,7 @@ struct MainDashboardView: View {
             statCard(
                 icon: "flame.fill",
                 color: themeManager.warning,
-                value: "\(currentStreakDays)일",
+                value: String(localized: "\(currentStreakDays)일"),
                 label: "연속 집중"
             )
         }
@@ -653,7 +688,7 @@ struct MainDashboardView: View {
                 .font(.title3.bold())
                 .foregroundStyle(color)
 
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -709,7 +744,7 @@ struct MainDashboardView: View {
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            Label(title, systemImage: symbol)
+            Label(LocalizedStringKey(title), systemImage: symbol)
                 .font(.callout.weight(.semibold))
                 .frame(maxWidth: .infinity)
         }
@@ -816,13 +851,13 @@ struct MainDashboardView: View {
     private func sessionRow(_ session: FocusSession, isEven: Bool) -> some View {
         HStack(spacing: Constants.Design.spacingMD) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(session.timerMode == "pomodoro" ? "뽀모도로" : session.timerMode == "flowmodoro" ? "플로우" : "자유")
+                Text(LocalizedStringKey(session.timerMode == "pomodoro" ? "뽀모도로" : session.timerMode == "flowmodoro" ? "플로우" : "자유"))
                     .font(.callout.weight(.medium))
 
                 if let intention = session.intention, !intention.isEmpty {
                     Text(intention)
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
@@ -838,7 +873,7 @@ struct MainDashboardView: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
 
-            Text(session.wasCompleted ? "완료" : "중지")
+            Text(LocalizedStringKey(session.wasCompleted ? "완료" : "중지"))
                 .font(.caption2.weight(.semibold))
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
@@ -952,30 +987,30 @@ struct MainDashboardView: View {
 
     private var statusTitle: String {
         switch appState.focusState {
-        case .idle: return "대기 중"
+        case .idle: return String(localized: "대기 중")
         case .focusing:
             if appState.timerMode == .flowmodoro {
                 let isBreak = appState.currentFlowmodoroPhase == .rest
-                return isBreak ? "플로우 휴식 중" : "플로우 진행 중"
+                return isBreak ? String(localized: "플로우 휴식 중") : String(localized: "플로우 진행 중")
             }
-            return appState.timerMode == .pomodoro ? "뽀모도로 진행 중" : "집중 진행 중"
-        case .paused: return "일시정지"
-        case .completed: return "세션 완료"
+            return appState.timerMode == .pomodoro ? String(localized: "뽀모도로 진행 중") : String(localized: "집중 진행 중")
+        case .paused: return String(localized: "일시정지")
+        case .completed: return String(localized: "세션 완료")
         }
     }
 
     private var statusDetailText: String {
         switch appState.focusState {
-        case .idle: return "새 집중 세션을 시작해보세요"
+        case .idle: return String(localized: "새 집중 세션을 시작해보세요")
         case .focusing, .paused:
             if appState.timerMode == .pomodoro {
                 return "\(appState.pomodoroPhaseTitle) · \(appState.pomodoroCycleProgressText)"
             }
             if appState.timerMode == .flowmodoro {
                 let isBreak = appState.currentFlowmodoroPhase == .rest
-                return isBreak ? "휴식 카운트다운" : "플로우모도로"
+                return isBreak ? String(localized: "휴식 카운트다운") : String(localized: "플로우모도로")
             }
-            return "자유 타이머"
+            return String(localized: "자유 타이머")
         case .completed: return appState.completedSummaryText
         }
     }

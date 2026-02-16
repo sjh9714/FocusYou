@@ -7,10 +7,19 @@ import os
 @Observable
 final class StatsViewModel {
     enum Period: String, CaseIterable {
-        case today = "오늘"
-        case week = "이번 주"
-        case month = "이번 달"
-        case year = "올해"
+        case today = "today"
+        case week = "week"
+        case month = "month"
+        case year = "year"
+
+        var displayName: String {
+            switch self {
+            case .today: String(localized: "stats_today")
+            case .week: String(localized: "stats_this_week")
+            case .month: String(localized: "stats_this_month")
+            case .year: String(localized: "stats_this_year")
+            }
+        }
     }
 
     var selectedPeriod: Period = .today
@@ -81,9 +90,9 @@ final class StatsViewModel {
         let free = filtered.count - pomodoro - flowmodoro
 
         return [
-            ModeRatioEntry(mode: "뽀모도로", count: pomodoro, percent: Int(Double(pomodoro) / total * 100)),
-            ModeRatioEntry(mode: "자유", count: free, percent: Int(Double(free) / total * 100)),
-            ModeRatioEntry(mode: "플로우", count: flowmodoro, percent: Int(Double(flowmodoro) / total * 100)),
+            ModeRatioEntry(modeID: "pomodoro", mode: String(localized: "timer_mode_pomodoro"), count: pomodoro, percent: Int(Double(pomodoro) / total * 100)),
+            ModeRatioEntry(modeID: "free", mode: String(localized: "timer_mode_free"), count: free, percent: Int(Double(free) / total * 100)),
+            ModeRatioEntry(modeID: "flowmodoro", mode: String(localized: "timer_mode_flowmodoro"), count: flowmodoro, percent: Int(Double(flowmodoro) / total * 100)),
         ].filter { $0.count > 0 }
     }
 
@@ -180,7 +189,6 @@ struct DailyFocusEntry: Identifiable {
     var dayLabel: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "E"
-        formatter.locale = Locale(identifier: "ko_KR")
         return formatter.string(from: date)
     }
 }
@@ -188,6 +196,7 @@ struct DailyFocusEntry: Identifiable {
 /// 모드 비율 엔트리 (v1.5)
 struct ModeRatioEntry: Identifiable {
     let id = UUID()
+    let modeID: String
     let mode: String
     let count: Int
     let percent: Int

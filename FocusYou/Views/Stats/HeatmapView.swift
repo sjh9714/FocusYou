@@ -8,7 +8,7 @@ struct HeatmapView: View {
     @Environment(ThemeManager.self) private var themeManager
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
-    private let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
+    private let weekdays = Constants.Schedule.weekdaySymbols
 
     var body: some View {
         VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
@@ -63,7 +63,7 @@ struct HeatmapView: View {
                         .stroke(themeManager.primary.opacity(0.5), lineWidth: 1)
                 }
             }
-            .help(isFuture ? "" : "\(dateFormatter.string(from: date)): \(String(format: "%.1f", hours))시간")
+            .help(isFuture ? "" : "\(dateFormatter.string(from: date)): \(String(format: "%.1f", hours))h")
     }
 
     // MARK: - 범례
@@ -168,7 +168,6 @@ struct HeatmapView: View {
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
         f.dateFormat = "M/d (E)"
-        f.locale = Locale(identifier: "ko_KR")
         return f
     }
 }

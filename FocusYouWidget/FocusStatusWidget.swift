@@ -184,9 +184,9 @@ struct FocusStatusWidgetView: View {
 
     private var modeDisplayName: String {
         switch entry.timerMode {
-        case "pomodoro": return "뽀모도로"
-        case "flowmodoro": return "플로우모도로"
-        default: return "자유 타이머"
+        case "pomodoro": return String(localized: "widget_mode_pomodoro")
+        case "flowmodoro": return String(localized: "widget_mode_flowmodoro")
+        default: return String(localized: "widget_mode_free")
         }
     }
 }

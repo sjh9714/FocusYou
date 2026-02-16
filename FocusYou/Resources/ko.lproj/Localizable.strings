@@ -1,0 +1,219 @@
+/* Korean (개발 언어)
+   SwiftUI Text("한국어")는 자동으로 한국어 키를 사용하므로 View 문자열은 여기에 불필요.
+   String(localized:) 키만 한국어 매핑 필요. */
+
+// ============================================================
+// MARK: - 프로그래매틱 문자열 (String(localized:) keys → Korean)
+// ============================================================
+
+// -- TimerViewModel displayName --
+"timer_mode_free" = "자유";
+"timer_mode_pomodoro" = "뽀모도로";
+"timer_mode_flowmodoro" = "플로우";
+
+// -- PomodoroEngine.PhaseType displayName --
+"phase_focus" = "집중";
+"phase_short_break" = "짧은 휴식";
+"phase_long_break" = "긴 휴식";
+
+// -- FlowmodoroEngine.PhaseType displayName --
+"flowmodoro_phase_focus" = "집중";
+"flowmodoro_phase_rest" = "휴식";
+
+// -- AmbientSoundTrack displayName --
+"sound_white_noise" = "화이트 노이즈";
+"sound_brown_noise" = "브라운 노이즈";
+"sound_pink_noise" = "핑크 노이즈";
+
+// -- GrowthStage name --
+"growth_seed" = "씨앗";
+"growth_sprout" = "새싹";
+"growth_tree" = "나무";
+"growth_forest" = "숲";
+"growth_garden" = "정원";
+
+// -- Constants: Category names --
+"category_sns" = "SNS";
+"category_news" = "뉴스";
+"category_video" = "동영상";
+"category_games" = "게임";
+
+// -- Constants: Theme categories --
+"theme_category_minimal" = "미니멀";
+"theme_category_warm" = "따뜻한";
+"theme_category_cool" = "차가운";
+"theme_category_nature" = "자연";
+"theme_category_neon" = "네온";
+"theme_category_pastel" = "파스텔";
+
+// -- Constants: Weekday symbols --
+"weekday_sun" = "일";
+"weekday_mon" = "월";
+"weekday_tue" = "화";
+"weekday_wed" = "수";
+"weekday_thu" = "목";
+"weekday_fri" = "금";
+"weekday_sat" = "토";
+
+// -- Constants: Disruption tags --
+"disruption_sns" = "SNS";
+"disruption_email" = "이메일";
+"disruption_phone" = "전화";
+"disruption_noise" = "소음";
+"disruption_tired" = "피곤";
+
+// -- Constants: Retrospect levels --
+"retrospect_level_1" = "간단 (이모지)";
+"retrospect_level_2" = "보통 (이모지+메모)";
+"retrospect_level_3" = "상세 (별점+방해요소)";
+
+// -- Constants: Stats periods --
+"stats_today" = "오늘";
+"stats_this_week" = "이번 주";
+"stats_this_month" = "이번 달";
+"stats_this_year" = "올해";
+
+// -- AppState: completedSummaryText --
+"completed_pomodoro_summary %@ %lld" = "%@ 집중 · %lld사이클 완료";
+"completed_flowmodoro_summary %@" = "%@ 플로우 집중했습니다";
+"completed_free_summary %@" = "%@ 집중했습니다";
+
+// -- AppState: completedDetailText --
+"completed_pomodoro_break %@" = "휴식 %@";
+"completed_flowmodoro_break %@" = "자동 휴식 %@";
+
+// -- AppState: completedStreakText --
+"completed_streak %lld" = "%lld일 연속 집중!";
+
+// -- AppState: pomodoroSummaryText --
+"pomodoro_summary %lld %lld %lld %lld" = "집중 %lld / 짧은휴식 %lld / 긴휴식 %lld · %lld사이클";
+
+// -- AppState: cycle progress --
+"pomodoro_cycle_progress %lld %lld" = "사이클 %lld/%lld";
+
+// -- AppState: error messages --
+"error_invalid_pomodoro_config" = "뽀모도로 설정이 올바르지 않습니다.";
+"error_startup_cleanup_failed %@" = "앱 시작 시 차단 복구에 실패했습니다. %@";
+"error_deactivation_failed %@" = "차단 해제에 실패했습니다. %@";
+"error_retry_deactivation_failed %@" = "차단 해제 재시도에 실패했습니다. %@";
+"error_phase_activation_failed %@" = "집중 단계 차단 활성화에 실패해 세션을 종료했습니다. %@";
+"error_phase_activation_and_cleanup_failed %@ %@" = "집중 단계 차단 활성화에 실패했고 차단 정리도 실패했습니다. 활성화 오류: %@ 정리 오류: %@";
+"error_break_deactivation_failed %@" = "휴식 단계 차단 해제에 실패했습니다. %@";
+"error_flowmodoro_break_deactivation_failed %@" = "플로우모도로 휴식 전환 중 차단 해제에 실패했습니다. %@";
+"error_completion_deactivation_failed %@" = "타이머 완료 후 차단 해제에 실패했습니다. %@";
+
+// -- BlockListViewModel: error messages --
+"error_enter_keyword" = "키워드를 입력해주세요";
+"error_duplicate_keyword" = "이미 추가된 키워드입니다";
+"error_invalid_url" = "올바른 URL을 입력해주세요";
+"error_duplicate_site" = "이미 추가된 사이트입니다";
+
+// -- ProfileViewModel: error messages --
+"error_enter_profile_name" = "프로필 이름을 입력해주세요";
+
+// -- NotificationService --
+"notification_timer_complete_title" = "집중 세션 완료!";
+"notification_timer_complete_body %@" = "%@ 동안 집중했습니다. 잘 했어요!";
+"notification_app_blocked_title" = "앱 차단됨";
+"notification_app_blocked_body %@" = "%@이(가) 집중 세션 중 차단되었습니다.";
+"notification_blocking_deactivated_title" = "차단 해제";
+"notification_blocking_deactivated_body" = "모든 웹사이트와 앱 차단이 해제되었습니다.";
+"notification_pomodoro_phase_title" = "뽀모도로 전환";
+"notification_pomodoro_phase_body %@ %@" = "%@ 시작 · %@";
+"notification_stretch_title" = "잠시 스트레칭 해볼까요?";
+"notification_stretch_body" = "90분 이상 집중했어요. 간단한 스트레칭으로 몸을 풀어주세요!";
+
+// -- Date+Extensions: formattedAsReadable --
+"duration_hours_minutes %lld %lld" = "%lld시간 %lld분";
+"duration_minutes %lld" = "%lld분";
+
+// -- BurnoutDetector --
+"burnout_approaching %lld" = "잘하고 있어요! 오늘 한계까지 약 %lld분 남았어요.";
+"burnout_exceeded %lld" = "오늘 %lld분 초과했어요. 잠시 쉬어볼까요?";
+
+// -- MilestoneDetector --
+"milestone_streak_7_title" = "일주일 전사";
+"milestone_streak_7_desc" = "7일 연속 집중 달성";
+"milestone_streak_30_title" = "한 달의 힘";
+"milestone_streak_30_desc" = "30일 연속 집중 달성";
+"milestone_streak_100_title" = "백일의 기적";
+"milestone_streak_100_desc" = "100일 연속 집중 달성";
+"milestone_streak_365_title" = "일 년의 대장정";
+"milestone_streak_365_desc" = "365일 연속 집중 달성";
+"milestone_hours_50_title" = "50시간 달성";
+"milestone_hours_50_desc" = "총 50시간 집중 달성";
+"milestone_hours_100_title" = "100시간 달성";
+"milestone_hours_100_desc" = "총 100시간 집중 달성";
+"milestone_hours_500_title" = "500시간 마스터";
+"milestone_hours_500_desc" = "총 500시간 집중 달성";
+"milestone_sessions_100_title" = "100회 집중";
+"milestone_sessions_100_desc" = "100회 집중 세션 완료";
+"milestone_sessions_500_title" = "500회 집중";
+"milestone_sessions_500_desc" = "500회 집중 세션 완료";
+"milestone_sessions_1000_title" = "1000회 전설";
+"milestone_sessions_1000_desc" = "1000회 집중 세션 완료";
+
+// -- Flowmodoro notification --
+"flowmodoro_rest_phase" = "플로우 휴식";
+"flowmodoro_rest_seconds %lld" = "%lld초";
+
+// -- Widget mode display names --
+"widget_mode_pomodoro" = "뽀모도로";
+"widget_mode_flowmodoro" = "플로우모도로";
+"widget_mode_free" = "자유 타이머";
+
+// -- Default profile --
+"default_profile_name" = "기본 프로필";
+
+// ============================================================
+// MARK: - FocusYouError
+// ============================================================
+
+"error_hosts_access_denied" = "hosts 파일 접근 권한이 없습니다. 관리자 권한이 필요합니다.";
+"error_hosts_read_failed" = "hosts 파일을 읽을 수 없습니다.";
+"error_hosts_write_failed" = "hosts 파일에 쓸 수 없습니다.";
+"error_dns_flush_failed" = "DNS 캐시를 플러시할 수 없습니다.";
+"error_app_not_found %@" = "앱을 찾을 수 없습니다: %@";
+"error_app_termination_failed %@" = "%@ 앱을 종료할 수 없습니다.";
+"error_timer_already_running" = "타이머가 이미 실행 중입니다.";
+"error_timer_not_running" = "실행 중인 타이머가 없습니다.";
+"error_blocking_already_active" = "차단이 이미 활성화되어 있습니다.";
+"error_authorization_failed" = "관리자 권한을 얻을 수 없습니다.";
+"error_authorization_cancelled" = "사용자가 관리자 권한 요청을 취소했습니다.";
+"error_launch_agent_failed" = "안전장치(LaunchAgent)를 설치할 수 없습니다.";
+"error_preset_load_failed %@" = "%@ 프리셋을 불러올 수 없습니다.";
+
+// ============================================================
+// MARK: - CalendarSyncService
+// ============================================================
+
+"calendar_focus" = "집중";
+"calendar_session_header" = "Focus You 집중 세션";
+"calendar_profile %@" = "프로필: %@";
+"calendar_intention %@" = "의도: %@";
+"calendar_retrospect %@" = "회고: %@";
+"calendar_status_completed" = "정상";
+"calendar_status_cancelled" = "취소";
+"calendar_status %@" = "완료: %@";
+
+// ============================================================
+// MARK: - ExportService
+// ============================================================
+
+"export_panel_title" = "집중 세션 내보내기";
+"export_panel_filename" = "파일 이름:";
+
+// ============================================================
+// MARK: - StoreKit 2 구독 (v2.0)
+// ============================================================
+
+"subscription_period_month" = "/월";
+"subscription_period_year" = "/년";
+"subscription_period_lifetime" = "평생";
+"subscription_purchase_button %@" = "%@에 구독하기";
+"subscription_restore" = "구매 복원";
+"subscription_restore_success" = "구매가 복원되었습니다.";
+"subscription_restore_no_purchases" = "복원할 구매 내역이 없습니다.";
+"subscription_purchase_error %@" = "구매 오류: %@";
+"error_subscription_verification_failed" = "구매 검증에 실패했습니다.";
+"error_subscription_product_not_found" = "상품을 찾을 수 없습니다.";

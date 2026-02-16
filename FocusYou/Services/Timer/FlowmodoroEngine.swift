@@ -17,9 +17,9 @@ final class FlowmodoroEngine {
         var displayName: String {
             switch self {
             case .focus:
-                return "집중"
+                return String(localized: "flowmodoro_phase_focus")
             case .rest:
-                return "휴식"
+                return String(localized: "flowmodoro_phase_rest")
             }
         }
     }

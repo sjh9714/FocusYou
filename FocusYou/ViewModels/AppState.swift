@@ -51,6 +51,15 @@ final class AppState {
     /// 마일스톤 축하 표시 (v1.5)
     var pendingMilestone: Milestone?
 
+    /// 레벨업 축하 표시 (v1.x)
+    var pendingLevelUp: Int?
+
+    /// 직전 레벨 (레벨업 감지용, 0 = 초기화 전)
+    private var previousLevel: Int = 0
+
+    /// 완료 세션에서 획득한 XP
+    private(set) var lastCompletedXPEarned: Int = 0
+
     /// 현재 세션
     private(set) var currentSession: FocusSession?
 
@@ -129,20 +138,20 @@ final class AppState {
     var completedSummaryText: String {
         switch lastCompletedMode {
         case .pomodoro:
-            return "\(lastCompletedFocusDuration.formattedAsReadable) 집중 · \(lastCompletedPomodoroCycles)사이클 완료"
+            return String(localized: "completed_pomodoro_summary \(lastCompletedFocusDuration.formattedAsReadable) \(lastCompletedPomodoroCycles)")
         case .flowmodoro:
-            return "\(lastCompletedFocusDuration.formattedAsReadable) 플로우 집중했습니다"
+            return String(localized: "completed_flowmodoro_summary \(lastCompletedFocusDuration.formattedAsReadable)")
         case .free:
-            return "\(lastCompletedFocusDuration.formattedAsReadable) 집중했습니다"
+            return String(localized: "completed_free_summary \(lastCompletedFocusDuration.formattedAsReadable)")
         }
     }
 
     var completedDetailText: String? {
         switch lastCompletedMode {
         case .pomodoro:
-            return "휴식 \(lastCompletedPomodoroBreakDuration.formattedAsReadable)"
+            return String(localized: "completed_pomodoro_break \(lastCompletedPomodoroBreakDuration.formattedAsReadable)")
         case .flowmodoro:
-            return "자동 휴식 \(lastCompletedFlowmodoroBreakDuration.formattedAsReadable)"
+            return String(localized: "completed_flowmodoro_break \(lastCompletedFlowmodoroBreakDuration.formattedAsReadable)")
         case .free:
             return nil
         }
@@ -150,7 +159,7 @@ final class AppState {
 
     var completedStreakText: String? {
         guard let info = lastCompletedStreakInfo, info.current > 0 else { return nil }
-        return "\(info.current)일 연속 집중!"
+        return String(localized: "completed_streak \(info.current)")
     }
 
     // MARK: - Private
@@ -197,7 +206,7 @@ final class AppState {
                 if case .error(let cleanupError) = await blockingCoordinator.state {
                     self.logger.error("앱 시작 시 긴급 정리 실패: \(cleanupError.localizedDescription)")
                     self.presentError(
-                        "앱 시작 시 차단 복구에 실패했습니다. \(cleanupError.localizedDescription)",
+                        String(localized: "error_startup_cleanup_failed \(cleanupError.localizedDescription)"),
                         canRetryDeactivation: true
                     )
                 }
@@ -231,7 +240,7 @@ final class AppState {
 
         if mode == .pomodoro,
            PomodoroEngine.buildPhases(configuration: pomodoroConfiguration).isEmpty {
-            presentError("뽀모도로 설정이 올바르지 않습니다.")
+            presentError(String(localized: "error_invalid_pomodoro_config"))
             return
         }
 
@@ -282,7 +291,7 @@ final class AppState {
                 let firstPhase = pomodoroEngine.start(configuration: pomodoroConfiguration)
                 guard let firstPhase else { return }
                 currentPomodoroPhase = firstPhase
-                pomodoroCycleProgressText = "사이클 \(firstPhase.cycleIndex)/\(pomodoroConfiguration.cycles)"
+                pomodoroCycleProgressText = String(localized: "pomodoro_cycle_progress \(firstPhase.cycleIndex) \(pomodoroConfiguration.cycles)")
                 timer.start(duration: debugScaledDuration(firstPhase.duration))
             case .flowmodoro:
                 flowmodoroEngine.startFocus()
@@ -425,7 +434,7 @@ final class AppState {
             logger.error("차단 해제 실패: \(error.localizedDescription)")
             isBlockingActive = wasBlockingActive
             presentError(
-                "차단 해제에 실패했습니다. \(error.localizedDescription)",
+                String(localized: "error_deactivation_failed \(error.localizedDescription)"),
                 canRetryDeactivation: true
             )
         }
@@ -495,16 +504,12 @@ final class AppState {
 
                     if let cleanupError {
                         presentError(
-                            """
-                            집중 단계 차단 활성화에 실패했고 차단 정리도 실패했습니다. \
-                            활성화 오류: \(phaseTransitionError.localizedDescription) \
-                            정리 오류: \(cleanupError.localizedDescription)
-                            """,
+                            String(localized: "error_phase_activation_and_cleanup_failed \(phaseTransitionError.localizedDescription) \(cleanupError.localizedDescription)"),
                             canRetryDeactivation: true
                         )
                     } else {
                         presentError(
-                            "집중 단계 차단 활성화에 실패해 세션을 종료했습니다. \(phaseTransitionError.localizedDescription)"
+                            String(localized: "error_phase_activation_failed \(phaseTransitionError.localizedDescription)")
                         )
                     }
 
@@ -517,7 +522,7 @@ final class AppState {
                 } else {
                     // 휴식 단계 차단 해제 실패 시에도 세션 정리
                     presentError(
-                        "휴식 단계 차단 해제에 실패했습니다. \(phaseTransitionError.localizedDescription)",
+                        String(localized: "error_break_deactivation_failed \(phaseTransitionError.localizedDescription)"),
                         canRetryDeactivation: true
                     )
                     currentSession?.cancel(actualDuration: completedFocusSeconds)
@@ -530,7 +535,7 @@ final class AppState {
             }
 
             currentPomodoroPhase = nextPhase
-            pomodoroCycleProgressText = "사이클 \(nextPhase.cycleIndex)/\(pomodoroEngine.configuration.cycles)"
+            pomodoroCycleProgressText = String(localized: "pomodoro_cycle_progress \(nextPhase.cycleIndex) \(pomodoroEngine.configuration.cycles)")
 
             // 뽀모도로 페이즈별 앰비언트 사운드 전환
             if nextPhase.type == .focus {
@@ -580,7 +585,7 @@ final class AppState {
             logger.error("플로우모도로 휴식 전환 차단 해제 실패: \(error.localizedDescription)")
             isBlockingActive = true
             presentError(
-                "플로우모도로 휴식 전환 중 차단 해제에 실패했습니다. \(error.localizedDescription)",
+                String(localized: "error_flowmodoro_break_deactivation_failed \(error.localizedDescription)"),
                 canRetryDeactivation: true
             )
         }
@@ -590,8 +595,8 @@ final class AppState {
         timer.start(duration: debugScaledDuration(breakDuration))
         focusState = .focusing
         await notificationService.sendPomodoroPhaseStarted(
-            phaseTitle: "플로우 휴식",
-            cycleText: "\(Int(breakDuration))초"
+            phaseTitle: String(localized: "flowmodoro_rest_phase"),
+            cycleText: String(localized: "flowmodoro_rest_seconds \(Int(breakDuration))")
         )
     }
 
@@ -645,7 +650,7 @@ final class AppState {
             logger.error("타이머 완료 후 차단 해제 실패: \(error.localizedDescription)")
             isBlockingActive = wasBlockingActive
             presentError(
-                "타이머 완료 후 차단 해제에 실패했습니다. \(error.localizedDescription)",
+                String(localized: "error_completion_deactivation_failed \(error.localizedDescription)"),
                 canRetryDeactivation: true
             )
         }
@@ -808,6 +813,8 @@ final class AppState {
         lastCompletedStreakInfo = nil
         completedSession = nil
         lastCompletedIntention = nil
+        lastCompletedXPEarned = 0
+        pendingLevelUp = nil
         focusState = .idle
         updateSharedData()
     }
@@ -846,6 +853,29 @@ final class AppState {
         if !newMilestones.isEmpty {
             MilestoneDetector.saveBadges(newMilestones, modelContext: modelContext)
             pendingMilestone = newMilestones.first
+        }
+
+        // 레벨업 감지 (v1.x)
+        let xpInfo = LevelManager.xpInfo(from: allSessions)
+        let newLevel = xpInfo.level
+
+        // 완료 세션의 XP 계산
+        if let session = completedSession, session.wasCompleted {
+            let focusMinutes = Double(session.actualDuration) / 60.0
+            lastCompletedXPEarned = LevelManager.xpForSession(
+                focusMinutes: focusMinutes,
+                wasCompleted: true,
+                currentStreakDays: streakDays
+            )
+        }
+
+        if previousLevel == 0 {
+            // 첫 호출: 초기화만 (축하 방지)
+            previousLevel = newLevel
+        } else if newLevel > previousLevel {
+            pendingLevelUp = newLevel
+            previousLevel = newLevel
+            logger.info("레벨업 감지: \(newLevel)")
         }
     }
 
@@ -891,7 +921,7 @@ final class AppState {
             logger.error("차단 해제 재시도 실패: \(error.localizedDescription)")
             isBlockingActive = true
             presentError(
-                "차단 해제 재시도에 실패했습니다. \(error.localizedDescription)",
+                String(localized: "error_retry_deactivation_failed \(error.localizedDescription)"),
                 canRetryDeactivation: true
             )
         }

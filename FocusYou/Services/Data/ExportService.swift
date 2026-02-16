@@ -141,8 +141,8 @@ enum ExportService {
         sessionCount: Int
     ) async -> Bool {
         let panel = NSSavePanel()
-        panel.title = "집중 세션 내보내기"
-        panel.nameFieldLabel = "파일 이름:"
+        panel.title = String(localized: "export_panel_title")
+        panel.nameFieldLabel = String(localized: "export_panel_filename")
         panel.canCreateDirectories = true
 
         let dateStr = {

@@ -97,16 +97,16 @@ final class TimerViewModelTests: XCTestCase {
     // MARK: - 포맷 텍스트
 
     func testPomodoroSummaryText() {
-        let expected = "집중 25 / 짧휴 5 / 긴휴 15 · 4회"
+        let expected = String(localized: "pomodoro_summary \(25) \(5) \(15) \(4)")
         XCTAssertEqual(viewModel.pomodoroSummaryText, expected)
     }
 
     // MARK: - TimerMode enum
 
     func testTimerModeDisplayName() {
-        XCTAssertEqual(TimerViewModel.TimerMode.free.displayName, "자유")
-        XCTAssertEqual(TimerViewModel.TimerMode.pomodoro.displayName, "뽀모도로")
-        XCTAssertEqual(TimerViewModel.TimerMode.flowmodoro.displayName, "플로우")
+        XCTAssertEqual(TimerViewModel.TimerMode.free.displayName, String(localized: "timer_mode_free"))
+        XCTAssertEqual(TimerViewModel.TimerMode.pomodoro.displayName, String(localized: "timer_mode_pomodoro"))
+        XCTAssertEqual(TimerViewModel.TimerMode.flowmodoro.displayName, String(localized: "timer_mode_flowmodoro"))
     }
 
     func testTimerModeAppStateConversion() {

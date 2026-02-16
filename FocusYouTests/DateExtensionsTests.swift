@@ -25,19 +25,19 @@ final class DateExtensionsTests: XCTestCase {
     // MARK: - TimeInterval.formattedAsReadable
 
     func testFormattedAsReadableMinutesOnly() {
-        XCTAssertEqual(TimeInterval(1500).formattedAsReadable, "25분")
+        XCTAssertEqual(TimeInterval(1500).formattedAsReadable, String(localized: "duration_minutes \(25)"))
     }
 
     func testFormattedAsReadableWithHours() {
-        XCTAssertEqual(TimeInterval(3660).formattedAsReadable, "1시간 1분")
+        XCTAssertEqual(TimeInterval(3660).formattedAsReadable, String(localized: "duration_hours_minutes \(1) \(1)"))
     }
 
     func testFormattedAsReadableZero() {
-        XCTAssertEqual(TimeInterval(0).formattedAsReadable, "0분")
+        XCTAssertEqual(TimeInterval(0).formattedAsReadable, String(localized: "duration_minutes \(0)"))
     }
 
     func testFormattedAsReadableExactHour() {
-        XCTAssertEqual(TimeInterval(3600).formattedAsReadable, "1시간 0분")
+        XCTAssertEqual(TimeInterval(3600).formattedAsReadable, String(localized: "duration_hours_minutes \(1) \(0)"))
     }
 
     // MARK: - Date.startOfDay

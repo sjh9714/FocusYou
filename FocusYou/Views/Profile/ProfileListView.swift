@@ -135,17 +135,19 @@ struct ProfileListView: View {
 
                 HStack(spacing: Constants.Design.spacingSM) {
                     Label(
-                        profile.timerMode == "pomodoro"
-                            ? "뽀모도로"
-                            : profile.timerMode == "flowmodoro" ? "플로우" : "자유",
+                        LocalizedStringKey(
+                            profile.timerMode == "pomodoro"
+                                ? "뽀모도로"
+                                : profile.timerMode == "flowmodoro" ? "플로우" : "자유"
+                        ),
                         systemImage: profile.timerMode == "pomodoro"
                             ? "clock.fill"
                             : profile.timerMode == "flowmodoro" ? "waveform.circle.fill" : "timer"
                     )
                     Text("·")
-                    Text("\(profile.focusDuration / 60)분")
+                    Text(String(localized: "\(profile.focusDuration / 60)분"))
                     Text("·")
-                    Text("\(profile.blockedSites.count)사이트 \(profile.blockedApps.count)앱")
+                    Text(String(localized: "\(profile.blockedSites.count)사이트 \(profile.blockedApps.count)앱"))
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)

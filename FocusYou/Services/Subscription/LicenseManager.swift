@@ -96,6 +96,13 @@ final class LicenseManager {
         !isPro
     }
 
+    // MARK: - 구독 상태 갱신
+
+    /// SubscriptionManager에서 호출: StoreKit 검증 결과 반영
+    func updateProStatus(_ value: Bool) {
+        isPro = value
+    }
+
     // MARK: - 디버그 / 테스트
 
     #if DEBUG

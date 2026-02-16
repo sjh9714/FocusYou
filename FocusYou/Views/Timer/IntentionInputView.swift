@@ -9,7 +9,6 @@ struct IntentionInputView: View {
     @Binding var intentionText: String
     let recentIntentions: [String]
     let onStart: (String?) -> Void
-    let onSkip: () -> Void
 
     @FocusState private var isTextFieldFocused: Bool
 
@@ -104,24 +103,13 @@ struct IntentionInputView: View {
     // MARK: - 액션 버튼
 
     private var actionButtons: some View {
-        VStack(spacing: Constants.Design.spacingSM) {
-            Button {
-                let trimmed = intentionText.trimmingCharacters(in: .whitespacesAndNewlines)
-                onStart(trimmed.isEmpty ? nil : trimmed)
-            } label: {
-                Label("집중 시작", systemImage: "bolt.fill")
-            }
-            .primaryActionStyle(color: themeManager.startButton)
-
-            Button {
-                onSkip()
-            } label: {
-                Text("건너뛰기")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
+        Button {
+            let trimmed = intentionText.trimmingCharacters(in: .whitespacesAndNewlines)
+            onStart(trimmed.isEmpty ? nil : trimmed)
+        } label: {
+            Label("집중 시작", systemImage: "bolt.fill")
         }
+        .primaryActionStyle(color: themeManager.startButton)
     }
 }
 
@@ -129,8 +117,7 @@ struct IntentionInputView: View {
     IntentionInputView(
         intentionText: .constant(""),
         recentIntentions: ["보고서 작성", "코드 리뷰", "디자인 검토"],
-        onStart: { _ in },
-        onSkip: { }
+        onStart: { _ in }
     )
     .environment(ThemeManager.shared)
     .frame(width: 340)

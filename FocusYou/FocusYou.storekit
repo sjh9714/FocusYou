@@ -1,0 +1,157 @@
+{
+  "identifier" : "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "LIFETIME001",
+      "localizations" : [
+        {
+          "description" : "Unlock all Pro features forever",
+          "displayName" : "Focus You Pro Lifetime",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "모든 Pro 기능을 영구적으로 잠금 해제합니다",
+          "displayName" : "Focus You Pro 평생",
+          "locale" : "ko"
+        }
+      ],
+      "productID" : "com.sungjh.focusyou.pro.lifetime",
+      "referenceName" : "Pro Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "APP001",
+    "_developerTeamID" : "TEAM001",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "focusyou_pro",
+      "localizations" : [
+
+      ],
+      "name" : "Focus You Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "MONTHLY001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "All Pro features, billed monthly",
+              "displayName" : "Focus You Pro Monthly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "모든 Pro 기능, 월간 결제",
+              "displayName" : "Focus You Pro 월간",
+              "locale" : "ko"
+            }
+          ],
+          "productID" : "com.sungjh.focusyou.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro Monthly",
+          "subscriptionGroupID" : "focusyou_pro",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "ANNUAL001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "All Pro features, billed annually (save 72%)",
+              "displayName" : "Focus You Pro Annual",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "모든 Pro 기능, 연간 결제 (72% 할인)",
+              "displayName" : "Focus You Pro 연간",
+              "locale" : "ko"
+            }
+          ],
+          "productID" : "com.sungjh.focusyou.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Annual",
+          "subscriptionGroupID" : "focusyou_pro",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

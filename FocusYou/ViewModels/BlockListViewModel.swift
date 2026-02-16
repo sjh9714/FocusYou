@@ -37,7 +37,7 @@ final class BlockListViewModel {
 
         if isKeywordMode {
             guard !input.isEmpty else {
-                errorMessage = "키워드를 입력해주세요"
+                errorMessage = String(localized: "error_enter_keyword")
                 return
             }
 
@@ -50,7 +50,7 @@ final class BlockListViewModel {
                     .contains { $0.domain == input && ($0.isKeywordPattern ?? false) && $0.profile == nil } ?? false
             }
             if isDuplicate {
-                errorMessage = "이미 추가된 키워드입니다"
+                errorMessage = String(localized: "error_duplicate_keyword")
                 return
             }
 
@@ -66,7 +66,7 @@ final class BlockListViewModel {
         let normalized = input.normalizedDomain
 
         guard !normalized.isEmpty else {
-            errorMessage = "올바른 URL을 입력해주세요"
+            errorMessage = String(localized: "error_invalid_url")
             return
         }
 
@@ -80,7 +80,7 @@ final class BlockListViewModel {
                 .contains { $0.domain == normalized && $0.profile == nil } ?? false
         }
         if isDuplicate {
-            errorMessage = "이미 추가된 사이트입니다"
+            errorMessage = String(localized: "error_duplicate_site")
             return
         }
 

@@ -53,9 +53,6 @@ struct IdleContentView: View {
                     recentIntentions: recentIntentions,
                     onStart: { intention in
                         startSessionWithIntention(intention)
-                    },
-                    onSkip: {
-                        startSessionWithIntention(nil)
                     }
                 )
             } else {
@@ -234,7 +231,7 @@ struct IdleContentView: View {
         HStack(spacing: Constants.Design.spacingSM) {
             ForEach(Constants.Timer.presets, id: \.self) { minutes in
                 ChipButton(
-                    title: "\(minutes)분",
+                    title: String(localized: "\(minutes)분"),
                     isSelected: viewModel.selectedPreset == minutes,
                     color: themeManager.primary
                 ) {
@@ -262,8 +259,7 @@ struct IdleContentView: View {
                     get: { viewModel.customMinutes },
                     set: { viewModel.updateCustomMinutes($0) }
                 ),
-                in: Double(Constants.Timer.minimumMinutes)...Double(sliderMaxMinutes),
-                step: 1
+                in: Double(Constants.Timer.minimumMinutes)...Double(sliderMaxMinutes)
             )
             .tint(themeManager.primary)
             .accessibilityLabel("타이머 시간 설정")
@@ -286,7 +282,7 @@ struct IdleContentView: View {
                 }
             }
             .font(.caption2)
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(.secondary)
         }
         .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
     }
@@ -298,10 +294,10 @@ struct IdleContentView: View {
         if !activeSites.isEmpty || !activeApps.isEmpty {
             HStack(spacing: Constants.Design.spacingMD) {
                 if !activeSites.isEmpty {
-                    Label("\(activeSites.count)개 사이트", systemImage: "globe")
+                    Label(String(localized: "\(activeSites.count)개 사이트"), systemImage: "globe")
                 }
                 if !activeApps.isEmpty {
-                    Label("\(activeApps.count)개 앱", systemImage: "app.fill")
+                    Label(String(localized: "\(activeApps.count)개 앱"), systemImage: "app.fill")
                 }
             }
             .font(.caption)
@@ -320,7 +316,7 @@ struct IdleContentView: View {
             }
         } label: {
             Label(
-                viewModel.selectedMode == .flowmodoro ? "플로우 시작" : "집중 시작",
+                LocalizedStringKey(viewModel.selectedMode == .flowmodoro ? "플로우 시작" : "집중 시작"),
                 systemImage: "bolt.fill"
             )
         }
@@ -400,10 +396,12 @@ struct IdleContentView: View {
 struct FocusingContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(SettingsViewModel.self) private var settingsViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = TimerViewModel()
     @State private var phaseBadgeScale: CGFloat = 1.0
     @State private var breatheOpacity: Double = 1.0
+    @State private var focusQuote: QuoteEntry?
 
     var body: some View {
         VStack(spacing: Constants.Design.spacingLG) {
@@ -413,11 +411,18 @@ struct FocusingContentView: View {
                 countdownDisplay
                 capsuleProgressBar
                 statusBadge
+                motivationQuote
                 intentionBadge
+                startTimeBadge
                 controlButtons
             }
         }
         .animation(.mediumEase, value: viewModel.showCancelConfirmation)
+        .onAppear {
+            if settingsViewModel.showMotivationQuotes {
+                focusQuote = QuoteService.randomQuote()
+            }
+        }
         .onChange(of: appState.currentPomodoroPhase?.type) { _, newValue in
             guard appState.timerMode == .pomodoro, newValue != nil else { return }
             animatePhaseBadge()
@@ -551,7 +556,7 @@ struct FocusingContentView: View {
                 HStack(spacing: 6) {
                     Image(systemName: isBreak ? "cup.and.saucer.fill" : "waveform.circle.fill")
                         .symbolEffect(.pulse, options: .repeating, isActive: !isBreak)
-                    Text(isBreak ? "휴식 중" : "플로우 중")
+                    Text(LocalizedStringKey(isBreak ? "휴식 중" : "플로우 중"))
                 }
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 12)
@@ -597,6 +602,19 @@ struct FocusingContentView: View {
         }
     }
 
+    // MARK: - 동기부여 명언 (v1.x)
+
+    @ViewBuilder
+    private var motivationQuote: some View {
+        if settingsViewModel.showMotivationQuotes, let quote = focusQuote {
+            Text(quote.text)
+                .font(.caption.italic())
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+        }
+    }
+
     // MARK: - 의도 뱃지
 
     @ViewBuilder
@@ -611,8 +629,23 @@ struct FocusingContentView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .background(themeManager.primary.opacity(0.08), in: Capsule())
-            .foregroundStyle(themeManager.primary.opacity(0.8))
+            .background(themeManager.primary.opacity(0.12), in: Capsule())
+            .foregroundStyle(themeManager.primary)
+        }
+    }
+
+    // MARK: - 시작 시간 뱃지
+
+    @ViewBuilder
+    private var startTimeBadge: some View {
+        if let startedAt = appState.currentSession?.startedAt {
+            HStack(spacing: 4) {
+                Image(systemName: "clock")
+                    .font(.caption2)
+                Text("\(startedAt.formatted(date: .omitted, time: .shortened)) 시작")
+                    .font(.caption)
+            }
+            .foregroundStyle(.secondary)
         }
     }
 
@@ -644,7 +677,7 @@ struct FocusingContentView: View {
                         }
                     } label: {
                         Label(
-                            appState.focusState == .paused ? "재개" : "일시정지",
+                            LocalizedStringKey(appState.focusState == .paused ? "재개" : "일시정지"),
                             systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
                         )
                     }
@@ -713,9 +746,11 @@ struct FocusingContentView: View {
                 Image(systemName: "lock.shield.fill")
                     .font(.caption2)
                 Text(
-                    appState.emergencyUnlockUsedToday
-                        ? "오늘 비상 해제를 이미 사용했습니다"
-                        : "하드코어 모드 — 비상 해제만 가능"
+                    LocalizedStringKey(
+                        appState.emergencyUnlockUsedToday
+                            ? "오늘 비상 해제를 이미 사용했습니다"
+                            : "하드코어 모드 — 비상 해제만 가능"
+                    )
                 )
                 .font(.caption)
             }
@@ -825,6 +860,7 @@ struct CompletedContentView: View {
             VStack(spacing: Constants.Design.spacingXL) {
                 celebrationIcon
                 summaryContent
+                completionQuote
                 retrospectSection
                 confirmButton
             }
@@ -836,11 +872,29 @@ struct CompletedContentView: View {
                     onDismiss: { appState.pendingMilestone = nil }
                 )
             }
+
+            // 레벨업 축하 오버레이 (v1.x)
+            if appState.pendingMilestone == nil, let newLevel = appState.pendingLevelUp {
+                LevelUpCelebrationView(
+                    newLevel: newLevel,
+                    onDismiss: { appState.pendingLevelUp = nil }
+                )
+            }
         }
         .padding(.vertical, Constants.Design.spacingSM)
         .onAppear {
             playCelebration()
             appState.lastCompletedStreakInfo = streakInfo
+        }
+    }
+
+    // MARK: - 완료 명언 (v1.x)
+
+    @ViewBuilder
+    private var completionQuote: some View {
+        if settingsViewModel.showMotivationQuotes && showSummary {
+            QuoteView()
+                .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
 
@@ -931,7 +985,15 @@ struct CompletedContentView: View {
                         summaryRow(
                             icon: "flame.fill",
                             color: themeManager.warning,
-                            text: "\(streakInfo.current)일 연속 집중!"
+                            text: String(localized: "\(streakInfo.current)일 연속 집중!")
+                        )
+                    }
+
+                    if appState.lastCompletedXPEarned > 0 {
+                        summaryRow(
+                            icon: "star.fill",
+                            color: themeManager.accent,
+                            text: "+\(appState.lastCompletedXPEarned) XP"
                         )
                     }
                 }
@@ -944,7 +1006,7 @@ struct CompletedContentView: View {
     private func summaryRow(icon: String, color: Color, text: String) -> some View {
         HStack(spacing: Constants.Design.spacingSM) {
             IconBadge(systemName: icon, color: color, size: 28)
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .font(.callout)
                 .foregroundStyle(.secondary)
             Spacer()
@@ -1047,6 +1109,7 @@ private struct ConfettiParticle: Identifiable {
     FocusingContentView()
         .environment(AppState())
         .environment(ThemeManager.shared)
+        .environment(SettingsViewModel())
         .frame(width: 340)
         .padding()
 }

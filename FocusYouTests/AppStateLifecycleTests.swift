@@ -174,7 +174,7 @@ final class AppStateLifecycleTests: XCTestCase {
 
         XCTAssertTrue(didShowError)
         XCTAssertTrue(appState.canRetryBlockingDeactivation)
-        XCTAssertTrue(appState.errorMessage?.contains("앱 시작 시 차단 복구에 실패했습니다.") == true)
+        XCTAssertNotNil(appState.errorMessage)
 
         let counts = await blockingCoordinator.callCounts()
         XCTAssertEqual(counts.cleanup, 1)

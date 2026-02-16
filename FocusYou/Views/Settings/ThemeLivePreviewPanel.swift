@@ -106,7 +106,7 @@ struct ThemeLivePreviewPanel: View {
     }
 
     private func statusBadge(title: String, color: Color) -> some View {
-        Text(title)
+        Text(LocalizedStringKey(title))
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -115,7 +115,7 @@ struct ThemeLivePreviewPanel: View {
     }
 
     private func previewPill(title: String, color: Color, isActive: Bool) -> some View {
-        Text(title)
+        Text(LocalizedStringKey(title))
             .font(.caption.weight(.semibold))
             .padding(.horizontal, Constants.Design.spacingSM)
             .padding(.vertical, 6)
@@ -126,7 +126,7 @@ struct ThemeLivePreviewPanel: View {
 
     private func previewStat(title: String, value: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             Text(value)
@@ -137,7 +137,7 @@ struct ThemeLivePreviewPanel: View {
     }
 
     private func previewAction(title: String, color: Color) -> some View {
-        Text(title)
+        Text(LocalizedStringKey(title))
             .font(.caption.weight(.semibold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
@@ -155,9 +155,9 @@ private enum PreviewSurface: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .dashboard:
-            return "대시보드"
+            return String(localized: "대시보드")
         case .popover:
-            return "팝오버"
+            return String(localized: "팝오버")
         }
     }
 }

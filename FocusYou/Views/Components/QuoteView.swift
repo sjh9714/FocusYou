@@ -61,8 +61,17 @@ enum QuoteService {
         return entries
     }()
 
+    /// 현재 로케일에 맞는 명언 랜덤 반환
     static func randomQuote() -> QuoteEntry? {
-        quotes.randomElement()
+        let localePrefix = Locale.current.language.languageCode?.identifier ?? "en"
+        let filtered = quotes.filter { $0.locale == localePrefix }
+        return (filtered.isEmpty ? quotes : filtered).randomElement()
+    }
+
+    /// 알림용 짧은 텍스트 ("명언 — 저자")
+    static func randomQuoteText() -> String? {
+        guard let quote = randomQuote() else { return nil }
+        return "\(quote.text) — \(quote.author)"
     }
 }
 

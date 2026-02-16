@@ -195,8 +195,8 @@ final class LicenseManagerTests: XCTestCase {
     func testCanUseStatsPeriod_ProPeriods() {
         let manager = LicenseManager(defaults: defaults)
 
-        XCTAssertFalse(manager.canUseStatsPeriod("이번 달"))
-        XCTAssertFalse(manager.canUseStatsPeriod("올해"))
+        XCTAssertFalse(manager.canUseStatsPeriod("month"))
+        XCTAssertFalse(manager.canUseStatsPeriod("year"))
     }
 
     @MainActor
@@ -204,8 +204,8 @@ final class LicenseManagerTests: XCTestCase {
         let manager = LicenseManager(defaults: defaults)
         manager.debugSetPro(true)
 
-        XCTAssertTrue(manager.canUseStatsPeriod("이번 달"))
-        XCTAssertTrue(manager.canUseStatsPeriod("올해"))
+        XCTAssertTrue(manager.canUseStatsPeriod("month"))
+        XCTAssertTrue(manager.canUseStatsPeriod("year"))
     }
 
     // MARK: - 회고 레벨 한도

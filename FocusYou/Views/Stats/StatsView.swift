@@ -81,7 +81,7 @@ struct StatsView: View {
         HStack(spacing: 4) {
             ForEach(StatsViewModel.Period.allCases, id: \.self) { period in
                 SegmentedPill(
-                    title: period.rawValue,
+                    title: period.displayName,
                     tag: period,
                     selection: Binding(
                         get: { viewModel.selectedPeriod },
@@ -242,13 +242,13 @@ struct StatsView: View {
                             angle: .value(entry.mode, entry.count),
                             innerRadius: .ratio(0.55)
                         )
-                        .foregroundStyle(modeColor(entry.mode))
+                        .foregroundStyle(modeColor(entry.modeID))
                     }
                     .frame(width: 120, height: 120)
 
                     VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
                         ForEach(ratios) { entry in
-                            modeLabel(color: modeColor(entry.mode), text: entry.mode, percent: entry.percent)
+                            modeLabel(color: modeColor(entry.modeID), text: entry.mode, percent: entry.percent)
                         }
                     }
 
@@ -259,10 +259,10 @@ struct StatsView: View {
         .frostedCard()
     }
 
-    private func modeColor(_ mode: String) -> Color {
-        switch mode {
-        case "뽀모도로": return themeManager.primary
-        case "플로우": return themeManager.accent
+    private func modeColor(_ modeID: String) -> Color {
+        switch modeID {
+        case "pomodoro": return themeManager.primary
+        case "flowmodoro": return themeManager.accent
         default: return themeManager.secondary
         }
     }
@@ -282,7 +282,10 @@ struct StatsView: View {
     // MARK: - 성장 (v1.5)
 
     private var growthSection: some View {
-        GrowthView(totalHours: viewModel.totalFocusHours(from: sessions))
+        GrowthView(
+            totalHours: viewModel.totalFocusHours(from: sessions),
+            xpInfo: LevelManager.xpInfo(from: sessions)
+        )
     }
 
     // MARK: - 히트맵 (v1.5)

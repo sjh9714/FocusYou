@@ -13,7 +13,7 @@ struct PomodoroConfigView: View {
                 iconColor: themeManager.primary,
                 title: "집중",
                 value: configuration.focusMinutes,
-                unit: "분",
+                valueLabel: "\(configuration.focusMinutes)분",
                 range: Constants.Timer.pomodoroFocusRange
             ) { configuration.focusMinutes = $0 }
 
@@ -22,7 +22,7 @@ struct PomodoroConfigView: View {
                 iconColor: themeManager.secondary,
                 title: "짧은 휴식",
                 value: configuration.shortBreakMinutes,
-                unit: "분",
+                valueLabel: "\(configuration.shortBreakMinutes)분",
                 range: Constants.Timer.pomodoroShortBreakRange
             ) { configuration.shortBreakMinutes = $0 }
 
@@ -31,7 +31,7 @@ struct PomodoroConfigView: View {
                 iconColor: themeManager.accent,
                 title: "긴 휴식",
                 value: configuration.longBreakMinutes,
-                unit: "분",
+                valueLabel: "\(configuration.longBreakMinutes)분",
                 range: Constants.Timer.pomodoroLongBreakRange
             ) { configuration.longBreakMinutes = $0 }
 
@@ -40,7 +40,7 @@ struct PomodoroConfigView: View {
                 iconColor: themeManager.primary,
                 title: "사이클",
                 value: configuration.cycles,
-                unit: "회",
+                valueLabel: "\(configuration.cycles)회",
                 range: Constants.Timer.pomodoroCyclesRange
             ) { configuration.cycles = $0 }
 
@@ -57,20 +57,20 @@ struct PomodoroConfigView: View {
         iconColor: Color,
         title: String,
         value: Int,
-        unit: String,
+        valueLabel: LocalizedStringKey,
         range: ClosedRange<Int>,
         onChanged: @escaping (Int) -> Void
     ) -> some View {
         HStack(spacing: Constants.Design.spacingSM) {
             IconBadge(systemName: icon, color: iconColor, size: 28)
 
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.callout)
 
             Spacer()
 
             Stepper {
-                Text("\(value)\(unit)")
+                Text(valueLabel)
                     .font(.callout.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(iconColor)
@@ -109,7 +109,7 @@ struct PomodoroConfigView: View {
         }
         .padding(.top, 4)
         .accessibilityLabel(
-            "\(configuration.cycles)사이클: 집중 \(configuration.focusMinutes)분, 휴식 \(configuration.shortBreakMinutes)분"
+            Text("\(configuration.cycles)사이클: 집중 \(configuration.focusMinutes)분, 휴식 \(configuration.shortBreakMinutes)분")
         )
     }
 }

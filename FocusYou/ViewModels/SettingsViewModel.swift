@@ -32,6 +32,25 @@ final class SettingsViewModel {
         }
     }
 
+    /// 외관 모드: "system" | "light" | "dark"
+    var appearanceMode: String {
+        didSet {
+            defaults.set(
+                appearanceMode,
+                forKey: Constants.Settings.appearanceModeKey
+            )
+        }
+    }
+
+    /// 현재 외관 모드에 대응하는 ColorScheme (system일 경우 nil)
+    var preferredColorScheme: ColorScheme? {
+        switch appearanceMode {
+        case "light": .light
+        case "dark": .dark
+        default: nil
+        }
+    }
+
     /// 온보딩 완료 여부 (v1.0)
     var hasCompletedOnboarding: Bool {
         didSet {
@@ -176,6 +195,28 @@ final class SettingsViewModel {
         }
     }
 
+    /// 앱 내 언어 설정
+    var appLanguage: String {
+        didSet {
+            defaults.set(appLanguage, forKey: Constants.Settings.appLanguageKey)
+            if appLanguage == "system" {
+                UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+            } else {
+                UserDefaults.standard.set([appLanguage], forKey: "AppleLanguages")
+            }
+        }
+    }
+
+    /// 동기부여 명언 표시 (v1.x)
+    var showMotivationQuotes: Bool {
+        didSet {
+            defaults.set(
+                showMotivationQuotes,
+                forKey: Constants.Settings.showMotivationQuotesKey
+            )
+        }
+    }
+
     /// 번아웃 방지 경고 (v1.5)
     var enableBurnoutWarnings: Bool {
         didSet {
@@ -255,6 +296,11 @@ final class SettingsViewModel {
             defaults: defaults,
             defaultValue: Constants.Settings.showBlockedAppNotificationDefault
         )
+        appearanceMode = Self.stringValue(
+            forKey: Constants.Settings.appearanceModeKey,
+            defaults: defaults,
+            defaultValue: Constants.Settings.appearanceModeDefault
+        )
         hasCompletedOnboarding = Self.boolValue(
             forKey: Constants.Settings.hasCompletedOnboardingKey,
             defaults: defaults,
@@ -319,6 +365,16 @@ final class SettingsViewModel {
             forKey: Constants.Settings.dimmingOpacityKey,
             defaults: defaults,
             defaultValue: Constants.Settings.dimmingOpacityDefault
+        )
+        appLanguage = Self.stringValue(
+            forKey: Constants.Settings.appLanguageKey,
+            defaults: defaults,
+            defaultValue: Constants.Settings.appLanguageDefault
+        )
+        showMotivationQuotes = Self.boolValue(
+            forKey: Constants.Settings.showMotivationQuotesKey,
+            defaults: defaults,
+            defaultValue: Constants.Settings.showMotivationQuotesDefault
         )
         enableBurnoutWarnings = Self.boolValue(
             forKey: Constants.Settings.enableBurnoutWarningsKey,
