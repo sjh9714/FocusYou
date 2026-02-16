@@ -71,34 +71,11 @@ struct BlockListView: View {
     private var profileBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Constants.Design.spacingSM) {
-                ForEach(profiles) { profile in
-                    let isActive = profile.persistentModelID == activeProfile?.persistentModelID
-                    Button {
-                        appState.setActiveProfile(profile)
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: profile.icon)
-                                .font(.caption)
-                            Text(profile.name)
-                                .font(.caption.weight(.medium))
-                        }
-                        .padding(.horizontal, Constants.Design.spacingSM)
-                        .padding(.vertical, 5)
-                        .background(
-                            Color(hex: profile.color).opacity(isActive ? 0.2 : 0.08),
-                            in: Capsule()
-                        )
-                        .foregroundStyle(Color(hex: profile.color))
-                        .overlay(
-                            Capsule()
-                                .stroke(
-                                    Color(hex: profile.color).opacity(isActive ? 0.55 : 0),
-                                    lineWidth: 1
-                                )
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
+                ProfileSelectorView(
+                    profiles: profiles,
+                    activeProfile: activeProfile,
+                    onSelect: { appState.setActiveProfile($0) }
+                )
             }
             .padding(.horizontal)
             .padding(.top, Constants.Design.spacingMD)

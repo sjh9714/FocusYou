@@ -224,14 +224,20 @@ final class BlockListViewModel {
         default: return nil
         }
 
-        guard let url = Bundle.main.url(forResource: fileName, withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let preset = try? JSONDecoder().decode(PresetData.self, from: data) else {
-            logger.error("프리셋 로드 실패: \(category)")
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else {
+            logger.error("프리셋 파일을 찾을 수 없음: \(fileName).json")
             return nil
         }
 
-        return preset
+        do {
+            let data = try Data(contentsOf: url)
+            let preset = try JSONDecoder().decode(PresetData.self, from: data)
+            return preset
+        } catch {
+            logger.error("프리셋 로드 실패 (\(category)): \(error.localizedDescription)")
+            errorMessage = String(localized: "error_preset_load_failed")
+            return nil
+        }
     }
 
     /// 카테고리 프리셋 일괄 적용

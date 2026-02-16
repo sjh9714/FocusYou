@@ -545,6 +545,7 @@
 "error_duplicate_keyword" = "This keyword is already added";
 "error_invalid_url" = "Please enter a valid URL";
 "error_duplicate_site" = "This site is already added";
+"error_preset_load_failed" = "Failed to load preset data";
 
 // -- ProfileViewModel: error messages --
 "error_enter_profile_name" = "Please enter a profile name";

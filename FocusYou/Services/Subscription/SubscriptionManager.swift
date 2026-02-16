@@ -123,11 +123,13 @@ actor SubscriptionManager {
         updateListenerTask = Task(priority: .background) { [weak self] in
             for await result in Transaction.updates {
                 guard let self else { return }
-                guard let transaction = try? await self.checkVerified(result) else {
-                    continue
+                do {
+                    let transaction = try await self.checkVerified(result)
+                    await transaction.finish()
+                    await self.refreshEntitlements()
+                } catch {
+                    self.logger.error("트랜잭션 업데이트 검증 실패: \(error.localizedDescription)")
                 }
-                await transaction.finish()
-                await self.refreshEntitlements()
             }
         }
 

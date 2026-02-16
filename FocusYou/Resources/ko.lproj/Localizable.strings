@@ -107,6 +107,7 @@
 "error_duplicate_keyword" = "이미 추가된 키워드입니다";
 "error_invalid_url" = "올바른 URL을 입력해주세요";
 "error_duplicate_site" = "이미 추가된 사이트입니다";
+"error_preset_load_failed" = "프리셋 데이터를 불러오지 못했습니다";
 
 // -- ProfileViewModel: error messages --
 "error_enter_profile_name" = "프로필 이름을 입력해주세요";

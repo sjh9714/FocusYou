@@ -16,7 +16,7 @@ final class AppState {
 
     // MARK: - 집중 상태
 
-    enum FocusState {
+    enum FocusState: Sendable {
         case idle
         case focusing
         case paused
@@ -424,20 +424,10 @@ final class AppState {
         await stopAmbientSound()
 
         // 차단 해제
-        do {
-            try await blockingCoordinator.deactivateBlocking()
-            if wasBlockingActive {
-                await notificationService.sendBlockingDeactivated()
-            }
-            isBlockingActive = false
-        } catch {
-            logger.error("차단 해제 실패: \(error.localizedDescription)")
-            isBlockingActive = wasBlockingActive
-            presentError(
-                String(localized: "error_deactivation_failed \(error.localizedDescription)"),
-                canRetryDeactivation: true
-            )
-        }
+        await safelyDeactivateBlocking(
+            shouldNotify: wasBlockingActive,
+            fallbackBlockingState: wasBlockingActive
+        ) { String(localized: "error_deactivation_failed \($0)") }
 
         // 세션 기록 업데이트
         currentSession?.cancel(actualDuration: elapsed)
@@ -578,17 +568,10 @@ final class AppState {
         currentFlowmodoroPhase = .rest
 
         // 차단 해제
-        do {
-            try await blockingCoordinator.deactivateBlocking()
-            isBlockingActive = false
-        } catch {
-            logger.error("플로우모도로 휴식 전환 차단 해제 실패: \(error.localizedDescription)")
-            isBlockingActive = true
-            presentError(
-                String(localized: "error_flowmodoro_break_deactivation_failed \(error.localizedDescription)"),
-                canRetryDeactivation: true
-            )
-        }
+        await safelyDeactivateBlocking(
+            shouldNotify: false,
+            fallbackBlockingState: true
+        ) { String(localized: "error_flowmodoro_break_deactivation_failed \($0)") }
 
         // 휴식 카운트다운 시작
         timer.reset()
@@ -640,20 +623,10 @@ final class AppState {
         await stopAmbientSound()
 
         // 2. 차단 해제
-        do {
-            try await blockingCoordinator.deactivateBlocking()
-            if wasBlockingActive {
-                await notificationService.sendBlockingDeactivated()
-            }
-            isBlockingActive = false
-        } catch {
-            logger.error("타이머 완료 후 차단 해제 실패: \(error.localizedDescription)")
-            isBlockingActive = wasBlockingActive
-            presentError(
-                String(localized: "error_completion_deactivation_failed \(error.localizedDescription)"),
-                canRetryDeactivation: true
-            )
-        }
+        await safelyDeactivateBlocking(
+            shouldNotify: wasBlockingActive,
+            fallbackBlockingState: wasBlockingActive
+        ) { String(localized: "error_completion_deactivation_failed \($0)") }
 
         // 3. 세션 기록
         currentSession?.complete(actualDuration: actualDuration)
@@ -837,7 +810,13 @@ final class AppState {
 
     private func checkMilestones(modelContext: ModelContext) {
         let descriptor = FetchDescriptor<FocusSession>()
-        guard let allSessions = try? modelContext.fetch(descriptor) else { return }
+        let allSessions: [FocusSession]
+        do {
+            allSessions = try modelContext.fetch(descriptor)
+        } catch {
+            logger.error("마일스톤 체크 실패 — 세션 fetch 에러: \(error.localizedDescription)")
+            return
+        }
 
         let completedSessions = allSessions.filter { $0.wasCompleted }
         let totalHours = Double(completedSessions.reduce(0) { $0 + $1.actualDuration }) / 3600.0
@@ -910,20 +889,13 @@ final class AppState {
     func retryBlockingDeactivation() async {
         guard canRetryBlockingDeactivation else { return }
 
-        do {
-            try await blockingCoordinator.deactivateBlocking()
-            if isBlockingActive {
-                await notificationService.sendBlockingDeactivated()
-            }
-            isBlockingActive = false
+        let success = await safelyDeactivateBlocking(
+            shouldNotify: isBlockingActive,
+            fallbackBlockingState: true
+        ) { String(localized: "error_retry_deactivation_failed \($0)") }
+
+        if success {
             dismissError()
-        } catch {
-            logger.error("차단 해제 재시도 실패: \(error.localizedDescription)")
-            isBlockingActive = true
-            presentError(
-                String(localized: "error_retry_deactivation_failed \(error.localizedDescription)"),
-                canRetryDeactivation: true
-            )
         }
     }
 
@@ -958,6 +930,29 @@ final class AppState {
         errorMessage = message
         canRetryBlockingDeactivation = canRetryDeactivation
         showError = true
+    }
+
+    /// 차단 해제 공통 헬퍼 — 에러 처리 + 알림 + 상태 복원 패턴 통합
+    @discardableResult
+    private func safelyDeactivateBlocking(
+        shouldNotify: Bool,
+        fallbackBlockingState: Bool,
+        formatError: (String) -> String
+    ) async -> Bool {
+        do {
+            try await blockingCoordinator.deactivateBlocking()
+            if shouldNotify {
+                await notificationService.sendBlockingDeactivated()
+            }
+            isBlockingActive = false
+            return true
+        } catch {
+            let desc = error.localizedDescription
+            logger.error("차단 해제 실패: \(desc)")
+            isBlockingActive = fallbackBlockingState
+            presentError(formatError(desc), canRetryDeactivation: true)
+            return false
+        }
     }
 
     // MARK: - 취소 강도 액션 (v1.3)
