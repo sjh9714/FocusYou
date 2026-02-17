@@ -2,13 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!--
-	TODO: Apple Developer Portal에서 Network Extension 엔타이틀먼트 승인 후 아래 키 활성화:
 	<key>com.apple.developer.networking.networkextension</key>
 	<array>
-		<string>content-filter-provider-systemextension</string>
+		<string>content-filter-provider</string>
 	</array>
-	-->
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.com.sungjh.focusyou</string>

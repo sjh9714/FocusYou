@@ -62,6 +62,11 @@ targets:
         INFOPLIST_FILE: FocusYouNetworkExtension/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         CODE_SIGN_ENTITLEMENTS: FocusYouNetworkExtension/FocusYouNetworkExtension.entitlements
+        DEVELOPMENT_TEAM: "9VRNY5PMG3"
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGNING_REQUIRED: YES
+        CODE_SIGNING_ALLOWED: YES
+        CODE_SIGN_STYLE: Automatic
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
     dependencies:
