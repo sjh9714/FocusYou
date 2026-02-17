@@ -1,4 +1,5 @@
 import SwiftUI
+import os
 
 // MARK: - 설정 ViewModel
 // v0.1 기본 설정값 관리
@@ -7,6 +8,10 @@ import SwiftUI
 @Observable
 final class SettingsViewModel {
     private let defaults: UserDefaults
+    private let logger = Logger(
+        subsystem: Constants.App.subsystem,
+        category: "SettingsViewModel"
+    )
 
     /// 메뉴바에 남은 시간 표시
     var showMenuBarTime: Bool {
@@ -224,6 +229,17 @@ final class SettingsViewModel {
                 blockingStrategy,
                 forKey: Constants.Settings.blockingStrategyKey
             )
+            // 코디네이터에 새 차단기 교체
+            Task {
+                let strategy = BlockingStrategy(rawValue: blockingStrategy) ?? .hosts
+                let newBlocker = WebsiteBlockerFactory.create(strategy: strategy)
+                do {
+                    try await BlockingCoordinator.shared.swapBlocker(to: newBlocker)
+                } catch {
+                    // 차단 활성 중 — 다음 세션 종료 시 자동 적용
+                    logger.info("차단 전략 변경은 현재 세션 종료 후 적용됩니다")
+                }
+            }
         }
     }
 

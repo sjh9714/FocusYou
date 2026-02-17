@@ -77,6 +77,51 @@ final class BlockingCoordinatorTests: XCTestCase {
         XCTAssertEqual(snapshot.deactivateCallCount, 1)
     }
 
+    func testSwapBlockerWhileIdleSucceeds() async throws {
+        let firstBlocker = MockWebsiteBlocker()
+        let coordinator = BlockingCoordinator(
+            websiteBlocker: firstBlocker,
+            managesSafetyNet: false
+        )
+
+        let secondBlocker = MockWebsiteBlocker()
+        try await coordinator.swapBlocker(to: secondBlocker)
+
+        // 새 차단기로 활성화 확인
+        try await coordinator.activateBlocking(
+            domains: ["test.com"],
+            appBundleIds: []
+        )
+
+        let firstSnapshot = await firstBlocker.snapshot()
+        let secondSnapshot = await secondBlocker.snapshot()
+        XCTAssertEqual(firstSnapshot.activateCallDomains.count, 0)
+        XCTAssertEqual(secondSnapshot.activateCallDomains.count, 1)
+    }
+
+    func testSwapBlockerWhileBlockingThrows() async throws {
+        let blocker = MockWebsiteBlocker()
+        let coordinator = BlockingCoordinator(
+            websiteBlocker: blocker,
+            managesSafetyNet: false
+        )
+
+        try await coordinator.activateBlocking(
+            domains: ["test.com"],
+            appBundleIds: []
+        )
+
+        let newBlocker = MockWebsiteBlocker()
+        do {
+            try await coordinator.swapBlocker(to: newBlocker)
+            XCTFail("Expected swapBlocker to throw during active blocking")
+        } catch let error as FocusYouError {
+            guard case .blockingAlreadyActive = error else {
+                return XCTFail("Expected blockingAlreadyActive error")
+            }
+        }
+    }
+
     func testDeactivateBlockingSkipsWebsiteWhenNotActive() async throws {
         let websiteBlocker = MockWebsiteBlocker()
         let coordinator = BlockingCoordinator(

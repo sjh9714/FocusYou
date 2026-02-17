@@ -17,6 +17,9 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
     /// System Extension 설치 완료 여부
     private var isExtensionInstalled = false
 
+    /// System Extension delegate 강참조 (콜백까지 유지)
+    private var extensionDelegate: SystemExtensionDelegate?
+
     // MARK: - WebsiteBlocker
 
     func activate(domains: [String]) async throws {
@@ -74,12 +77,14 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
         )
 
         let delegate = SystemExtensionDelegate()
+        self.extensionDelegate = delegate  // 콜백까지 강참조 유지
         request.delegate = delegate
 
         OSSystemExtensionManager.shared.submitRequest(request)
 
         // delegate에서 결과 대기
         let result = await delegate.waitForResult()
+        self.extensionDelegate = nil  // 완료 후 해제
 
         switch result {
         case .completed:
@@ -115,12 +120,28 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
 
                 manager.isEnabled = true
 
-                manager.saveToPreferences { error in
-                    if let error {
-                        self.logger.error("NEFilterManager 저장 실패: \(error.localizedDescription)")
+                manager.saveToPreferences { saveError in
+                    if let saveError {
+                        self.logger.error("NEFilterManager 저장 실패: \(saveError.localizedDescription)")
                         continuation.resume(throwing: FocusYouError.networkExtensionActivationFailed)
-                    } else {
-                        self.logger.info("NEFilterManager 활성화 완료")
+                        return
+                    }
+
+                    // 저장 후 재로드하여 활성 상태 검증
+                    manager.loadFromPreferences { verifyError in
+                        if let verifyError {
+                            self.logger.error("NEFilterManager 검증 실패: \(verifyError.localizedDescription)")
+                            continuation.resume(throwing: FocusYouError.networkExtensionActivationFailed)
+                            return
+                        }
+
+                        guard manager.isEnabled else {
+                            self.logger.error("NEFilterManager 저장 후 비활성 — 활성화 실패")
+                            continuation.resume(throwing: FocusYouError.networkExtensionActivationFailed)
+                            return
+                        }
+
+                        self.logger.info("NEFilterManager 활성화 검증 완료")
                         continuation.resume()
                     }
                 }
@@ -140,12 +161,28 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
 
                 manager.isEnabled = false
 
-                manager.saveToPreferences { error in
-                    if let error {
-                        self.logger.error("NEFilterManager 비활성화 실패: \(error.localizedDescription)")
+                manager.saveToPreferences { saveError in
+                    if let saveError {
+                        self.logger.error("NEFilterManager 비활성화 실패: \(saveError.localizedDescription)")
                         continuation.resume(throwing: FocusYouError.networkExtensionDeactivationFailed)
-                    } else {
-                        self.logger.info("NEFilterManager 비활성화 완료")
+                        return
+                    }
+
+                    // 저장 후 재로드하여 비활성 상태 검증
+                    manager.loadFromPreferences { verifyError in
+                        if let verifyError {
+                            self.logger.error("NEFilterManager 비활성화 검증 실패: \(verifyError.localizedDescription)")
+                            continuation.resume(throwing: FocusYouError.networkExtensionDeactivationFailed)
+                            return
+                        }
+
+                        if manager.isEnabled {
+                            self.logger.error("NEFilterManager 저장 후 여전히 활성 — 비활성화 실패")
+                            continuation.resume(throwing: FocusYouError.networkExtensionDeactivationFailed)
+                            return
+                        }
+
+                        self.logger.info("NEFilterManager 비활성화 검증 완료")
                         continuation.resume()
                     }
                 }
@@ -177,20 +214,22 @@ private final class SystemExtensionDelegate: NSObject, OSSystemExtensionRequestD
         _ request: OSSystemExtensionRequest,
         didFinishWithResult result: OSSystemExtensionRequest.Result
     ) {
+        guard let continuation else { return }  // 이미 완료됨
+        self.continuation = nil  // 먼저 nil 처리 (이중 resume 방지)
         switch result {
         case .completed:
-            continuation?.resume(returning: .completed)
+            continuation.resume(returning: .completed)
         case .willCompleteAfterReboot:
-            continuation?.resume(returning: .willCompleteAfterReboot)
+            continuation.resume(returning: .willCompleteAfterReboot)
         @unknown default:
-            continuation?.resume(returning: .completed)
+            continuation.resume(returning: .completed)
         }
-        continuation = nil
     }
 
     func request(_ request: OSSystemExtensionRequest, didFailWithError error: Error) {
-        continuation?.resume(returning: .failed(error))
-        continuation = nil
+        guard let continuation else { return }  // 이미 완료됨
+        self.continuation = nil
+        continuation.resume(returning: .failed(error))
     }
 
     func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {

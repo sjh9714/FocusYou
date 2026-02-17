@@ -37,7 +37,7 @@ actor BlockingCoordinator {
 
     // MARK: - Dependencies
 
-    private let websiteBlocker: any WebsiteBlocker
+    private var websiteBlocker: any WebsiteBlocker
     private let managesSafetyNet: Bool
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
@@ -178,7 +178,35 @@ actor BlockingCoordinator {
         await AppDimmingManager.shared.deactivate()
 
         state = .idle
+
+        // 차단 해제 후 설정에 따라 차단기 자동 교체
+        reconcileBlockerIfNeeded()
+
         logger.info("차단 해제 완료")
+    }
+
+    /// 차단 전략 변경 시 웹사이트 차단기 교체
+    /// 차단 활성 중에는 교체 불가 — 반드시 idle 상태에서 호출
+    func swapBlocker(to newBlocker: any WebsiteBlocker) throws {
+        guard case .idle = state else {
+            logger.warning("차단 활성 중 전략 변경 불가")
+            throw FocusYouError.blockingAlreadyActive
+        }
+        logger.info("웹사이트 차단기 교체: \(String(describing: type(of: newBlocker)))")
+        websiteBlocker = newBlocker
+    }
+
+    /// 설정에 따라 차단기 자동 교체 (idle 상태에서만)
+    private func reconcileBlockerIfNeeded() {
+        let desiredStrategy = WebsiteBlockerFactory.currentStrategy()
+        let isCorrectBlocker: Bool = switch desiredStrategy {
+        case .hosts: websiteBlocker is HostsFileBlocker
+        case .networkExtension: websiteBlocker is NetworkExtensionBlocker
+        }
+        if !isCorrectBlocker {
+            websiteBlocker = WebsiteBlockerFactory.create(strategy: desiredStrategy)
+            logger.info("차단기 자동 교체: \(desiredStrategy.rawValue)")
+        }
     }
 
     /// 긴급 정리 (앱 시작 시 stale 마커 감지용)

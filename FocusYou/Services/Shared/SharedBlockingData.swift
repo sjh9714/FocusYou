@@ -22,6 +22,7 @@ enum SharedBlockingData {
         guard let defaults = sharedDefaults else { return }
         guard let encoded = try? JSONEncoder().encode(data) else { return }
         defaults.set(encoded, forKey: key)
+        defaults.synchronize()  // 크로스 프로세스 동기화 보장
     }
 
     /// 차단 도메인 읽기 (Network Extension에서 호출)
@@ -33,6 +34,8 @@ enum SharedBlockingData {
 
     /// 차단 해제 시 데이터 삭제
     static func clear() {
-        sharedDefaults?.removeObject(forKey: key)
+        guard let defaults = sharedDefaults else { return }
+        defaults.removeObject(forKey: key)
+        defaults.synchronize()  // 크로스 프로세스 동기화 보장
     }
 }

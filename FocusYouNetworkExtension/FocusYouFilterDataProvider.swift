@@ -52,7 +52,7 @@ class FocusYouFilterDataProvider: NEFilterDataProvider {
         }
 
         if shouldBlock(hostname: hostname) {
-            logger.debug("차단: \(hostname)")
+            logger.info("차단: \(hostname, privacy: .public)")
             return .drop()
         }
 
