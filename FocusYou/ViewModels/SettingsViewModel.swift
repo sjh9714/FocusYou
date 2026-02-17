@@ -217,6 +217,16 @@ final class SettingsViewModel {
         }
     }
 
+    /// 차단 전략 (v2.0): "hosts" | "networkExtension"
+    var blockingStrategy: String {
+        didSet {
+            defaults.set(
+                blockingStrategy,
+                forKey: Constants.Settings.blockingStrategyKey
+            )
+        }
+    }
+
     /// 번아웃 방지 경고 (v1.5)
     var enableBurnoutWarnings: Bool {
         didSet {
@@ -375,6 +385,11 @@ final class SettingsViewModel {
             forKey: Constants.Settings.showMotivationQuotesKey,
             defaults: defaults,
             defaultValue: Constants.Settings.showMotivationQuotesDefault
+        )
+        blockingStrategy = Self.stringValue(
+            forKey: Constants.Settings.blockingStrategyKey,
+            defaults: defaults,
+            defaultValue: Constants.Settings.blockingStrategyDefault
         )
         enableBurnoutWarnings = Self.boolValue(
             forKey: Constants.Settings.enableBurnoutWarningsKey,

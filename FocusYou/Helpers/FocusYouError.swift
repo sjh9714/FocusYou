@@ -16,6 +16,9 @@ enum FocusYouError: LocalizedError {
     case authorizationCancelled
     case launchAgentInstallFailed
     case presetLoadFailed(category: String)
+    case networkExtensionNotInstalled
+    case networkExtensionActivationFailed
+    case networkExtensionDeactivationFailed
 
     var errorDescription: String? {
         switch self {
@@ -45,6 +48,12 @@ enum FocusYouError: LocalizedError {
             return String(localized: "error_launch_agent_failed")
         case .presetLoadFailed(let category):
             return String(localized: "error_preset_load_failed \(category)")
+        case .networkExtensionNotInstalled:
+            return String(localized: "error_ne_not_installed")
+        case .networkExtensionActivationFailed:
+            return String(localized: "error_ne_activation_failed")
+        case .networkExtensionDeactivationFailed:
+            return String(localized: "error_ne_deactivation_failed")
         }
     }
 }

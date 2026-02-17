@@ -626,6 +626,20 @@
 "error_authorization_cancelled" = "Administrator privileges request was cancelled.";
 "error_launch_agent_failed" = "Unable to install safety mechanism (LaunchAgent).";
 "error_preset_load_failed %@" = "Unable to load %@ preset.";
+"error_ne_not_installed" = "Network Extension is not installed. Please check System Settings.";
+"error_ne_activation_failed" = "Failed to activate Network Extension.";
+"error_ne_deactivation_failed" = "Failed to deactivate Network Extension.";
+
+// ============================================================
+// MARK: - Blocking Strategy Settings (v2.0)
+// ============================================================
+
+"settings_blocking_strategy" = "Blocking Method";
+"settings_blocking_hosts" = "hosts file (requires admin)";
+"settings_blocking_ne" = "Network Extension (no admin needed)";
+"settings_blocking_hosts_description" = "Blocks websites by modifying the /etc/hosts file. Requires administrator password.";
+"settings_blocking_ne_description" = "Blocks websites via macOS Network Extension. Requires approval in System Settings on first install.";
+"settings_blocking_ne_restart_hint" = "Changes to blocking method take effect after restarting the app.";
 
 // ============================================================
 // MARK: - CalendarSyncService

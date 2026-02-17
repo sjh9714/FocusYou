@@ -44,6 +44,28 @@ targets:
     dependencies:
       - target: FocusYouWidget
         embed: true
+      - target: FocusYouNetworkExtension
+        embed: true
+  FocusYouNetworkExtension:
+    type: system-extension
+    platform: macOS
+    sources:
+      - path: FocusYouNetworkExtension
+      - path: FocusYou/Services/Shared/SharedBlockingData.swift
+        group: Shared
+      - path: FocusYou/Helpers/Constants.swift
+        group: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sungjh.focusyou.network-extension
+        PRODUCT_NAME: "FocusYouFilter"
+        INFOPLIST_FILE: FocusYouNetworkExtension/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: FocusYouNetworkExtension/FocusYouNetworkExtension.entitlements
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: YES
+    dependencies:
+      - sdk: NetworkExtension.framework
   FocusYouWidget:
     type: app-extension
     platform: macOS
@@ -85,6 +107,7 @@ schemes:
       targets:
         FocusYou: all
         FocusYouWidget: all
+        FocusYouNetworkExtension: all
     run:
       storeKitConfiguration: FocusYou/FocusYou.storekit
     test:

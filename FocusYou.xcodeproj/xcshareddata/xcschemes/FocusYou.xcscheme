@@ -28,6 +28,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "88F6D2E88A8B0D0BEB606E68"
+               BuildableName = "FocusYouFilter.systemextension"
+               BlueprintName = "FocusYouNetworkExtension"
+               ReferencedContainer = "container:FocusYou.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "3B11DCF9BCA8995179D4844C"
                BuildableName = "FocusYouWidget.appex"
                BlueprintName = "FocusYouWidget"

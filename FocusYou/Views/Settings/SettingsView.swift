@@ -46,6 +46,7 @@ struct SettingsView: View {
 
             // 탭 4: 고급
             Form {
+                blockingStrategySection
                 diagnosticsSection
                 #if DEBUG
                 debugSection
@@ -563,6 +564,36 @@ struct SettingsView: View {
             Text("완료된 집중 세션이 Focus You 캘린더에 자동 기록됩니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - 차단 전략 (v2.0)
+
+    private var blockingStrategySection: some View {
+        Section("차단 방식") {
+            Picker(
+                String(localized: "settings_blocking_strategy"),
+                selection: Bindable(viewModel).blockingStrategy
+            ) {
+                Text(String(localized: "settings_blocking_hosts"))
+                    .tag("hosts")
+                Text(String(localized: "settings_blocking_ne"))
+                    .tag("networkExtension")
+            }
+
+            if viewModel.blockingStrategy == "networkExtension" {
+                Text(String(localized: "settings_blocking_ne_description"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text(String(localized: "settings_blocking_ne_restart_hint"))
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            } else {
+                Text(String(localized: "settings_blocking_hosts_description"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 

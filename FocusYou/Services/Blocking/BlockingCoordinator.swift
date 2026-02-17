@@ -1,4 +1,5 @@
 import Foundation
+import NetworkExtension
 import os
 
 // MARK: - 차단 통합 코디네이터
@@ -18,7 +19,9 @@ protocol BlockingCoordinating: Sendable {
 }
 
 actor BlockingCoordinator {
-    static let shared = BlockingCoordinator()
+    static let shared = BlockingCoordinator(
+        websiteBlocker: WebsiteBlockerFactory.create()
+    )
 
     // MARK: - 상태
 
@@ -40,6 +43,11 @@ actor BlockingCoordinator {
         subsystem: Constants.App.subsystem,
         category: "BlockingCoordinator"
     )
+
+    /// NE 모드에서는 hosts 관련 안전장치 불필요
+    private var usesNetworkExtension: Bool {
+        websiteBlocker is NetworkExtensionBlocker
+    }
 
     init(
         websiteBlocker: any WebsiteBlocker = HostsFileBlocker(),
@@ -88,7 +96,10 @@ actor BlockingCoordinator {
                 }
             } catch {
                 logger.error("웹사이트 차단 실패: \(error.localizedDescription)")
-                state = .error(error as? FocusYouError ?? .hostsFileWriteFailed)
+                let fallbackError: FocusYouError = usesNetworkExtension
+                    ? .networkExtensionActivationFailed
+                    : .hostsFileWriteFailed
+                state = .error(error as? FocusYouError ?? fallbackError)
                 throw error
             }
         }
@@ -101,8 +112,8 @@ actor BlockingCoordinator {
             isAppBlockingActive = true
         }
 
-        // hosts 차단 활성 시에만 안전장치 설치
-        if isWebsiteBlockingActive, managesSafetyNet {
+        // hosts 모드에서만 안전장치 설치 (NE는 OS가 관리)
+        if isWebsiteBlockingActive, managesSafetyNet, !usesNetworkExtension {
             installSafetyNet()
         }
 
@@ -149,14 +160,17 @@ actor BlockingCoordinator {
         }
         isAppBlockingActive = false
 
-        // hosts 해제 실패 시 안전장치 보존 + 에러 전파
+        // 해제 실패 시 안전장치 보존 + 에러 전파
         if let websiteDeactivationError {
-            state = .error(websiteDeactivationError as? FocusYouError ?? .hostsFileWriteFailed)
+            let fallbackError: FocusYouError = usesNetworkExtension
+                ? .networkExtensionDeactivationFailed
+                : .hostsFileWriteFailed
+            state = .error(websiteDeactivationError as? FocusYouError ?? fallbackError)
             throw websiteDeactivationError
         }
 
-        // 안전장치 해제
-        if managesSafetyNet {
+        // hosts 모드에서만 안전장치 해제
+        if managesSafetyNet, !usesNetworkExtension {
             removeSafetyNet()
         }
 
@@ -171,6 +185,37 @@ actor BlockingCoordinator {
     /// 활성 표시 파일이 있을 때만 실행
     /// 헬퍼를 통해 비밀번호 없이 복구 시도, 실패 시 admin fallback
     func emergencyCleanup() async {
+        // NE 모드: NEFilterManager만 비활성화
+        if usesNetworkExtension {
+            await emergencyCleanupNetworkExtension()
+            return
+        }
+
+        // hosts 모드: 기존 로직
+        await emergencyCleanupHosts()
+    }
+
+    /// NE 모드 긴급 정리
+    private func emergencyCleanupNetworkExtension() async {
+        let neActive = await websiteBlocker.isActive()
+        guard neActive else { return }
+
+        logger.warning("NE 긴급 정리: 필터 비활성화")
+        do {
+            try await websiteBlocker.deactivate()
+        } catch {
+            logger.error("NE 긴급 정리 실패: \(error.localizedDescription)")
+            state = .error(.networkExtensionDeactivationFailed)
+            return
+        }
+
+        isWebsiteBlockingActive = false
+        isAppBlockingActive = false
+        state = .idle
+    }
+
+    /// hosts 모드 긴급 정리
+    private func emergencyCleanupHosts() async {
         let indicatorExists = FileManager.default.fileExists(atPath: Constants.Blocking.activeIndicatorPath)
         let hasActiveBlocking = await HostsFileManager.shared.hasActiveBlocking()
         let backupExists = FileManager.default.fileExists(atPath: Constants.Blocking.hostsBackupPath)

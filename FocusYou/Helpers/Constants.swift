@@ -205,6 +205,10 @@ enum Constants {
         // 동기부여 명언 (v1.x)
         static let showMotivationQuotesKey = "showMotivationQuotes"
         static let showMotivationQuotesDefault = true
+
+        // 차단 전략 (v2.0)
+        static let blockingStrategyKey = "blockingStrategy"
+        static let blockingStrategyDefault = "hosts"  // "hosts" | "networkExtension"
     }
 
     // MARK: - 사운드
@@ -333,6 +337,15 @@ enum Constants {
         static let focusStatusKind = "FocusStatusWidget"
         static let streakKind = "StreakWidget"
         static let refreshInterval: TimeInterval = 300
+    }
+
+    // MARK: - Network Extension (v2.0)
+
+    enum NetworkExtension {
+        /// System Extension 번들 ID
+        static let extensionBundleID = "com.sungjh.focusyou.network-extension"
+        /// System Extension 이름
+        static let extensionName = "FocusYouFilter"
     }
 
     // MARK: - 디자인 토큰

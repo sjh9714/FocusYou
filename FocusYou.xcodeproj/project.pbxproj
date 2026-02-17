@@ -33,6 +33,7 @@
 		255D36F48C64E7B74EBA9288 /* BadgeGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8831925CD44138368484F680 /* BadgeGalleryView.swift */; };
 		263BDD9E7FCD4EC6369B9BED /* TogglePauseIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E8393058B00270FBC46036 /* TogglePauseIntent.swift */; };
 		26503B0BE034CA5950A5CAC4 /* DateExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5788AA731034E1B0B38FFCAC /* DateExtensionsTests.swift */; };
+		27BFA9B8D275A6800F0FD80A /* FocusYouFilterDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */; };
 		27E7F760CFBD2BD1BFA7BF8D /* AppDimmingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2B1F362137F026A5715243 /* AppDimmingManagerTests.swift */; };
 		30C0FF65BD1F205F44A5892A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1B83EE85B7DC9FF3FEBB1163 /* Localizable.strings */; };
 		329DB70044ED22A952351942 /* AmbientSoundManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C533B73868E4737EA174FF83 /* AmbientSoundManagerTests.swift */; };
@@ -56,13 +57,16 @@
 		4F7259A04F917671F31EB0AE /* QuoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1E3B9C5E7B0241190E3F29 /* QuoteView.swift */; };
 		4FB41B1C5FBF2C017A37A7EF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6815114D2A30CB27EED1B552 /* AppState.swift */; };
 		503989A556A82AE2A9A2D80B /* LicenseManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131CEB5A1978EAEB9E4795B8 /* LicenseManagerTests.swift */; };
+		5190DFB6A47A820A568F21F9 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B809334BD79336E1364C666A /* main.swift */; };
 		52C8F4F5D07DE64D0BC2D8D2 /* FreeTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28217721F7276AFF4B690021 /* FreeTimerTests.swift */; };
 		53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4BC8344A9F092E59A1ADDE6 /* NotificationService.swift */; };
 		557411DA8E7E4FF615A5A5BE /* AppDimmingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6293E924641E1C812686A922 /* AppDimmingManager.swift */; };
 		5B144903A9336475A9BBA5F9 /* ProBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0A920447BB7B9570357643 /* ProBadge.swift */; };
 		5B617E7022FAEB55D42E3F5D /* StreakCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92F5C4C45461B9FCA6D4D16 /* StreakCalculator.swift */; };
+		5C2C5E1F2AF2555A9B43895A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */; };
 		5DFBCD7D9EA63D81DD5632B1 /* ThemeLivePreviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAD2FEEFD93DF6F2BA42339 /* ThemeLivePreviewPanel.swift */; };
 		655E7145022E7AE50BDD7119 /* StreakWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3F3CA340FDF4DC545044AE /* StreakWidget.swift */; };
+		6598C637C9DE107BEE9F2226 /* SharedBlockingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */; };
 		65A32BB2F763106F33616124 /* RetrospectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3BE36C01B6F28DC4BEAB4A /* RetrospectView.swift */; };
 		65FBB5EEECD9E840423E5BEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7E4D50889113C0AF74856AAA /* Assets.xcassets */; };
 		67F1F05D951E59E5485F7B8C /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF59D70B43E79A9496669987 /* PaywallView.swift */; };
@@ -97,6 +101,7 @@
 		90A416B84235D10E5BD67151 /* FlowmodoroEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94883EC3560040559A7ED761 /* FlowmodoroEngineTests.swift */; };
 		90AFE393E0BAB728B5C766C5 /* MilestoneDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E700A03A7F40896192E390 /* MilestoneDetectorTests.swift */; };
 		95E824B5AFE0E9EC05B69796 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23938FC7537258BF99825D34 /* SubscriptionManager.swift */; };
+		96334C14AB19B94D8C657EA8 /* SharedBlockingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */; };
 		98E5E8593C99A15E131650F5 /* LevelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4C1AEA3C28CF1783ABC285 /* LevelManager.swift */; };
 		9A6ED158CE7BC2887429EA28 /* StreakCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C1A612B440EA95CF85CFC3 /* StreakCalculatorTests.swift */; };
 		9FBA6B7F9999B5585AD53407 /* DisruptionTagPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF7C0621890D9B2BA1E1B867 /* DisruptionTagPicker.swift */; };
@@ -117,18 +122,21 @@
 		B16FA25B02D6E682FD26F76D /* OnboardingBlockStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326C6A524B7E435AEFBC733E /* OnboardingBlockStepView.swift */; };
 		B71BAF307AE94E7F757B992B /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA7C2B1931FF61F897E9D5 /* ScheduleManager.swift */; };
 		BEE0E4218A2B05B59AE43BD1 /* PrivateRelayDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B6A1357D2A7DD5ED535A89 /* PrivateRelayDetectorTests.swift */; };
+		BF5E8E7C467FBA8BFF13E707 /* WebsiteBlockerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4993D70DDEC60E1E0906BDD0 /* WebsiteBlockerFactory.swift */; };
 		C0ACCB8949A0F59E0E89B965 /* MilestoneCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0EAB0E50C37F279150DB3F /* MilestoneCelebrationView.swift */; };
 		C2E5B3E3B85AAFC60ED41E60 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35A93E3659C0291BC02B305F /* SwiftUI.framework */; };
 		C32D273CA53713F48CF91BE3 /* WebsiteBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C630404612B8E32C1F00AE40 /* WebsiteBlockView.swift */; };
 		C4280A193EEBF3EA09989956 /* CategoryPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40C05F58859F3BA919A7989 /* CategoryPickerView.swift */; };
 		C70BB89B72BF36AF15AE26F3 /* GrowthBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B139C9C3012E75D03FDC5C8B /* GrowthBadgeView.swift */; };
 		C985076005296FE2831F3A8B /* ScheduleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE9A1DAFD3F44FA1FAA3EBF /* ScheduleListView.swift */; };
+		C9891C2006ECEB2C9F017026 /* NetworkExtensionBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFAF3A722ABD5237A6088ECA /* NetworkExtensionBlocker.swift */; };
 		CC9258593C8D0EBBFDFAFC4E /* TimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC929065CCF7442C450405B3 /* TimerViewModel.swift */; };
 		CDF704D151A76F2E52DDCFDD /* PomodoroEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180C8A945AD4A277828C840E /* PomodoroEngine.swift */; };
 		CEB9C18BF8A1043F1571E64D /* sns.json in Resources */ = {isa = PBXBuildFile; fileRef = 15F75BFF82366C1636A889B7 /* sns.json */; };
 		CEC321630E200B4AB1BB7507 /* LevelManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D81AB5E77FA5B8744A848FE /* LevelManagerTests.swift */; };
 		D173C2375D0F0703D8DDCC5A /* BlockingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85112EB9686823A2B6122971 /* BlockingCoordinator.swift */; };
 		D2C31AB753E47BCF2412F5C9 /* AppBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 450B8438A119A2575F0189EE /* AppBlocker.swift */; };
+		D537904AF50D5D71561E0B4C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A9B7BCA1FF03A464DDA27E2 /* NetworkExtension.framework */; };
 		D58A5C633F8088F68646AC57 /* StartProfileIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6C9A5FA07FDA21A3649A7 /* StartProfileIntent.swift */; };
 		D6D7B0746F05EE15EF11D1D4 /* IntentError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF7D56D1698BCDA2586838F /* IntentError.swift */; };
 		D8B8F365008E627ADB0A2347 /* FocusYouShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14EBD49CA44F30BB0A336F0 /* FocusYouShortcuts.swift */; };
@@ -155,6 +163,7 @@
 		F579C8650093BF13C6C37BCB /* ThemeCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE568A09278F59FE68649E8 /* ThemeCategoryTests.swift */; };
 		F584D136486258DED2131F8B /* ProfileSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E058BB97C22852109EC459F7 /* ProfileSelectorView.swift */; };
 		F6AFCE54B68AA4B083623DA1 /* PrivateRelayDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D987542C32F7CBC95E87758 /* PrivateRelayDetector.swift */; };
+		F867EEF1AF55000F6705F2FE /* FocusYouNetworkExtension.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 098F0434F61825C295421E1B /* FocusYouNetworkExtension.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F95FB7FF0C3B142DA5DB7455 /* HealthCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C570B657BE3B63BC19CE178A /* HealthCheckView.swift */; };
 		F9715E8F754EB4A8225ECF9F /* IntentionInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D06F5277739FECAF993061 /* IntentionInputView.swift */; };
 		FB9EF1038815DC0ED013E6B3 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */; };
@@ -177,6 +186,13 @@
 			remoteGlobalIDString = 3B11DCF9BCA8995179D4844C;
 			remoteInfo = FocusYouWidget;
 		};
+		CDB726AB7AEDC125C1D751A2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 997BDCD8634622E1B547779B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88F6D2E88A8B0D0BEB606E68;
+			remoteInfo = FocusYouNetworkExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -191,6 +207,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F979855328766FD84837AF5F /* Embed System Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				F867EEF1AF55000F6705F2FE /* FocusYouNetworkExtension.systemextension in Embed System Extensions */,
+			);
+			name = "Embed System Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -199,6 +226,7 @@
 		03C18891FC98729777E6DC5B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		06543CC24E71668ED5DF1111 /* QAAutomationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAAutomationController.swift; sourceTree = "<group>"; };
 		08D9E20C91ECBDB7EABC9A77 /* WebsiteBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlocker.swift; sourceTree = "<group>"; };
+		098F0434F61825C295421E1B /* FocusYouNetworkExtension.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = FocusYouNetworkExtension.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AB7D984FBAE86A04F3EE948 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		0CE4E866E69609429CD95A66 /* FocusYouWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYouWidget.entitlements; sourceTree = "<group>"; };
 		0D5A90BC6A22E426AA505880 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -237,6 +265,7 @@
 		38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedApp.swift; sourceTree = "<group>"; };
 		3872409A21D6005FF075487B /* AmbientSoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientSoundManager.swift; sourceTree = "<group>"; };
 		3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsViewModel.swift; sourceTree = "<group>"; };
+		3A9B7BCA1FF03A464DDA27E2 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		3AA379C0CC921A7E05C9277D /* FocusStatusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusStatusWidget.swift; sourceTree = "<group>"; };
 		3B1E3B9C5E7B0241190E3F29 /* QuoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteView.swift; sourceTree = "<group>"; };
 		3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ThemeCatalog.json; sourceTree = "<group>"; };
@@ -245,6 +274,7 @@
 		450B8438A119A2575F0189EE /* AppBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlocker.swift; sourceTree = "<group>"; };
 		45D8F5B55BA92E9BF24E8B70 /* LevelBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelBadgeView.swift; sourceTree = "<group>"; };
 		464D82FC7EC91990E5AABB51 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+		4993D70DDEC60E1E0906BDD0 /* WebsiteBlockerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlockerFactory.swift; sourceTree = "<group>"; };
 		4A795FB2157439131239D909 /* StartFocusIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartFocusIntent.swift; sourceTree = "<group>"; };
 		4B8C657F6C77F74714DFB770 /* MonthlyTrendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyTrendView.swift; sourceTree = "<group>"; };
 		4BCB748BAF713CB958EE56F7 /* ProfileViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModelTests.swift; sourceTree = "<group>"; };
@@ -286,6 +316,7 @@
 		8DB4C1B387452451633A4970 /* CancelIntensityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelIntensityTests.swift; sourceTree = "<group>"; };
 		91B73E45F668260BB9B96443 /* SharedDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDataProvider.swift; path = FocusYou/Services/Shared/SharedDataProvider.swift; sourceTree = "<group>"; };
 		923F7679B21AE4E12016F775 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouFilterDataProvider.swift; sourceTree = "<group>"; };
 		940DEEE65F8E319F78D5DB2E /* GrowthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthManager.swift; sourceTree = "<group>"; };
 		944A6E1949B015C2817CE009 /* HostsFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManager.swift; sourceTree = "<group>"; };
 		946DE288441FC826623C09C6 /* PrivilegedHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedHelper.swift; sourceTree = "<group>"; };
@@ -300,18 +331,22 @@
 		A40FE307AB295BA551D40575 /* HostsFileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileManagerTests.swift; sourceTree = "<group>"; };
 		A4BC8344A9F092E59A1ADDE6 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		A863ECA533CD25DD064FBE18 /* PieChartTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartTimerView.swift; sourceTree = "<group>"; };
+		AB76D53C51DD585CD177589B /* FocusYouNetworkExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYouNetworkExtension.entitlements; sourceTree = "<group>"; };
 		B0FE2AD6DA0B2F955173B52B /* FocusYouWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouWidgetBundle.swift; sourceTree = "<group>"; };
 		B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileBlocker.swift; sourceTree = "<group>"; };
 		B139C9C3012E75D03FDC5C8B /* GrowthBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthBadgeView.swift; sourceTree = "<group>"; };
 		B14EBD49CA44F30BB0A336F0 /* FocusYouShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouShortcuts.swift; sourceTree = "<group>"; };
+		B809334BD79336E1364C666A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		B87999382957A62F387E43D2 /* FocusYou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusYou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8F146962AE1C48075E7184D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B92F5C4C45461B9FCA6D4D16 /* StreakCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalculator.swift; sourceTree = "<group>"; };
 		B9A600D5B8F1C8C61B73A668 /* GetStreakIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetStreakIntent.swift; sourceTree = "<group>"; };
 		BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDashboardView.swift; sourceTree = "<group>"; };
+		BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedBlockingData.swift; path = FocusYou/Services/Shared/SharedBlockingData.swift; sourceTree = "<group>"; };
 		BC929065CCF7442C450405B3 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
 		BCE568A09278F59FE68649E8 /* ThemeCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCategoryTests.swift; sourceTree = "<group>"; };
 		C312B7EA2761D9416DA5FD8D /* BurnoutBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurnoutBannerView.swift; sourceTree = "<group>"; };
+		C34697CBEA3DA3B61268C6EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C533B73868E4737EA174FF83 /* AmbientSoundManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientSoundManagerTests.swift; sourceTree = "<group>"; };
 		C570B657BE3B63BC19CE178A /* HealthCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCheckView.swift; sourceTree = "<group>"; };
 		C6027FA4CDB573978CF895E0 /* FlowmodoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowmodoroEngine.swift; sourceTree = "<group>"; };
@@ -333,6 +368,7 @@
 		DACC6FDA249517349F623996 /* top-sites.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "top-sites.json"; sourceTree = "<group>"; };
 		DF71C7E4163B1A0467DA61CF /* ProfileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListView.swift; sourceTree = "<group>"; };
 		DF7C0621890D9B2BA1E1B867 /* DisruptionTagPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisruptionTagPicker.swift; sourceTree = "<group>"; };
+		DFAF3A722ABD5237A6088ECA /* NetworkExtensionBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkExtensionBlocker.swift; sourceTree = "<group>"; };
 		E058BB97C22852109EC459F7 /* ProfileSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSelectorView.swift; sourceTree = "<group>"; };
 		E1253C394407F81E88611851 /* PomodoroEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngineTests.swift; sourceTree = "<group>"; };
 		E3C65E5F7BA82264521F661C /* BlockingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockingCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -354,6 +390,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4B6877154EDCD5C089D6D2D7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D537904AF50D5D71561E0B4C /* NetworkExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF9F9B229DFF917A64EDB0C3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -403,6 +447,7 @@
 		09499013C254A12172B6364C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3A9B7BCA1FF03A464DDA27E2 /* NetworkExtension.framework */,
 				35A93E3659C0291BC02B305F /* SwiftUI.framework */,
 				03C18891FC98729777E6DC5B /* WidgetKit.framework */,
 			);
@@ -423,7 +468,9 @@
 				450B8438A119A2575F0189EE /* AppBlocker.swift */,
 				85112EB9686823A2B6122971 /* BlockingCoordinator.swift */,
 				B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */,
+				DFAF3A722ABD5237A6088ECA /* NetworkExtensionBlocker.swift */,
 				08D9E20C91ECBDB7EABC9A77 /* WebsiteBlocker.swift */,
+				4993D70DDEC60E1E0906BDD0 /* WebsiteBlockerFactory.swift */,
 			);
 			path = Blocking;
 			sourceTree = "<group>";
@@ -478,6 +525,7 @@
 			isa = PBXGroup;
 			children = (
 				1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */,
+				BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */,
 				91B73E45F668260BB9B96443 /* SharedDataProvider.swift */,
 			);
 			name = Shared;
@@ -549,6 +597,7 @@
 			isa = PBXGroup;
 			children = (
 				DADE62522368ED32B33C12BF /* FocusYou */,
+				566FCCE2568DFBC180BE9D54 /* FocusYouNetworkExtension */,
 				75E9FC3F0D99B7062021B117 /* FocusYouTests */,
 				AC7CB4629FC26F0B4BF4365F /* FocusYouWidget */,
 				2D1BB7479EEEE7AC76109042 /* Shared */,
@@ -573,6 +622,17 @@
 				16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		566FCCE2568DFBC180BE9D54 /* FocusYouNetworkExtension */ = {
+			isa = PBXGroup;
+			children = (
+				92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */,
+				AB76D53C51DD585CD177589B /* FocusYouNetworkExtension.entitlements */,
+				C34697CBEA3DA3B61268C6EC /* Info.plist */,
+				B809334BD79336E1364C666A /* main.swift */,
+			);
+			path = FocusYouNetworkExtension;
 			sourceTree = "<group>";
 		};
 		6998FB817D9FD74FE83CD201 /* Schedule */ = {
@@ -657,6 +717,7 @@
 			isa = PBXGroup;
 			children = (
 				B87999382957A62F387E43D2 /* FocusYou.app */,
+				098F0434F61825C295421E1B /* FocusYouNetworkExtension.systemextension */,
 				8B18D5DD185752CC322ECABF /* FocusYouTests.xctest */,
 				2F5CAF9C79BD2A16D6BD574A /* FocusYouWidget.appex */,
 			);
@@ -727,6 +788,7 @@
 		C3A54DAEAAFCAA3A7FEFA7AC /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */,
 				91B73E45F668260BB9B96443 /* SharedDataProvider.swift */,
 			);
 			path = Shared;
@@ -859,11 +921,13 @@
 				E66F2D9631CAD08E293838E9 /* Sources */,
 				959BC0AD0059AB96A309511A /* Resources */,
 				D8DB30BA62CEEA5D79081277 /* Embed Foundation Extensions */,
+				F979855328766FD84837AF5F /* Embed System Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				4090E17D31F1C60FEA53532D /* PBXTargetDependency */,
+				B2083F6F7393B5A2AD133C02 /* PBXTargetDependency */,
 			);
 			name = FocusYou;
 			packageProductDependencies = (
@@ -890,6 +954,24 @@
 			productName = FocusYouWidget;
 			productReference = 2F5CAF9C79BD2A16D6BD574A /* FocusYouWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		88F6D2E88A8B0D0BEB606E68 /* FocusYouNetworkExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF42FD635F45D4263026DCF6 /* Build configuration list for PBXNativeTarget "FocusYouNetworkExtension" */;
+			buildPhases = (
+				A53E57F18FAF1E8973872B8B /* Sources */,
+				4B6877154EDCD5C089D6D2D7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusYouNetworkExtension;
+			packageProductDependencies = (
+			);
+			productName = FocusYouNetworkExtension;
+			productReference = 098F0434F61825C295421E1B /* FocusYouNetworkExtension.systemextension */;
+			productType = "com.apple.product-type.system-extension";
 		};
 		F7DC7D451DB8CA8E2EA3303C /* FocusYouTests */ = {
 			isa = PBXNativeTarget;
@@ -926,6 +1008,10 @@
 						DevelopmentTeam = 9VRNY5PMG3;
 						ProvisioningStyle = Automatic;
 					};
+					88F6D2E88A8B0D0BEB606E68 = {
+						DevelopmentTeam = 9VRNY5PMG3;
+						ProvisioningStyle = Automatic;
+					};
 					F7DC7D451DB8CA8E2EA3303C = {
 						DevelopmentTeam = 9VRNY5PMG3;
 						ProvisioningStyle = Automatic;
@@ -948,6 +1034,7 @@
 			projectRoot = "";
 			targets = (
 				11C2220FF5EA37B4F5D3C6D1 /* FocusYou */,
+				88F6D2E88A8B0D0BEB606E68 /* FocusYouNetworkExtension */,
 				F7DC7D451DB8CA8E2EA3303C /* FocusYouTests */,
 				3B11DCF9BCA8995179D4844C /* FocusYouWidget */,
 			);
@@ -992,6 +1079,17 @@
 				EB9E98F1CA6DBD60741D7CCB /* FocusYouWidgetBundle.swift in Sources */,
 				84123164BCACB9F0F4047E9F /* SharedDataProvider.swift in Sources */,
 				655E7145022E7AE50BDD7119 /* StreakWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A53E57F18FAF1E8973872B8B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C2C5E1F2AF2555A9B43895A /* Constants.swift in Sources */,
+				27BFA9B8D275A6800F0FD80A /* FocusYouFilterDataProvider.swift in Sources */,
+				96334C14AB19B94D8C657EA8 /* SharedBlockingData.swift in Sources */,
+				5190DFB6A47A820A568F21F9 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1096,6 +1194,7 @@
 				C0ACCB8949A0F59E0E89B965 /* MilestoneCelebrationView.swift in Sources */,
 				EC57AD5A28CB83D383F96A5E /* MilestoneDetector.swift in Sources */,
 				13A51D7659A41EB161349892 /* MonthlyTrendView.swift in Sources */,
+				C9891C2006ECEB2C9F017026 /* NetworkExtensionBlocker.swift in Sources */,
 				53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */,
 				B16FA25B02D6E682FD26F76D /* OnboardingBlockStepView.swift in Sources */,
 				81AE3ACD125896D67A3B4BFB /* OnboardingReadyStepView.swift in Sources */,
@@ -1121,6 +1220,7 @@
 				B71BAF307AE94E7F757B992B /* ScheduleManager.swift in Sources */,
 				AD673288B15AB358371F2373 /* SettingsView.swift in Sources */,
 				0C931460D19EF4619274025C /* SettingsViewModel.swift in Sources */,
+				6598C637C9DE107BEE9F2226 /* SharedBlockingData.swift in Sources */,
 				067B53F305A6FBB0D379E68A /* SharedDataProvider.swift in Sources */,
 				A883424F847A12AD9F4DEB0B /* StarRatingView.swift in Sources */,
 				8BDF1C1D889BB8EA9FD1DBD4 /* StartFocusIntent.swift in Sources */,
@@ -1140,6 +1240,7 @@
 				09B21DC7AFA1496E66C315C3 /* View+Modifiers.swift in Sources */,
 				C32D273CA53713F48CF91BE3 /* WebsiteBlockView.swift in Sources */,
 				701555BB2CBB865246E9B5C6 /* WebsiteBlocker.swift in Sources */,
+				BF5E8E7C467FBA8BFF13E707 /* WebsiteBlockerFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1155,6 +1256,11 @@
 			isa = PBXTargetDependency;
 			target = 11C2220FF5EA37B4F5D3C6D1 /* FocusYou */;
 			targetProxy = 99412CFB162F429DC567E5A1 /* PBXContainerItemProxy */;
+		};
+		B2083F6F7393B5A2AD133C02 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88F6D2E88A8B0D0BEB606E68 /* FocusYouNetworkExtension */;
+			targetProxy = CDB726AB7AEDC125C1D751A2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1180,6 +1286,25 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		075BD42ABADD3F5BA3F511B0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusYouNetworkExtension/FocusYouNetworkExtension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusYouNetworkExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sungjh.focusyou.network-extension";
+				PRODUCT_NAME = FocusYouFilter;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
 		07F4D6E56B84B3439CF3849C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1192,6 +1317,25 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_NAME = "Focus You";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		22E916E113C28711509703E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusYouNetworkExtension/FocusYouNetworkExtension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusYouNetworkExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sungjh.focusyou.network-extension";
+				PRODUCT_NAME = FocusYouFilter;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -1461,6 +1605,15 @@
 			buildConfigurations = (
 				60A7F95FE30294F1290786E4 /* Debug */,
 				ABEE1BE6C51505BFE993DB0D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AF42FD635F45D4263026DCF6 /* Build configuration list for PBXNativeTarget "FocusYouNetworkExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				075BD42ABADD3F5BA3F511B0 /* Debug */,
+				22E916E113C28711509703E8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
