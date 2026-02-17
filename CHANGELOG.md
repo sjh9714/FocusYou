@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.1] - 2026-02-18
+
+### Fixed
+- GitHub Actions CI: CODE_SIGNING_ALLOWED=NO 추가 (서명 설정 이후 프로비저닝 프로파일 누락 해결).
+
 ## [2.1.0] - 2026-02-18
 
 ### Added
