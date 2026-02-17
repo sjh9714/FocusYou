@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.2] - 2026-02-18
+
+### Added
+- 테스트 커버리지 강화: 5개 테스트 파일, 37개 테스트 추가.
+  - WebsiteBlockerFactoryTests: 전략 생성, UserDefaults 폴백, 팩토리 패턴 검증.
+  - SharedBlockingDataTests: JSON 인코딩/디코딩, Sendable 검증.
+  - FocusYouErrorTests: 16개 에러 케이스 로컬라이제이션 + 연관값 검증.
+  - FocusSessionModelTests: 초기값, complete/cancel 상태 전이, 타임스탬프.
+  - AppStatePauseResumeTests: 일시정지/재개, 중복 시작 방지, 회고 저장, 에러 해제.
+
 ## [2.1.1] - 2026-02-18
 
 ### Fixed
