@@ -2,6 +2,39 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.0] - 2026-02-18
+
+### Added
+- Network Extension 인프라: App Store 배포용 웹사이트 차단 (NEFilterDataProvider).
+- WebsiteBlockerFactory: hosts ↔ NE 전략 패턴 전환 (설정에서 선택 가능).
+- SharedBlockingData: App Groups 기반 앱 ↔ NE 크로스 프로세스 통신.
+- StoreKit 2 통합: SubscriptionManager (구매/복원/트랜잭션 감시/영수증 검증).
+- 앱 시작 시 refreshEntitlements() 호출로 Pro 상태 실시간 동기화.
+
+### Fixed
+- Pro 게이팅 강화: 서비스 레이어에 Pro 체크 추가 (앰비언트 사운드, 캘린더 동기화, 차단 한도).
+- CalendarSync: off-actor SwiftData 변경을 @MainActor Task로 격리.
+- 세션 저장: complete()/cancel() 후 명시적 modelContext.save() 추가.
+- BlockingCoordinator: activateBlocking() 상태 가드 (이중 활성화 방지).
+- LaunchAgent 안전장치: sudo -n 실패 시 osascript 관리자 권한 fallback 추가.
+- 통계: 취소 세션을 총 집중 시간/일별 데이터/히트맵에서 제외.
+- startOfWeek: Calendar.firstWeekday 기반 로케일 대응.
+- 사운드 미리듣기: Task 참조 저장 + 취소 패턴 적용.
+- FreeTimer: 슬립/웨이크 옵저버 이중 디스패치 제거 (MainActor.assumeIsolated).
+- 뽀모도로: 마지막 사이클 후 불필요한 longBreak 제거.
+- PrivilegedHelper: 쉘 이스케이프 보강 (백틱/달러 문자).
+- BlockProfile.setAsDefault(): isDefault 유일성 보장 메서드 추가.
+- hasAutoOpenedDashboard를 AppDelegate로 이동 (static var → 인스턴스).
+- AppState 강참조를 AppDelegate에 저장 (씬 리빌드 시 해제 방지).
+
+### Changed
+- Apple Developer Program 서명 설정 + 번들 ID 정리.
+- NE 타겟 엔타이틀먼트 + 코드 서명 구성.
+
+### Testing
+- 123 tests, 0 failures.
+- PomodoroEngine 테스트 새 동작(마지막 longBreak 없음)에 맞게 업데이트.
+
 ## [2.0.1] - 2026-02-15
 
 ### Changed
