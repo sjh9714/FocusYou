@@ -1,7 +1,7 @@
 import SwiftUI
 import os
 
-private let logger = Logger(subsystem: "com.yourname.focusyou", category: "Retrospect")
+private let logger = Logger(subsystem: Constants.App.subsystem, category: "Retrospect")
 
 // MARK: - 회고 뷰 (v1.5 3-레벨 지원)
 // Level 1: 이모지 4개 선택

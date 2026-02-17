@@ -12,7 +12,7 @@
 - **앱 이름**: Focus You
   - App Store 부제: "Block Distractions & Focus Timer"
   - 대안: Focus on You
-- **번들 ID**: com.yourname.focusyou
+- **번들 ID**: com.sungjh.focusyou
 - **타겟**: macOS 14.0+ (Sonoma 이상)
 - **언어**: Swift 5.9+
 - **UI**: SwiftUI (AppKit 사용 최소화)
@@ -93,7 +93,7 @@ enum FocusYouError: LocalizedError {
 ### 로깅
 ```swift
 import os
-private let logger = Logger(subsystem: "com.yourname.focusyou", category: "Timer")
+private let logger = Logger(subsystem: "com.sungjh.focusyou", category: "Timer")
 // print() 금지, os.Logger 사용
 ```
 
