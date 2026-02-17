@@ -586,9 +586,9 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Text(String(localized: "settings_blocking_ne_restart_hint"))
+                Text(String(localized: "settings_blocking_ne_active_hint"))
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.secondary)
             } else {
                 Text(String(localized: "settings_blocking_hosts_description"))
                     .font(.caption)

@@ -60,7 +60,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.sungjh.focusyou.network-extension
         PRODUCT_NAME: "FocusYouFilter"
         INFOPLIST_FILE: FocusYouNetworkExtension/Info.plist
-        GENERATE_INFOPLIST_FILE: NO
+        GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_ENTITLEMENTS: FocusYouNetworkExtension/FocusYouNetworkExtension.entitlements
         DEVELOPMENT_TEAM: "9VRNY5PMG3"
         CODE_SIGN_IDENTITY: "Apple Development"

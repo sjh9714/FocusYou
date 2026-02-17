@@ -95,7 +95,7 @@ actor BlockingCoordinator {
                     isWebsiteBlockingActive = true
                 }
             } catch {
-                logger.error("웹사이트 차단 실패: \(error.localizedDescription)")
+                logger.error("웹사이트 차단 실패: \(error.localizedDescription, privacy: .public)")
                 let fallbackError: FocusYouError = usesNetworkExtension
                     ? .networkExtensionActivationFailed
                     : .hostsFileWriteFailed

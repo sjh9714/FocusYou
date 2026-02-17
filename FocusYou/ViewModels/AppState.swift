@@ -329,7 +329,7 @@ final class AppState {
             logger.info("집중 세션 시작 완료")
 
         } catch let error as FocusYouError {
-            logger.error("세션 시작 실패: \(error.localizedDescription)")
+            logger.error("세션 시작 실패: \(error.localizedDescription, privacy: .public)")
 
             if case .authorizationCancelled = error {
                 // 사용자가 비밀번호 입력을 취소한 경우 조용히 처리
@@ -338,7 +338,7 @@ final class AppState {
 
             presentError(error.localizedDescription)
         } catch {
-            logger.error("세션 시작 실패 (알 수 없는 에러): \(error.localizedDescription)")
+            logger.error("세션 시작 실패 (알 수 없는 에러): \(error.localizedDescription, privacy: .public)")
             presentError(error.localizedDescription)
         }
     }

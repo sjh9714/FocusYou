@@ -94,7 +94,7 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
             isExtensionInstalled = true
             logger.info("System Extension 재부팅 후 완료 예정")
         case .failed(let error):
-            logger.error("System Extension 설치 실패: \(error.localizedDescription)")
+            logger.error("System Extension 설치 실패: \(error.localizedDescription, privacy: .public)")
             throw FocusYouError.networkExtensionActivationFailed
         }
     }
