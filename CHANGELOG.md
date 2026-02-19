@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.3.0] - 2026-02-19
+
+### Changed
+- 대형 뷰 파일 5개를 17개 하위 컴포넌트로 분리 (CLAUDE.md "body 50줄 초과 시 분리" 가이드라인 준수).
+  - TimerView(1,142줄) → IdleContentView + FocusingContentView + CompletedContentView (삭제).
+  - MainDashboardView(1,335→1,021줄): DashboardStatsRowView, DashboardQuickActionsView, DashboardRecentSessionsView 추출.
+  - SettingsView(677→29줄): SettingsGeneralTabView, SettingsFocusTabView, SettingsIntegrationTabView, SettingsAdvancedTabView 분리.
+  - StatsView(408→176줄): StatsSummaryCardsView, StatsChartsView, StatsSessionHistoryView 추출.
+  - MenuBarView(328→236줄): 중복 에러/경고 패널 공유 컴포넌트로 교체.
+- 공유 컴포넌트 추가: ErrorPanelView, PrivateRelayWarningPanel (MainDashboardView/MenuBarView 중복 제거).
+- 순수 리팩토링 — 동작 변경 없음, 전체 282개 테스트 통과.
+
 ## [2.2.1] - 2026-02-19
 
 ### Added

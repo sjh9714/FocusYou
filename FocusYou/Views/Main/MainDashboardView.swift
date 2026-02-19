@@ -50,10 +50,10 @@ struct MainDashboardView: View {
             VStack(alignment: .leading, spacing: Constants.Design.spacingXL) {
                 header
                 if appState.showError {
-                    dashboardErrorPanel
+                    ErrorPanelView(bodyFont: .callout)
                 }
                 if appState.showPrivateRelayWarning {
-                    dashboardPrivateRelayPanel
+                    PrivateRelayWarningPanel(bodyFont: .callout)
                 }
                 heroCard
                 todayStatsRow
@@ -80,95 +80,6 @@ struct MainDashboardView: View {
         }
     }
 
-    // MARK: - 에러 패널
-
-    private var dashboardErrorPanel: some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
-            Label("오류", systemImage: "exclamationmark.triangle.fill")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(themeManager.stopButton)
-
-            Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-
-            HStack(spacing: Constants.Design.spacingSM) {
-                if appState.canRetryBlockingDeactivation {
-                    Button {
-                        Task {
-                            await appState.retryBlockingDeactivation()
-                        }
-                    } label: {
-                        Text("다시 시도")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .primaryActionStyle(color: themeManager.stopButton)
-                }
-
-                Button {
-                    appState.dismissError()
-                } label: {
-                    Text("닫기")
-                        .frame(maxWidth: .infinity)
-                }
-                .secondaryActionStyle(color: .secondary)
-            }
-        }
-        .frostedCard()
-        .overlay(
-            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
-                .stroke(themeManager.stopButton.opacity(0.15), lineWidth: 0.5)
-        )
-    }
-
-    // MARK: - Private Relay 경고 패널
-
-    private var dashboardPrivateRelayPanel: some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
-            Label(
-                "Private Relay가 Safari 차단을 우회 중",
-                systemImage: "exclamationmark.shield.fill"
-            )
-            .font(.callout.weight(.semibold))
-            .foregroundStyle(themeManager.warning)
-
-            Text("iCloud Private Relay가 켜져 있어 Safari에서 웹사이트 차단이 우회됩니다. 아래 방법 중 하나를 선택하세요.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
-                Label {
-                    Text("Chrome, Firefox 등에서는 정상 차단됩니다.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                } icon: {
-                    Image(systemName: "globe")
-                        .foregroundStyle(.secondary)
-                }
-
-                Button {
-                    appState.openPrivateRelaySettings()
-                } label: {
-                    Label("Private Relay 설정 열기", systemImage: "gear")
-                        .frame(maxWidth: .infinity)
-                }
-                .primaryActionStyle(color: themeManager.warning)
-            }
-
-            Button {
-                appState.dismissPrivateRelayWarning()
-            } label: {
-                Text("닫기")
-                    .frame(maxWidth: .infinity)
-            }
-            .secondaryActionStyle(color: .secondary)
-        }
-        .frostedCard()
-        .overlay(
-            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
-                .stroke(themeManager.warning.opacity(0.15), lineWidth: 0.5)
-        )
-    }
 
     // MARK: - 헤더
 
@@ -723,249 +634,24 @@ struct MainDashboardView: View {
     // MARK: - 오늘 통계
 
     private var todayStatsRow: some View {
-        HStack(spacing: Constants.Design.spacingMD) {
-            statCard(
-                icon: "timer",
-                color: themeManager.primary,
-                value: TimeInterval(todayFocusedSeconds).formattedAsReadable,
-                label: "오늘 집중 시간"
-            )
-            statCard(
-                icon: "chart.bar.fill",
-                color: themeManager.secondary,
-                value: String(localized: "\(todayCompletedPomodoroCount)회"),
-                label: "완료한 뽀모도로"
-            )
-            statCard(
-                icon: "checkmark.seal.fill",
-                color: themeManager.accent,
-                value: "\(todayCompletionRate)%",
-                label: "세션 완료율"
-            )
-            statCard(
-                icon: "flame.fill",
-                color: themeManager.warning,
-                value: String(localized: "\(currentStreakDays)일"),
-                label: "연속 집중"
-            )
-        }
-    }
-
-    private func statCard(
-        icon: String,
-        color: Color,
-        value: String,
-        label: String
-    ) -> some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
-            IconBadge(systemName: icon, color: color, size: 32)
-
-            Text(value)
-                .font(.title3.bold())
-                .foregroundStyle(color)
-
-            Text(LocalizedStringKey(label))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frostedCard()
+        DashboardStatsRowView(
+            focusedSeconds: todayFocusedSeconds,
+            completedPomodoroCount: todayCompletedPomodoroCount,
+            completionRate: todayCompletionRate,
+            streakDays: currentStreakDays
+        )
     }
 
     // MARK: - 퀵 액션 바
 
     private var quickActionsBar: some View {
-        HStack(spacing: Constants.Design.spacingMD) {
-            dashboardAction(title: "차단 목록", symbol: "list.bullet.rectangle", tint: themeManager.primary) {
-                openWindow(id: "block-list")
-            }
-            dashboardAction(title: "설정", symbol: "gearshape", tint: themeManager.accent) {
-                openWindow(id: "settings")
-            }
-
-            // 테마 퀵 피커
-            Button {
-                showThemePicker.toggle()
-            } label: {
-                HStack(spacing: Constants.Design.spacingSM) {
-                    Text(themeManager.selectedTheme.name)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
-
-                    HStack(spacing: 4) {
-                        Circle().fill(themeManager.primary).frame(width: 10, height: 10)
-                        Circle().fill(themeManager.secondary).frame(width: 10, height: 10)
-                        Circle().fill(themeManager.accent).frame(width: 10, height: 10)
-                    }
-
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
-            .popover(isPresented: $showThemePicker) {
-                themePickerPopover
-            }
-        }
+        DashboardQuickActionsView(showThemePicker: $showThemePicker)
     }
 
-    private func dashboardAction(
-        title: String,
-        symbol: String,
-        tint: Color,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Label(LocalizedStringKey(title), systemImage: symbol)
-                .font(.callout.weight(.semibold))
-                .frame(maxWidth: .infinity)
-        }
-        .secondaryActionStyle(color: tint)
-    }
-
-    // MARK: - 테마 피커 팝오버
-
-    private var themePickerPopover: some View {
-        VStack(spacing: 0) {
-            Text("테마 선택")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Constants.Design.spacingMD)
-                .padding(.vertical, Constants.Design.spacingSM)
-
-            Rectangle().fill(.quaternary).frame(height: 0.5)
-
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(themeManager.availableThemes) { theme in
-                        let isSelected = theme.id == themeManager.selectedThemeID
-
-                        Button {
-                            withAnimation(.quickEase) {
-                                themeManager.selectTheme(id: theme.id)
-                            }
-                        } label: {
-                            HStack(spacing: Constants.Design.spacingSM) {
-                                HStack(spacing: 2) {
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color(hex: theme.primaryHex))
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color(hex: theme.secondaryHex))
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color(hex: theme.accentHex))
-                                }
-                                .frame(width: 40, height: 12)
-                                .clipShape(RoundedRectangle(cornerRadius: 3))
-
-                                Text(theme.name)
-                                    .font(.callout)
-                                    .foregroundStyle(.primary)
-
-                                Spacer()
-
-                                if isSelected {
-                                    Image(systemName: "checkmark")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(Color(hex: theme.primaryHex))
-                                }
-                            }
-                            .padding(.horizontal, Constants.Design.spacingMD)
-                            .padding(.vertical, Constants.Design.spacingSM)
-                            .background(
-                                isSelected
-                                    ? Color(hex: theme.primaryHex).opacity(0.06)
-                                    : Color.clear
-                            )
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-        }
-        .frame(width: 220, height: 340)
-    }
-
-    // MARK: - 최근 세션 (테이블)
+    // MARK: - 최근 세션
 
     private var recentSessionsCard: some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
-            Text("오늘 세션")
-                .font(.headline)
-
-            if todaySessions.isEmpty {
-                HStack {
-                    Spacer()
-                    VStack(spacing: Constants.Design.spacingSM) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 28))
-                            .foregroundStyle(.tertiary)
-                        Text("아직 기록된 세션이 없습니다.")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, Constants.Design.spacingXL)
-                    Spacer()
-                }
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(todaySessions.prefix(8).enumerated()), id: \.element.id) { index, session in
-                        sessionRow(session, isEven: index.isMultiple(of: 2))
-                    }
-                }
-                .clipShape(RoundedRectangle(cornerRadius: Constants.Design.cornerMD))
-            }
-        }
-        .frostedCard()
-    }
-
-    private func sessionRow(_ session: FocusSession, isEven: Bool) -> some View {
-        HStack(spacing: Constants.Design.spacingMD) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(session.timerMode == "pomodoro" ? "뽀모도로" : session.timerMode == "flowmodoro" ? "플로우" : "자유"))
-                    .font(.callout.weight(.medium))
-
-                if let intention = session.intention, !intention.isEmpty {
-                    Text(intention)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-
-            Spacer()
-
-            if let emoji = session.retrospectEmoji {
-                Text(emoji)
-                    .font(.caption)
-            }
-
-            Text(TimeInterval(session.actualDuration).formattedAsReadable)
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
-
-            Text(LocalizedStringKey(session.wasCompleted ? "완료" : "중지"))
-                .font(.caption2.weight(.semibold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(
-                    session.wasCompleted
-                        ? themeManager.secondary.opacity(0.12)
-                        : themeManager.stopButton.opacity(0.1)
-                )
-                .foregroundStyle(
-                    session.wasCompleted ? themeManager.secondary : themeManager.stopButton
-                )
-                .clipShape(Capsule())
-        }
-        .padding(.horizontal, Constants.Design.spacingMD)
-        .padding(.vertical, Constants.Design.spacingSM)
-        .background(isEven ? Color.secondary.opacity(0.03) : Color.clear)
+        DashboardRecentSessionsView(todaySessions: todaySessions)
     }
 
     // MARK: - 데이터

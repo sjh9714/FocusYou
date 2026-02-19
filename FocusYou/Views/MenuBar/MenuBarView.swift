@@ -23,11 +23,11 @@ struct MenuBarView: View {
             headerView
 
             if appState.showError {
-                inlineErrorPanel
+                ErrorPanelView(bodyFont: .caption)
             }
 
             if appState.showPrivateRelayWarning {
-                privateRelayWarningPanel
+                PrivateRelayWarningPanel(bodyFont: .caption)
             }
 
             if let scheduleName = appState.activeScheduleName {
@@ -114,98 +114,6 @@ struct MenuBarView: View {
         .background(themeManager.primary.opacity(0.1))
         .foregroundStyle(themeManager.primary)
         .clipShape(Capsule())
-    }
-
-    // MARK: - 에러 패널
-
-    private var inlineErrorPanel: some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
-            Label("오류", systemImage: "exclamationmark.triangle.fill")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(themeManager.stopButton)
-
-            Text(appState.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            HStack(spacing: Constants.Design.spacingSM) {
-                if appState.canRetryBlockingDeactivation {
-                    Button {
-                        Task {
-                            await appState.retryBlockingDeactivation()
-                        }
-                    } label: {
-                        Text("다시 시도")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .primaryActionStyle(color: themeManager.stopButton)
-                }
-
-                Button {
-                    appState.dismissError()
-                } label: {
-                    Text("닫기")
-                        .frame(maxWidth: .infinity)
-                }
-                .secondaryActionStyle(color: .secondary)
-            }
-        }
-        .frostedCard()
-        .overlay(
-            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
-                .stroke(themeManager.stopButton.opacity(0.15), lineWidth: 0.5)
-        )
-    }
-
-    // MARK: - Private Relay 경고 패널
-
-    private var privateRelayWarningPanel: some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
-            Label(
-                "Private Relay가 Safari 차단을 우회 중",
-                systemImage: "exclamationmark.shield.fill"
-            )
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(themeManager.warning)
-
-            Text("iCloud Private Relay가 켜져 있어 Safari에서 웹사이트 차단이 우회됩니다. 아래 방법 중 하나를 선택하세요.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
-                // 1. 정보성 — 다른 브라우저 안내
-                Label {
-                    Text("Chrome, Firefox 등에서는 정상 차단됩니다.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } icon: {
-                    Image(systemName: "globe")
-                        .foregroundStyle(.secondary)
-                }
-
-                // 2. Private Relay 설정 열기
-                Button {
-                    appState.openPrivateRelaySettings()
-                } label: {
-                    Label("Private Relay 설정 열기", systemImage: "gear")
-                        .frame(maxWidth: .infinity)
-                }
-                .primaryActionStyle(color: themeManager.warning)
-            }
-
-            Button {
-                appState.dismissPrivateRelayWarning()
-            } label: {
-                Text("닫기")
-                    .frame(maxWidth: .infinity)
-            }
-            .secondaryActionStyle(color: .secondary)
-        }
-        .frostedCard()
-        .overlay(
-            RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
-                .stroke(themeManager.warning.opacity(0.15), lineWidth: 0.5)
-        )
     }
 
     // MARK: - 활성 스케줄 배너
