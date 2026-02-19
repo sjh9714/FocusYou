@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.3.1] - 2026-02-19
+
+### Changed
+- 뷰 리팩토링 2차: 나머지 대형 뷰 6개를 9개 하위 컴포넌트로 분리.
+  - MainDashboardView(1,022→168줄): DashboardIdleHeroView, DashboardActiveHeroView, DashboardCompletedHeroView 추출.
+  - FocusingContentView(454→185줄): FocusingStatusView, FocusingControlsView 추출.
+  - IdleContentView(421→282줄): IdleTimerConfigView 추출.
+  - ProfileEditorView(364→97줄): ProfileEditorFormSections 추출.
+  - PaywallView(351→168줄): PaywallContentView 추출.
+  - SettingsGeneralTabView(313→196줄): SettingsThemeSectionView 추출.
+- 순수 리팩토링 — 동작 변경 없음, 전체 123개 테스트 통과.
+
 ## [2.3.0] - 2026-02-19
 
 ### Changed
