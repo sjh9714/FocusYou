@@ -12,8 +12,8 @@ settings:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     PRODUCT_BUNDLE_IDENTIFIER: com.sungjh.focusyou
-    MARKETING_VERSION: "2.1.2"
-    CURRENT_PROJECT_VERSION: "19"
+    MARKETING_VERSION: "2.2.0"
+    CURRENT_PROJECT_VERSION: "20"
     GENERATE_INFOPLIST_FILE: YES
     INFOPLIST_KEY_LSUIElement: YES
     INFOPLIST_KEY_CFBundleDisplayName: "Focus You"
@@ -41,6 +41,7 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_APP_SANDBOX: NO
         INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "완료된 집중 세션을 Apple Calendar에 기록합니다."
     dependencies:
       - target: FocusYouWidget
         embed: true

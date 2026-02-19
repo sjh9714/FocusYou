@@ -6,6 +6,7 @@ import SwiftData
 struct ProfileEditorView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(LicenseManager.self) private var licenseManager
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: ProfileViewModel
 
@@ -22,7 +23,6 @@ struct ProfileEditorView: View {
                     iconSection
                     colorSection
                     timerSection
-                    blockingSection
                     cancelIntensitySection
                 }
                 .padding()
@@ -188,96 +188,45 @@ struct ProfileEditorView: View {
                 timerModeChip("플로우", mode: "flowmodoro")
             }
 
-            VStack(spacing: Constants.Design.spacingSM) {
-                timerRow(
-                    icon: "bolt.fill",
-                    title: "집중",
-                    value: $viewModel.editorFocusMinutes,
-                    range: 5...120,
-                    color: Color(hex: viewModel.editorColor)
-                )
-
-                if viewModel.editorTimerMode == "pomodoro" {
+            if viewModel.editorTimerMode == "flowmodoro" {
+                Text("집중이 끝나면 자동으로 휴식 시간이 계산됩니다.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            } else {
+                VStack(spacing: Constants.Design.spacingSM) {
                     timerRow(
-                        icon: "cup.and.saucer.fill",
-                        title: "짧은 휴식",
-                        value: $viewModel.editorBreakMinutes,
-                        range: 1...30,
-                        color: themeManager.secondary
-                    )
-                    timerRow(
-                        icon: "clock.fill",
-                        title: "긴 휴식",
-                        value: $viewModel.editorLongBreakMinutes,
-                        range: 5...45,
-                        color: themeManager.accent
-                    )
-                    timerRow(
-                        icon: "arrow.2.squarepath",
-                        title: "사이클",
-                        value: $viewModel.editorCycles,
-                        range: 2...8,
+                        icon: "bolt.fill",
+                        title: "집중",
+                        value: $viewModel.editorFocusMinutes,
+                        range: 5...120,
                         color: Color(hex: viewModel.editorColor)
                     )
-                }
-            }
-            .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
-        }
-    }
 
-    // MARK: - 차단 모드
-
-    private var blockingSection: some View {
-        VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
-            Text("차단 모드")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            HStack(spacing: Constants.Design.spacingSM) {
-                ChipButton(
-                    title: "차단 목록",
-                    isSelected: viewModel.editorBlocklistMode == "blocklist",
-                    color: Color(hex: viewModel.editorColor)
-                ) {
-                    withAnimation(.quickEase) {
-                        viewModel.editorBlocklistMode = "blocklist"
+                    if viewModel.editorTimerMode == "pomodoro" {
+                        timerRow(
+                            icon: "cup.and.saucer.fill",
+                            title: "짧은 휴식",
+                            value: $viewModel.editorBreakMinutes,
+                            range: 1...30,
+                            color: themeManager.secondary
+                        )
+                        timerRow(
+                            icon: "clock.fill",
+                            title: "긴 휴식",
+                            value: $viewModel.editorLongBreakMinutes,
+                            range: 5...45,
+                            color: themeManager.accent
+                        )
+                        timerRow(
+                            icon: "arrow.2.squarepath",
+                            title: "사이클",
+                            value: $viewModel.editorCycles,
+                            range: 2...8,
+                            color: Color(hex: viewModel.editorColor)
+                        )
                     }
                 }
-                ChipButton(
-                    title: "허용 목록",
-                    isSelected: viewModel.editorBlocklistMode == "allowlist",
-                    color: Color(hex: viewModel.editorColor)
-                ) {
-                    withAnimation(.quickEase) {
-                        viewModel.editorBlocklistMode = "allowlist"
-                    }
-                }
-            }
-
-            Text(
-                viewModel.editorBlocklistMode == "allowlist"
-                    ? "목록에 있는 사이트만 허용하고 나머지를 모두 차단합니다."
-                    : "목록에 있는 사이트만 차단합니다."
-            )
-            .font(.caption)
-            .foregroundStyle(.tertiary)
-
-            Toggle(isOn: $viewModel.editorIsHardcoreMode) {
-                HStack(spacing: 4) {
-                    Image(systemName: "lock.shield.fill")
-                        .font(.caption)
-                    Text("하드코어 모드")
-                        .font(.callout)
-                }
-            }
-            .toggleStyle(.switch)
-            .controlSize(.small)
-            .tint(Color(hex: viewModel.editorColor))
-
-            if viewModel.editorIsHardcoreMode {
-                Text("타이머 완료 전까지 차단을 해제할 수 없습니다.")
-                    .font(.caption)
-                    .foregroundStyle(themeManager.stopButton.opacity(0.8))
+                .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
             }
         }
     }
@@ -290,12 +239,11 @@ struct ProfileEditorView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            Picker("", selection: $viewModel.editorCancelIntensity) {
-                Text("기본").tag(0)
-                Text("강함").tag(1)
-                Text("하드코어").tag(2)
+            HStack(spacing: Constants.Design.spacingSM) {
+                cancelIntensityChip("기본", level: 0, proRequired: false)
+                cancelIntensityChip("강함", level: 1, proRequired: true)
+                cancelIntensityChip("하드코어", level: 2, proRequired: true)
             }
-            .pickerStyle(.segmented)
 
             switch viewModel.editorCancelIntensity {
             case 0:
@@ -355,6 +303,25 @@ struct ProfileEditorView: View {
         }
     }
 
+    private func cancelIntensityChip(_ title: String, level: Int, proRequired: Bool) -> some View {
+        let isBlocked = proRequired && licenseManager.requiresPro(feature: .hardcoreMode)
+        return HStack(spacing: 2) {
+            ChipButton(
+                title: title,
+                isSelected: viewModel.editorCancelIntensity == level,
+                color: Color(hex: viewModel.editorColor)
+            ) {
+                if isBlocked { return }
+                withAnimation(.quickEase) {
+                    viewModel.editorCancelIntensity = level
+                }
+            }
+            if isBlocked {
+                ProBadge()
+            }
+        }
+    }
+
     private func timerRow(
         icon: String,
         title: String,
@@ -388,6 +355,7 @@ struct ProfileEditorView: View {
 #Preview {
     ProfileEditorView(viewModel: ProfileViewModel())
         .environment(ThemeManager.shared)
+        .environment(LicenseManager.shared)
         .modelContainer(for: [
             BlockedSite.self, BlockedApp.self,
             BlockProfile.self, FocusSession.self,

@@ -51,9 +51,6 @@ final class BlockProfile {
     /// 차단 모드: "blocklist" (기본) 또는 "allowlist"
     var blocklistMode: String?
 
-    /// 하드코어 모드 (타이머 취소 불가)
-    var isHardcoreMode: Bool?
-
     /// 취소 강도 레벨 (0=기본, 1=강함, 2=하드코어)
     var cancelIntensity: Int?
 
@@ -82,7 +79,6 @@ final class BlockProfile {
         self.isDefault = false
         self.createdAt = .now
         self.blocklistMode = "blocklist"
-        self.isHardcoreMode = false
         self.cancelIntensity = 0
         self.cancelLockoutMinutes = 5
         self.schedules = []

@@ -75,6 +75,23 @@ final class AppState {
     var showPrivateRelayWarning = false
     private var privateRelayWarningDismissedThisSession = false
 
+    /// 현재 활성 스케줄 이름 (스케줄 자동 시작 시 설정, 중지/완료 시 nil)
+    private(set) var activeScheduleName: String?
+
+    /// 스케줄 종료 시각 (분 단위, 0~1439). 일시정지 후 재개 시 실시간 조정에 사용
+    private var scheduleEndMinuteOfDay: Int?
+
+    /// 중간 참여 가능한 진행 중 스케줄 (idle 상태에서 표시)
+    var pendingScheduleRejoin: PendingScheduleInfo?
+
+    /// 스케줄 재참여 정보
+    struct PendingScheduleInfo: Equatable {
+        let scheduleName: String
+        let profileID: PersistentIdentifier
+        let endMinuteOfDay: Int
+        let endTimeFormatted: String
+    }
+
     // MARK: - 취소 강도 (v1.3)
 
     private(set) var sessionStartedAt: Date?
@@ -323,11 +340,11 @@ final class AppState {
             // 5. 상태 전환
             focusState = .focusing
 
-            // 6. 앰비언트 사운드
-            await startAmbientSoundIfEnabled()
-
-            // 7. Widget 데이터 공유
+            // 6. Widget 데이터 공유
             updateSharedData()
+
+            // 7. Focus Mode 연동: 시스템 방해금지 활성화
+            await FocusModeController.shared.activateDND()
 
             logger.info("집중 세션 시작 완료")
 
@@ -349,11 +366,20 @@ final class AppState {
     // MARK: - 프로필 기반 원클릭 시작
 
     /// 프로필의 타이머 설정으로 즉시 세션 시작
+    /// - Parameters:
+    ///   - durationOverride: 스케줄에서 호출 시 남은 시간(초)으로 덮어쓰기
+    ///   - scheduleName: 스케줄에서 호출 시 스케줄 이름 (배너 표시용)
+    ///   - endMinuteOfDay: 스케줄 종료 시각 (분 단위, 재개 시 실시간 조정용)
     func startSessionFromProfile(
         _ profile: BlockProfile,
-        modelContext: ModelContext
+        modelContext: ModelContext,
+        durationOverride: TimeInterval? = nil,
+        scheduleName: String? = nil,
+        endMinuteOfDay: Int? = nil
     ) async {
         setActiveProfile(profile)
+        activeScheduleName = scheduleName
+        scheduleEndMinuteOfDay = endMinuteOfDay
 
         let mode: TimerMode = switch profile.timerMode {
         case "pomodoro": .pomodoro
@@ -368,10 +394,15 @@ final class AppState {
             cycles: profile.pomodoroCount
         )
 
-        let duration: TimeInterval = switch mode {
-        case .free: TimeInterval(profile.focusDuration)
-        case .pomodoro: TimeInterval(pomodoroConfig.focusMinutes * 60)
-        case .flowmodoro: Constants.Timer.flowmodoroMaxDuration
+        let duration: TimeInterval
+        if let override = durationOverride {
+            duration = override
+        } else {
+            duration = switch mode {
+            case .free: TimeInterval(profile.focusDuration)
+            case .pomodoro: TimeInterval(pomodoroConfig.focusMinutes * 60)
+            case .flowmodoro: Constants.Timer.flowmodoroMaxDuration
+            }
         }
 
         let profileSites = profile.blockedSites.filter(\.isEnabled)
@@ -402,16 +433,42 @@ final class AppState {
         guard focusState == .focusing else { return }
         timer.pause()
         focusState = .paused
-        Task { await pauseAmbientSound() }
         logger.info("세션 일시정지")
     }
 
     func resumeSession() {
         guard focusState == .paused else { return }
-        timer.resume()
+
+        // 스케줄 세션이면 남은 시간을 실시간으로 재계산 (초 단위 정밀도)
+        if let endMinute = scheduleEndMinuteOfDay {
+            let newRemaining = secondsUntilScheduleEnd(endMinuteOfDay: endMinute)
+            logger.info("스케줄 실시간 조정 재개: 남은 \(Int(newRemaining))초")
+            timer.resumeWithAdjustedRemaining(newRemaining)
+        } else {
+            timer.resume()
+        }
+
         focusState = .focusing
-        Task { await resumeAmbientSound() }
         logger.info("세션 재개")
+    }
+
+    /// 스케줄 종료까지 남은 시간 (초 단위 정밀도)
+    private func secondsUntilScheduleEnd(endMinuteOfDay: Int) -> TimeInterval {
+        let calendar = Calendar.current
+        let now = Date()
+        let currentSecond = calendar.component(.hour, from: now) * 3600
+            + calendar.component(.minute, from: now) * 60
+            + calendar.component(.second, from: now)
+        let endSecond = endMinuteOfDay * 60
+
+        let remaining: Int
+        if currentSecond < endSecond {
+            remaining = endSecond - currentSecond
+        } else {
+            // 자정 넘김
+            remaining = (24 * 3600 - currentSecond) + endSecond
+        }
+        return TimeInterval(max(remaining, 0))
     }
 
     // MARK: - 세션 중지 (취소)
@@ -424,7 +481,6 @@ final class AppState {
         // 타이머 정지
         let elapsed = Int(sessionElapsedDuration)
         timer.stop()
-        await stopAmbientSound()
 
         // 차단 해제
         await safelyDeactivateBlocking(
@@ -440,8 +496,16 @@ final class AppState {
         endPomodoroIfNeeded()
         resetCancelIntensityState()
 
+        // Focus Mode 연동: 시스템 방해금지 비활성화
+        await FocusModeController.shared.deactivateDND()
+
+        activeScheduleName = nil
+        scheduleEndMinuteOfDay = nil
         focusState = .idle
         updateSharedData()
+
+        // 스케줄 세션이었으면 즉시 재확인 → 재참여 배너 즉시 표시
+        ScheduleManager.shared.checkSchedulesNow()
     }
 
     // MARK: - 타이머 완료 처리
@@ -511,6 +575,7 @@ final class AppState {
                     currentSession = nil
                     timer.reset()
                     endPomodoroIfNeeded()
+                    await FocusModeController.shared.deactivateDND()
                     focusState = .idle
                     return
                 } else {
@@ -523,6 +588,7 @@ final class AppState {
                     currentSession = nil
                     timer.reset()
                     endPomodoroIfNeeded()
+                    await FocusModeController.shared.deactivateDND()
                     focusState = .idle
                     return
                 }
@@ -530,13 +596,6 @@ final class AppState {
 
             currentPomodoroPhase = nextPhase
             pomodoroCycleProgressText = String(localized: "pomodoro_cycle_progress \(nextPhase.cycleIndex) \(pomodoroEngine.configuration.cycles)")
-
-            // 뽀모도로 페이즈별 앰비언트 사운드 전환
-            if nextPhase.type == .focus {
-                await startAmbientSoundIfEnabled()
-            } else {
-                await stopAmbientSound()
-            }
 
             // completed 상태의 FreeTimer를 다음 페이즈 재시작을 위해 초기화
             timer.reset()
@@ -565,7 +624,6 @@ final class AppState {
         let focusElapsed = timer.elapsedTime
         logger.info("플로우모도로 집중 완료: \(Int(focusElapsed))초")
         timer.stop()
-        await stopAmbientSound()
 
         // 휴식 계산
         let breakDuration = flowmodoroEngine.finishFocusAndStartBreak(elapsed: focusElapsed)
@@ -620,11 +678,10 @@ final class AppState {
             configuration: pomodoroEngine.configuration
         )
 
-        // 1. 완료 알림 + 사운드 정지
+        // 1. 완료 알림
         await notificationService.sendTimerCompleted(
             duration: notificationDuration
         )
-        await stopAmbientSound()
 
         // 2. 차단 해제
         await safelyDeactivateBlocking(
@@ -668,7 +725,14 @@ final class AppState {
             checkMilestones(modelContext: context)
         }
 
-        // 6. 상태 전환
+        // 6. Focus Mode 연동: 시스템 방해금지 비활성화
+        await FocusModeController.shared.deactivateDND()
+
+        // 7. 스케줄 초기화
+        activeScheduleName = nil
+        scheduleEndMinuteOfDay = nil
+
+        // 8. 상태 전환
         focusState = .completed
     }
 
@@ -778,12 +842,36 @@ final class AppState {
     }
     #endif
 
+    /// 진행 중인 스케줄에 재참여
+    func rejoinPendingSchedule(modelContext: ModelContext) async {
+        guard let info = pendingScheduleRejoin else { return }
+
+        guard let profile = modelContext.model(for: info.profileID) as? BlockProfile else {
+            logger.warning("스케줄 재참여 실패: 프로필 찾을 수 없음")
+            return
+        }
+
+        let remainingSeconds = secondsUntilScheduleEnd(endMinuteOfDay: info.endMinuteOfDay)
+        logger.info("스케줄 '\(info.scheduleName, privacy: .public)' 재참여 — 남은 \(Int(remainingSeconds))초")
+
+        pendingScheduleRejoin = nil
+        await startSessionFromProfile(
+            profile,
+            modelContext: modelContext,
+            durationOverride: remainingSeconds,
+            scheduleName: info.scheduleName,
+            endMinuteOfDay: info.endMinuteOfDay
+        )
+    }
+
     /// 완료 상태에서 유휴로 복귀
     func resetToIdle() {
         timer.reset()
         endFlowmodoroIfNeeded()
         endPomodoroIfNeeded()
         resetCancelIntensityState()
+        activeScheduleName = nil
+        scheduleEndMinuteOfDay = nil
         lastCompletedMode = .free
         lastCompletedFocusDuration = 0
         lastCompletedPomodoroCycles = 0
@@ -862,34 +950,6 @@ final class AppState {
             previousLevel = newLevel
             logger.info("레벨업 감지: \(newLevel)")
         }
-    }
-
-    // MARK: - 앰비언트 사운드
-
-    private func startAmbientSoundIfEnabled() async {
-        let defaults = UserDefaults.standard
-        guard defaults.bool(forKey: Constants.Settings.enableAmbientSoundKey) else { return }
-        guard !LicenseManager.shared.requiresPro(feature: .ambientSound) else { return }
-
-        let trackRaw = defaults.string(forKey: Constants.Settings.ambientSoundTrackKey)
-            ?? Constants.Settings.ambientSoundTrackDefault
-        let volume = defaults.double(forKey: Constants.Settings.ambientSoundVolumeKey)
-        let track = AmbientSoundTrack(rawValue: trackRaw) ?? .whiteNoise
-        let effectiveVolume = volume > 0 ? Float(volume) : Float(Constants.Settings.ambientSoundVolumeDefault)
-
-        await AmbientSoundManager.shared.play(track: track, volume: effectiveVolume)
-    }
-
-    private func stopAmbientSound() async {
-        await AmbientSoundManager.shared.stop()
-    }
-
-    private func pauseAmbientSound() async {
-        await AmbientSoundManager.shared.pause()
-    }
-
-    private func resumeAmbientSound() async {
-        await AmbientSoundManager.shared.resume()
     }
 
     /// 차단 해제 재시도 (오류 UI의 재시도 버튼에서 호출)

@@ -10,6 +10,7 @@ struct FocusYouApp: App {
     @State private var themeManager: ThemeManager
     @State private var licenseManager: LicenseManager
     @State private var didBootstrap = false
+    @Environment(\.openWindow) private var openWindow
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     /// 모든 Scene에서 공유하는 단일 ModelContainer
@@ -72,21 +73,17 @@ struct FocusYouApp: App {
                     await SubscriptionManager.shared.loadProducts()
                     await SubscriptionManager.shared.listenForTransactionUpdates()
 
-                    // 스케줄 모니터링 시작 (v1.3)
+                    // 스케줄 매니저 설정 + 모니터링 시작 (v1.3)
+                    ScheduleManager.shared.configure(
+                        modelContext: modelContainer.mainContext,
+                        appState: appState
+                    )
                     if settingsViewModel.enableSchedule {
-                        ScheduleManager.shared.startMonitoring(
-                            modelContext: modelContainer.mainContext,
-                            appState: appState
-                        )
+                        ScheduleManager.shared.startMonitoring()
                     }
 
-                    // Focus Mode 감시 시작 (v1.4)
-                    if settingsViewModel.enableFocusMode {
-                        FocusModeObserver.shared.startObserving(
-                            appState: appState,
-                            modelContext: modelContainer.mainContext
-                        )
-                    }
+                    // 앱 시작 시 대시보드 자동 열기
+                    openWindow(id: "main-dashboard")
                 }
         } label: {
             HStack(spacing: 4) {
@@ -118,6 +115,7 @@ struct FocusYouApp: App {
                 .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 840, height: 620)
+        .defaultPosition(.top)
 
         // MARK: - 차단 목록 관리 윈도우
         Window("차단 목록 관리", id: "block-list") {
@@ -302,6 +300,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 } catch {
                     logger.error("앱 종료 시 차단 정리 실패: \(error.localizedDescription)")
                 }
+            }
+
+            group.addTask {
+                await FocusModeController.shared.deactivateDND()
             }
 
             group.addTask {

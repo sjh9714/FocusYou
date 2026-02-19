@@ -155,21 +155,13 @@ enum Constants {
 
         // 의도 입력 & 회고 (v1.1)
         static let showIntentionInputKey = "showIntentionInput"
-        static let showIntentionInputDefault = true
+        static let showIntentionInputDefault = false
         static let showRetrospectKey = "showRetrospect"
-        static let showRetrospectDefault = true
+        static let showRetrospectDefault = false
 
         // 회고 레벨 (v1.5)
         static let retrospectLevelKey = "retrospectLevel"
         static let retrospectLevelDefault = 1
-
-        // 앰비언트 사운드 (v1.2)
-        static let enableAmbientSoundKey = "enableAmbientSound"
-        static let enableAmbientSoundDefault = false
-        static let ambientSoundTrackKey = "ambientSoundTrack"
-        static let ambientSoundTrackDefault = "whiteNoise"
-        static let ambientSoundVolumeKey = "ambientSoundVolume"
-        static let ambientSoundVolumeDefault = 0.5
 
         // 로그인 시 자동 시작 (v1.2)
         static let launchAtLoginKey = "launchAtLogin"
@@ -187,15 +179,9 @@ enum Constants {
         static let enableFocusModeKey = "enableFocusMode"
         static let enableFocusModeDefault = false
 
-        // 앱 디밍 (v1.4)
-        static let enableAppDimmingKey = "enableAppDimming"
-        static let enableAppDimmingDefault = false
-        static let dimmingOpacityKey = "dimmingOpacity"
-        static let dimmingOpacityDefault = 0.3
-
         // 번아웃 방지 (v1.5)
         static let enableBurnoutWarningsKey = "enableBurnoutWarnings"
-        static let enableBurnoutWarningsDefault = true
+        static let enableBurnoutWarningsDefault = false
         static let burnoutDailyLimitHoursKey = "burnoutDailyLimitHours"
 
         // 앱 언어 설정
@@ -204,20 +190,11 @@ enum Constants {
 
         // 동기부여 명언 (v1.x)
         static let showMotivationQuotesKey = "showMotivationQuotes"
-        static let showMotivationQuotesDefault = true
+        static let showMotivationQuotesDefault = false
 
         // 차단 전략 (v2.0)
         static let blockingStrategyKey = "blockingStrategy"
         static let blockingStrategyDefault = "hosts"  // "hosts" | "networkExtension"
-    }
-
-    // MARK: - 사운드
-
-    enum Sound {
-        static let fadeInDuration: TimeInterval = 0.5
-        static let fadeOutDuration: TimeInterval = 0.5
-        static let sampleRate: Double = 44100
-        static let volumeRange: ClosedRange<Double> = 0.0...1.0
     }
 
     // MARK: - 취소 강도 (v1.3)

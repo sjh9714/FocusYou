@@ -25,7 +25,6 @@ final class ProfileViewModel {
 
     // v1.3 고급 차단 + 취소 강도 에디터 필드
     var editorBlocklistMode = "blocklist"
-    var editorIsHardcoreMode = false
     var editorCancelIntensity = 0
     var editorCancelLockoutMinutes = 5
 
@@ -51,7 +50,6 @@ final class ProfileViewModel {
         editorLongBreakMinutes = 15
         editorCycles = 4
         editorBlocklistMode = "blocklist"
-        editorIsHardcoreMode = false
         editorCancelIntensity = 0
         editorCancelLockoutMinutes = 5
         validationError = nil
@@ -70,7 +68,6 @@ final class ProfileViewModel {
         editorLongBreakMinutes = profile.longBreakDuration / 60
         editorCycles = profile.pomodoroCount
         editorBlocklistMode = profile.blocklistMode ?? "blocklist"
-        editorIsHardcoreMode = profile.isHardcoreMode ?? false
         editorCancelIntensity = profile.cancelIntensity ?? 0
         editorCancelLockoutMinutes = profile.cancelLockoutMinutes ?? 5
         validationError = nil
@@ -96,7 +93,6 @@ final class ProfileViewModel {
             existing.longBreakDuration = editorLongBreakMinutes * 60
             existing.pomodoroCount = editorCycles
             existing.blocklistMode = editorBlocklistMode
-            existing.isHardcoreMode = editorIsHardcoreMode
             existing.cancelIntensity = editorCancelIntensity
             existing.cancelLockoutMinutes = editorCancelLockoutMinutes
             logger.info("프로필 수정: \(trimmedName)")
@@ -108,7 +104,6 @@ final class ProfileViewModel {
             profile.longBreakDuration = editorLongBreakMinutes * 60
             profile.pomodoroCount = editorCycles
             profile.blocklistMode = editorBlocklistMode
-            profile.isHardcoreMode = editorIsHardcoreMode
             profile.cancelIntensity = editorCancelIntensity
             profile.cancelLockoutMinutes = editorCancelLockoutMinutes
             modelContext.insert(profile)

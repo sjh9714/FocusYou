@@ -17,23 +17,23 @@ struct PaywallView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: Constants.Design.spacingXL) {
-            // 헤더
-            headerSection
+        ScrollView {
+            VStack(spacing: Constants.Design.spacingXL) {
+                // 헤더
+                headerSection
 
-            // 기능 설명
-            featureSection
+                // 기능 설명
+                featureSection
 
-            // 가격
-            pricingSection
+                // 가격
+                pricingSection
 
-            // 버튼
-            actionSection
-
-            Spacer()
+                // 버튼
+                actionSection
+            }
+            .padding(Constants.Design.spacingXL)
         }
-        .padding(Constants.Design.spacingXL)
-        .frame(minWidth: 360, maxWidth: 360, minHeight: 480)
+        .frame(minWidth: 360, maxWidth: 360, minHeight: 480, maxHeight: 600)
         .task {
             await loadProducts()
         }
@@ -62,8 +62,8 @@ struct PaywallView: View {
     private var featureSection: some View {
         VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
             featureRow(icon: "infinity", text: "무제한 차단 / 타이머 / 프로필")
+            featureRow(icon: "brain.head.profile", text: "의도 입력 · 회고 · 동기부여 명언")
             featureRow(icon: "paintpalette.fill", text: "70+ 프리미엄 테마")
-            featureRow(icon: "speaker.wave.2.fill", text: "앰비언트 사운드")
             featureRow(icon: "chart.bar.fill", text: "고급 통계 + 히트맵")
             featureRow(icon: "calendar", text: "스케줄 · 캘린더 · Shortcuts")
             featureRow(icon: "square.and.arrow.up", text: "데이터 내보내기 (CSV/JSON)")
@@ -321,7 +321,6 @@ enum PaywallReason {
     private func proFeatureMessage(_ feature: LicenseManager.ProFeature) -> String {
         switch feature {
         case .overflow: return "Overflow 모드는 Pro 기능입니다."
-        case .ambientSound: return "앰비언트 사운드는 Pro 기능입니다."
         case .schedule: return "자동 스케줄은 Pro 기능입니다."
         case .keywordBlocking: return "키워드 차단은 Pro 기능입니다."
         case .allowlistMode: return "화이트리스트 모드는 Pro 기능입니다."
@@ -329,7 +328,6 @@ enum PaywallReason {
         case .focusModeIntegration: return "Focus Mode 연동은 Pro 기능입니다."
         case .shortcuts: return "Shortcuts 자동화는 Pro 기능입니다."
         case .calendarSync: return "캘린더 동기화는 Pro 기능입니다."
-        case .appDimming: return "앱 디밍은 Pro 기능입니다."
         case .dataExport: return "데이터 내보내기는 Pro 기능입니다."
         case .unlimitedBlocks: return "무제한 차단은 Pro 기능입니다."
         case .unlimitedTimer: return "무제한 타이머는 Pro 기능입니다."
@@ -337,6 +335,11 @@ enum PaywallReason {
         case .premiumThemes: return "프리미엄 테마는 Pro 기능입니다."
         case .advancedStats: return "고급 통계는 Pro 기능입니다."
         case .advancedRetrospect: return "상세 회고는 Pro 기능입니다."
+        case .intentionInput: return "의도 입력은 Pro 기능입니다."
+        case .motivationQuotes: return "동기부여 명언은 Pro 기능입니다."
+        case .retrospect: return "회고 기능은 Pro 기능입니다."
+        case .burnoutWarnings: return "번아웃 방지는 Pro 기능입니다."
+        case .networkExtension: return "Network Extension 차단은 Pro 기능입니다."
         }
     }
 }

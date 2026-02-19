@@ -61,6 +61,7 @@ struct IdleContentView: View {
                 timerDisplay
                 timerOptions
                 blockSummary
+                cancelIntensityPicker
                 startButton
                 profileQuickStart
             }
@@ -68,10 +69,18 @@ struct IdleContentView: View {
         .animation(.mediumEase, value: showIntentionInput)
         .onAppear {
             appState.ensureActiveProfile(in: profiles)
+            if let profile = activeProfile {
+                viewModel.loadFromProfile(profile)
+            }
             updateBurnoutBanner()
         }
         .onChange(of: profiles.count) { _, _ in
             appState.ensureActiveProfile(in: profiles)
+        }
+        .onChange(of: appState.activeProfileID) { _, _ in
+            if let profile = activeProfile {
+                viewModel.loadFromProfile(profile)
+            }
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(reason: .timerLimit)
@@ -109,18 +118,12 @@ struct IdleContentView: View {
     @ViewBuilder
     private var profileSelector: some View {
         if !profiles.isEmpty {
-            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
-                Text("현재 프로필")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-
-                HStack(spacing: Constants.Design.spacingSM) {
-                    ProfileSelectorView(
-                        profiles: profiles,
-                        activeProfile: activeProfile,
-                        onSelect: { appState.setActiveProfile($0) }
-                    )
-                }
+            HStack(spacing: Constants.Design.spacingSM) {
+                ProfileSelectorView(
+                    profiles: profiles,
+                    activeProfile: activeProfile,
+                    onSelect: { appState.setActiveProfile($0) }
+                )
             }
         }
     }
@@ -282,6 +285,41 @@ struct IdleContentView: View {
         }
     }
 
+    // MARK: - 취소 강도
+
+    private var cancelIntensityPicker: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingXS) {
+            Text("취소 강도")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+
+            HStack(spacing: Constants.Design.spacingSM) {
+                popoverIntensityChip("기본", level: 0, proRequired: false)
+                popoverIntensityChip("강함", level: 1, proRequired: true)
+                popoverIntensityChip("하드코어", level: 2, proRequired: true)
+            }
+        }
+    }
+
+    private func popoverIntensityChip(_ title: String, level: Int, proRequired: Bool) -> some View {
+        let isBlocked = proRequired && licenseManager.requiresPro(feature: .hardcoreMode)
+        return HStack(spacing: 2) {
+            ChipButton(
+                title: title,
+                isSelected: viewModel.cancelIntensity == level,
+                color: themeManager.primary
+            ) {
+                if isBlocked { return }
+                withAnimation(.quickEase) {
+                    viewModel.cancelIntensity = level
+                }
+            }
+            if isBlocked {
+                ProBadge()
+            }
+        }
+    }
+
     // MARK: - 시작 버튼
 
     private var startButton: some View {
@@ -312,7 +350,10 @@ struct IdleContentView: View {
                 modelContext: modelContext,
                 mode: viewModel.selectedMode.appStateMode,
                 pomodoroConfiguration: viewModel.pomodoroConfiguration,
-                intention: intention
+                intention: intention,
+                blocklistMode: viewModel.blocklistMode,
+                cancelIntensity: viewModel.cancelIntensity,
+                cancelLockoutMinutes: viewModel.cancelLockoutMinutes
             )
         }
         showIntentionInput = false

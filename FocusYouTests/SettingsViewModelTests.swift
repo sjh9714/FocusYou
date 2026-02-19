@@ -82,15 +82,15 @@ final class SettingsViewModelTests: XCTestCase {
     // MARK: - 의도 입력 & 회고 (v1.1)
 
     @MainActor
-    func testIntentionInputDefaultIsTrue() {
+    func testIntentionInputDefaultIsFalse() {
         let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertTrue(viewModel.showIntentionInput)
+        XCTAssertFalse(viewModel.showIntentionInput)
     }
 
     @MainActor
-    func testRetrospectDefaultIsTrue() {
+    func testRetrospectDefaultIsFalse() {
         let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertTrue(viewModel.showRetrospect)
+        XCTAssertFalse(viewModel.showRetrospect)
     }
 
     @MainActor
@@ -102,33 +102,6 @@ final class SettingsViewModelTests: XCTestCase {
         let second = SettingsViewModel(defaults: defaults)
         XCTAssertTrue(second.showIntentionInput)
         XCTAssertTrue(second.showRetrospect)
-    }
-
-    // MARK: - 앰비언트 사운드 (v1.2)
-
-    @MainActor
-    func testAmbientSoundDefaultsOff() {
-        let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertFalse(viewModel.enableAmbientSound)
-    }
-
-    @MainActor
-    func testAmbientSoundTrackDefaultIsWhiteNoise() {
-        let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertEqual(viewModel.ambientSoundTrack, "whiteNoise")
-    }
-
-    @MainActor
-    func testAmbientSoundVolumePersists() {
-        let first = SettingsViewModel(defaults: defaults)
-        first.enableAmbientSound = true
-        first.ambientSoundTrack = "brownNoise"
-        first.ambientSoundVolume = 0.8
-
-        let second = SettingsViewModel(defaults: defaults)
-        XCTAssertTrue(second.enableAmbientSound)
-        XCTAssertEqual(second.ambientSoundTrack, "brownNoise")
-        XCTAssertEqual(second.ambientSoundVolume, 0.8, accuracy: 0.01)
     }
 
     // MARK: - 로그인 시 자동 시작 (v1.2)
@@ -190,49 +163,6 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertTrue(second.enableFocusMode)
     }
 
-    // MARK: - 앱 디밍 (v1.4)
-
-    @MainActor
-    func testAppDimmingDefaultsOff() {
-        let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertFalse(viewModel.enableAppDimming)
-    }
-
-    @MainActor
-    func testAppDimmingPersists() {
-        let first = SettingsViewModel(defaults: defaults)
-        first.enableAppDimming = true
-
-        let second = SettingsViewModel(defaults: defaults)
-        XCTAssertTrue(second.enableAppDimming)
-    }
-
-    @MainActor
-    func testDimmingOpacityDefault() {
-        let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertEqual(viewModel.dimmingOpacity, 0.3, accuracy: 0.01)
-    }
-
-    @MainActor
-    func testDimmingOpacityPersists() {
-        let first = SettingsViewModel(defaults: defaults)
-        first.dimmingOpacity = 0.6
-
-        let second = SettingsViewModel(defaults: defaults)
-        XCTAssertEqual(second.dimmingOpacity, 0.6, accuracy: 0.01)
-    }
-
-    @MainActor
-    func testDimmingOpacityClampsToRange() {
-        let viewModel = SettingsViewModel(defaults: defaults)
-
-        viewModel.dimmingOpacity = 0.05  // below min
-        XCTAssertEqual(viewModel.dimmingOpacity, 0.1, accuracy: 0.01)
-
-        viewModel.dimmingOpacity = 0.95  // above max
-        XCTAssertEqual(viewModel.dimmingOpacity, 0.8, accuracy: 0.01)
-    }
-
     // MARK: - 회고 레벨 (v1.5)
 
     @MainActor
@@ -263,9 +193,9 @@ final class SettingsViewModelTests: XCTestCase {
     // MARK: - 번아웃 방지 (v1.5)
 
     @MainActor
-    func testBurnoutWarningsDefaultsOn() {
+    func testBurnoutWarningsDefaultsOff() {
         let viewModel = SettingsViewModel(defaults: defaults)
-        XCTAssertTrue(viewModel.enableBurnoutWarnings)
+        XCTAssertFalse(viewModel.enableBurnoutWarnings)
     }
 
     @MainActor

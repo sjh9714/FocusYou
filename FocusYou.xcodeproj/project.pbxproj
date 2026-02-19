@@ -25,7 +25,6 @@
 		0F8126B82C93A8E959F4D028 /* GetFocusStatusIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D500607035EFF066DD75B0FB /* GetFocusStatusIntent.swift */; };
 		0FE63215E95C413DF29917E1 /* PrivilegedHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946DE288441FC826623C09C6 /* PrivilegedHelper.swift */; };
 		1005C72E2A7CCC8F53BB8EDD /* TimerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F100A34A1240A3486B9F0AF3 /* TimerViewModelTests.swift */; };
-		11C2BB9C2C0F59530AB6DC30 /* AmbientSoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3872409A21D6005FF075487B /* AmbientSoundManager.swift */; };
 		13A51D7659A41EB161349892 /* MonthlyTrendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8C657F6C77F74714DFB770 /* MonthlyTrendView.swift */; };
 		171CEFFD2D465E8D0458DBD2 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC734DF4EC1E70CAE31C56C /* Badge.swift */; };
 		1BB0F58FE6391E2EBF22F1CD /* ThemeCatalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */; };
@@ -36,9 +35,7 @@
 		263BDD9E7FCD4EC6369B9BED /* TogglePauseIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E8393058B00270FBC46036 /* TogglePauseIntent.swift */; };
 		26503B0BE034CA5950A5CAC4 /* DateExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5788AA731034E1B0B38FFCAC /* DateExtensionsTests.swift */; };
 		27BFA9B8D275A6800F0FD80A /* FocusYouFilterDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */; };
-		27E7F760CFBD2BD1BFA7BF8D /* AppDimmingManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2B1F362137F026A5715243 /* AppDimmingManagerTests.swift */; };
 		30C0FF65BD1F205F44A5892A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1B83EE85B7DC9FF3FEBB1163 /* Localizable.strings */; };
-		329DB70044ED22A952351942 /* AmbientSoundManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C533B73868E4737EA174FF83 /* AmbientSoundManagerTests.swift */; };
 		32D098577DF7593ED6BF2A6D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD3B8E333EA7D156126F140 /* OnboardingView.swift */; };
 		3351FA1F9D1BD13995BF2EE5 /* BurnoutDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947FA166CCB72CE8E8A6DF61 /* BurnoutDetector.swift */; };
 		34887DBCFD9AAF7B06E90074 /* QAAutomationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06543CC24E71668ED5DF1111 /* QAAutomationController.swift */; };
@@ -62,7 +59,6 @@
 		5190DFB6A47A820A568F21F9 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B809334BD79336E1364C666A /* main.swift */; };
 		52C8F4F5D07DE64D0BC2D8D2 /* FreeTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28217721F7276AFF4B690021 /* FreeTimerTests.swift */; };
 		53A7AF430DAFF58E1ED9F800 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4BC8344A9F092E59A1ADDE6 /* NotificationService.swift */; };
-		557411DA8E7E4FF615A5A5BE /* AppDimmingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6293E924641E1C812686A922 /* AppDimmingManager.swift */; };
 		5B144903A9336475A9BBA5F9 /* ProBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0A920447BB7B9570357643 /* ProBadge.swift */; };
 		5B617E7022FAEB55D42E3F5D /* StreakCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92F5C4C45461B9FCA6D4D16 /* StreakCalculator.swift */; };
 		5C2C5E1F2AF2555A9B43895A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */; };
@@ -262,7 +258,6 @@
 		2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceSettingsTests.swift; sourceTree = "<group>"; };
 		2D987542C32F7CBC95E87758 /* PrivateRelayDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateRelayDetector.swift; sourceTree = "<group>"; };
 		2DA803F7E9CC8A9587829FB7 /* BlockListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListViewModel.swift; sourceTree = "<group>"; };
-		2F2B1F362137F026A5715243 /* AppDimmingManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDimmingManagerTests.swift; sourceTree = "<group>"; };
 		2F5CAF9C79BD2A16D6BD574A /* FocusYouWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FocusYouWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F8D0C218955057103C90B23 /* FocusModeObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusModeObserverTests.swift; sourceTree = "<group>"; };
 		30E6DFD80D03E1A5CAB85934 /* ScheduleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEditorView.swift; sourceTree = "<group>"; };
@@ -270,7 +265,6 @@
 		3458C9D980FB8322FDFD3AFA /* StarRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingView.swift; sourceTree = "<group>"; };
 		35A93E3659C0291BC02B305F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		38061ABC655A0BAEA2FC22D5 /* BlockedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedApp.swift; sourceTree = "<group>"; };
-		3872409A21D6005FF075487B /* AmbientSoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientSoundManager.swift; sourceTree = "<group>"; };
 		3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsViewModel.swift; sourceTree = "<group>"; };
 		3A9B7BCA1FF03A464DDA27E2 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		3AA379C0CC921A7E05C9277D /* FocusStatusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusStatusWidget.swift; sourceTree = "<group>"; };
@@ -300,7 +294,6 @@
 		5F591BC59259AC45E8F15287 /* BlockListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListView.swift; sourceTree = "<group>"; };
 		5F92EF3F0D769BA152F06795 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5FA2982F421866F4409537C2 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		6293E924641E1C812686A922 /* AppDimmingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDimmingManager.swift; sourceTree = "<group>"; };
 		6815114D2A30CB27EED1B552 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensionsTests.swift; sourceTree = "<group>"; };
 		72EA9A639375CA3DDA78D63E /* BlockedSite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedSite.swift; sourceTree = "<group>"; };
@@ -356,7 +349,6 @@
 		BCE568A09278F59FE68649E8 /* ThemeCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCategoryTests.swift; sourceTree = "<group>"; };
 		C312B7EA2761D9416DA5FD8D /* BurnoutBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurnoutBannerView.swift; sourceTree = "<group>"; };
 		C34697CBEA3DA3B61268C6EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		C533B73868E4737EA174FF83 /* AmbientSoundManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientSoundManagerTests.swift; sourceTree = "<group>"; };
 		C570B657BE3B63BC19CE178A /* HealthCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthCheckView.swift; sourceTree = "<group>"; };
 		C6027FA4CDB573978CF895E0 /* FlowmodoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowmodoroEngine.swift; sourceTree = "<group>"; };
 		C630404612B8E32C1F00AE40 /* WebsiteBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlockView.swift; sourceTree = "<group>"; };
@@ -431,7 +423,6 @@
 				D732453E86600ADEDE972B29 /* QA */,
 				6998FB817D9FD74FE83CD201 /* Schedule */,
 				C3A54DAEAAFCAA3A7FEFA7AC /* Shared */,
-				A5C9FA9EF6FAAE4D1CE3E8A4 /* Sound */,
 				B7BE72A98CA1ADE82E3E2B46 /* Subscription */,
 				CB790705D4444445C4EA1AC1 /* System */,
 				E04CB4A0A5FB24AEBB379205 /* Theme */,
@@ -665,8 +656,6 @@
 			isa = PBXGroup;
 			children = (
 				9C3A7A073ECA80A7AC14C4EE /* AdvancedBlockingTests.swift */,
-				C533B73868E4737EA174FF83 /* AmbientSoundManagerTests.swift */,
-				2F2B1F362137F026A5715243 /* AppDimmingManagerTests.swift */,
 				10D20BB90F65F7F72E1920A9 /* AppIntentsTests.swift */,
 				5B194AB28333746A3DB3700A /* AppStateLifecycleTests.swift */,
 				437575C0CD3CF7B18E0EB585 /* AppStatePauseResumeTests.swift */,
@@ -737,14 +726,6 @@
 				2F5CAF9C79BD2A16D6BD574A /* FocusYouWidget.appex */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		A5C9FA9EF6FAAE4D1CE3E8A4 /* Sound */ = {
-			isa = PBXGroup;
-			children = (
-				3872409A21D6005FF075487B /* AmbientSoundManager.swift */,
-			);
-			path = Sound;
 			sourceTree = "<group>";
 		};
 		AC7CB4629FC26F0B4BF4365F /* FocusYouWidget */ = {
@@ -836,7 +817,6 @@
 		CB790705D4444445C4EA1AC1 /* System */ = {
 			isa = PBXGroup;
 			children = (
-				6293E924641E1C812686A922 /* AppDimmingManager.swift */,
 				56C2057280949E9F448AE711 /* DNSManager.swift */,
 				758F6B2813BD5B07F87D81BD /* FocusModeObserver.swift */,
 				944A6E1949B015C2817CE009 /* HostsFileManager.swift */,
@@ -1113,8 +1093,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1FDBEB042B98CAF64D74DD31 /* AdvancedBlockingTests.swift in Sources */,
-				329DB70044ED22A952351942 /* AmbientSoundManagerTests.swift in Sources */,
-				27E7F760CFBD2BD1BFA7BF8D /* AppDimmingManagerTests.swift in Sources */,
 				A722E369B6246F990F00E074 /* AppIntentsTests.swift in Sources */,
 				1BC78B25D051B7ABF492A96B /* AppStateLifecycleTests.swift in Sources */,
 				0D5634A394AD93E4F6CBF0DF /* AppStatePauseResumeTests.swift in Sources */,
@@ -1159,10 +1137,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				11C2BB9C2C0F59530AB6DC30 /* AmbientSoundManager.swift in Sources */,
 				73628EED32AED64A1B16570F /* AppBlockView.swift in Sources */,
 				D2C31AB753E47BCF2412F5C9 /* AppBlocker.swift in Sources */,
-				557411DA8E7E4FF615A5A5BE /* AppDimmingManager.swift in Sources */,
 				4FB41B1C5FBF2C017A37A7EF /* AppState.swift in Sources */,
 				E80B9AF3714F10EB751A1EAD /* AppTheme.swift in Sources */,
 				171CEFFD2D465E8D0458DBD2 /* Badge.swift in Sources */,
@@ -1337,6 +1313,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "완료된 집중 세션을 Apple Calendar에 기록합니다.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1377,6 +1354,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "완료된 집중 세션을 Apple Calendar에 기록합니다.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1447,7 +1425,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;
@@ -1472,7 +1450,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1562,7 +1540,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;
@@ -1581,7 +1559,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.2.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sungjh.focusyou;

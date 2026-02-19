@@ -2,6 +2,32 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.2.0] - 2026-02-19
+
+### Added
+- 스케줄 시스템 고도화:
+  - 스케줄 세션 시 남은 시간 자동 계산 (프로필 기본값 대신 스케줄 종료까지 남은 시간 사용).
+  - 일시정지 후 재개 시 실시간 조정 (초 단위 정밀도, 실제 집중 시간만 기록).
+  - 세션 중지 후 재참여 배너 즉시 표시 (스케줄 진행 중이면 "참여하기" 버튼).
+  - 활성 스케줄 배너 표시 (팝오버/대시보드).
+- FreeTimer: `resumeWithAdjustedRemaining(_:)` — 스케줄 세션 실시간 재개.
+- FocusModeObserver 확장: 시스템 Focus Mode 상태 감지 강화.
+- SubscriptionManager: 영수증 재검증 개선.
+
+### Removed
+- AmbientSoundManager 제거 (앱 차단과 기능 중복, 향후 재설계 예정).
+- AppDimmingManager 제거 (앱 terminate 방식과 중복).
+- 관련 설정 UI, 상수, 테스트 일괄 정리.
+
+### Changed
+- ScheduleManager: 분 단위 → 초 단위 정밀도로 남은 시간 계산 개선.
+- MainDashboardView: 스케줄 배너/재참여 배너 UI 추가.
+- MenuBarView: 스케줄 배너/재참여 배너 UI 추가.
+- TimerView: 스케줄 세션 표시 개선.
+- SettingsView: 앰비언트 사운드/앱 디밍 섹션 제거.
+- ProfileEditorView: UI 정리.
+- ScheduleEditorView: UI 개선.
+
 ## [2.1.2] - 2026-02-18
 
 ### Added

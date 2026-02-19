@@ -20,11 +20,16 @@ struct MainDashboardView: View {
     @State private var customFreeMinutes: Double = Double(Constants.Timer.presets.first ?? 25)
     @State private var selectedFreePreset: Int? = Constants.Timer.presets.first ?? 25
     @State private var pomodoroConfiguration: PomodoroConfiguration = .default
+    @State private var cancelIntensity: Int = 0
+    @State private var cancelLockoutMinutes: Int = 5
+    @State private var blocklistMode: String = "blocklist"
     @State private var isSessionActionInFlight = false
+    @State private var showDashStopConfirmation = false
     @State private var showThemePicker = false
     @State private var showDashIntentionInput = false
     @State private var dashIntentionText = ""
     @State private var dashRetrospectCompleted = false
+    @State private var dashFocusQuote: QuoteEntry?
     @State private var showDashPaywall = false
     @Namespace private var dashModeNamespace
 
@@ -61,9 +66,13 @@ struct MainDashboardView: View {
         .animation(.quickEase, value: appState.showPrivateRelayWarning)
         .onAppear {
             appState.ensureActiveProfile(in: profiles)
+            loadProfileTimerSettings()
         }
         .onChange(of: profiles.count) { _, _ in
             appState.ensureActiveProfile(in: profiles)
+        }
+        .onChange(of: appState.activeProfileID) { _, _ in
+            loadProfileTimerSettings()
         }
         .sheet(isPresented: $showDashPaywall) {
             PaywallView(reason: .timerLimit)
@@ -208,6 +217,10 @@ struct MainDashboardView: View {
     // 유휴 → 빠른 시작 CTA
     private var idleHero: some View {
         VStack(alignment: .leading, spacing: Constants.Design.spacingLG) {
+            if let rejoinInfo = appState.pendingScheduleRejoin {
+                dashScheduleRejoinBanner(rejoinInfo)
+            }
+
             HStack(spacing: Constants.Design.spacingSM) {
                 IconBadge(systemName: "bolt.fill", color: themeManager.primary, size: 36)
                 Text("새 세션 시작")
@@ -259,6 +272,8 @@ struct MainDashboardView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity)
+
+            dashCancelIntensityPicker
 
             if showDashIntentionInput {
                 dashIntentionInputSection
@@ -471,6 +486,41 @@ struct MainDashboardView: View {
         .frame(maxWidth: .infinity)
     }
 
+    // MARK: - 취소 강도
+
+    private var dashCancelIntensityPicker: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingXS) {
+            Text("취소 강도")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+
+            HStack(spacing: Constants.Design.spacingSM) {
+                dashIntensityChip("기본", level: 0, proRequired: false)
+                dashIntensityChip("강함", level: 1, proRequired: true)
+                dashIntensityChip("하드코어", level: 2, proRequired: true)
+            }
+        }
+    }
+
+    private func dashIntensityChip(_ title: String, level: Int, proRequired: Bool) -> some View {
+        let isBlocked = proRequired && licenseManager.requiresPro(feature: .hardcoreMode)
+        return HStack(spacing: 2) {
+            ChipButton(
+                title: title,
+                isSelected: cancelIntensity == level,
+                color: themeManager.primary
+            ) {
+                if isBlocked { return }
+                withAnimation(.quickEase) {
+                    cancelIntensity = level
+                }
+            }
+            if isBlocked {
+                ProBadge()
+            }
+        }
+    }
+
     private var startButtonTitle: String {
         switch quickStartMode {
         case .free:
@@ -483,7 +533,12 @@ struct MainDashboardView: View {
     }
 
     // 진행 중 → 라이브 타이머
+    @ViewBuilder
     private var activeHero: some View {
+        if let scheduleName = appState.activeScheduleName {
+            dashScheduleBanner(scheduleName)
+        }
+
         HStack(spacing: Constants.Design.spacingXL) {
             VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
                 Text(statusTitle)
@@ -514,47 +569,39 @@ struct MainDashboardView: View {
                     .foregroundStyle(.secondary)
                 }
 
-                HStack(spacing: Constants.Design.spacingSM) {
-                    if isDashFlowmodoroFocus {
-                        Button {
-                            finishFlowmodoroFromDashboard()
-                        } label: {
-                            Label("집중 완료", systemImage: "checkmark.circle.fill")
-                        }
-                        .primaryActionStyle(color: themeManager.primary)
-                        .disabled(isSessionActionInFlight)
-
-                        Button {
-                            stopSessionFromDashboard()
-                        } label: {
-                            Label("취소", systemImage: "xmark")
-                        }
-                        .secondaryActionStyle(color: themeManager.stopButton)
-                        .disabled(isSessionActionInFlight)
-                    } else {
-                        Button {
-                            if appState.focusState == .paused {
-                                appState.resumeSession()
-                            } else {
-                                appState.pauseSession()
+                if showDashStopConfirmation {
+                    dashStopConfirmation
+                } else {
+                    HStack(spacing: Constants.Design.spacingSM) {
+                        if isDashFlowmodoroFocus {
+                            Button {
+                                finishFlowmodoroFromDashboard()
+                            } label: {
+                                Label("집중 완료", systemImage: "checkmark.circle.fill")
                             }
-                        } label: {
-                            Label(
-                                LocalizedStringKey(appState.focusState == .paused ? "재개" : "일시정지"),
-                                systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
-                            )
+                            .primaryActionStyle(color: themeManager.primary)
+                            .disabled(isSessionActionInFlight)
+                        } else {
+                            Button {
+                                if appState.focusState == .paused {
+                                    appState.resumeSession()
+                                } else {
+                                    appState.pauseSession()
+                                }
+                            } label: {
+                                Label(
+                                    LocalizedStringKey(appState.focusState == .paused ? "재개" : "일시정지"),
+                                    systemImage: appState.focusState == .paused ? "play.fill" : "pause.fill"
+                                )
+                            }
+                            .secondaryActionStyle(color: themeManager.pauseButton)
+                            .disabled(isSessionActionInFlight)
                         }
-                        .secondaryActionStyle(color: themeManager.pauseButton)
-                        .disabled(isSessionActionInFlight)
 
-                        Button {
-                            stopSessionFromDashboard()
-                        } label: {
-                            Label("중지", systemImage: "stop.fill")
-                        }
-                        .secondaryActionStyle(color: themeManager.stopButton)
-                        .disabled(isSessionActionInFlight)
+                        dashCancelButton
                     }
+
+                    dashCancelLockoutBadge
                 }
             }
 
@@ -576,6 +623,35 @@ struct MainDashboardView: View {
             RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
                 .stroke(themeManager.primary.opacity(0.15), lineWidth: 0.5)
         )
+        .onAppear {
+            if settingsViewModel.showMotivationQuotes {
+                dashFocusQuote = QuoteService.randomQuote()
+            }
+        }
+
+        if settingsViewModel.showMotivationQuotes, let quote = dashFocusQuote {
+            HStack(spacing: Constants.Design.spacingSM) {
+                Image(systemName: "quote.opening")
+                    .font(.caption2)
+                    .foregroundStyle(themeManager.accent.opacity(0.6))
+
+                Text(quote.text)
+                    .font(.caption.italic())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+
+                Text("— \(quote.author)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frostedCard()
+            .onTapGesture {
+                withAnimation(.quickEase) {
+                    dashFocusQuote = QuoteService.randomQuote()
+                }
+            }
+        }
     }
 
     // 완료 → 축하
@@ -931,6 +1007,25 @@ struct MainDashboardView: View {
         StreakCalculator.calculate(from: sessions).current
     }
 
+    // MARK: - 프로필 동기화
+
+    private func loadProfileTimerSettings() {
+        guard let profile = activeProfile else { return }
+        quickStartMode = AppState.TimerMode(rawValue: profile.timerMode) ?? .free
+        let focusMinutes = profile.focusDuration / 60
+        selectedFreePreset = Constants.Timer.presets.contains(focusMinutes) ? focusMinutes : nil
+        customFreeMinutes = Double(focusMinutes)
+        pomodoroConfiguration = PomodoroConfiguration(
+            focusMinutes: focusMinutes,
+            shortBreakMinutes: profile.breakDuration / 60,
+            longBreakMinutes: profile.longBreakDuration / 60,
+            cycles: profile.pomodoroCount
+        )
+        cancelIntensity = profile.cancelIntensity ?? 0
+        cancelLockoutMinutes = profile.cancelLockoutMinutes ?? 5
+        blocklistMode = profile.blocklistMode ?? "blocklist"
+    }
+
     // MARK: - 세션 액션
 
     private func startSessionFromDashboard(intention: String? = nil) {
@@ -955,7 +1050,10 @@ struct MainDashboardView: View {
                 modelContext: modelContext,
                 mode: quickStartMode,
                 pomodoroConfiguration: pomodoroConfiguration,
-                intention: intention
+                intention: intention,
+                blocklistMode: blocklistMode,
+                cancelIntensity: cancelIntensity,
+                cancelLockoutMinutes: cancelLockoutMinutes
             )
             isSessionActionInFlight = false
             showDashIntentionInput = false
@@ -980,7 +1078,189 @@ struct MainDashboardView: View {
         Task { @MainActor in
             await appState.stopSession(modelContext: modelContext)
             isSessionActionInFlight = false
+            showDashStopConfirmation = false
         }
+    }
+
+    // MARK: - 취소 강도별 버튼 (대시보드)
+
+    @ViewBuilder
+    private var dashCancelButton: some View {
+        switch appState.currentCancelIntensity {
+        case 2:
+            if appState.isEmergencyUnlockActive {
+                dashEmergencyUnlockView
+            } else {
+                Button {
+                    appState.requestEmergencyUnlock()
+                } label: {
+                    Label("비상 해제", systemImage: "exclamationmark.shield.fill")
+                }
+                .secondaryActionStyle(color: themeManager.stopButton)
+                .disabled(appState.emergencyUnlockUsedToday || isSessionActionInFlight)
+            }
+        case 1:
+            Button {
+                showDashStopConfirmation = true
+            } label: {
+                Label("중지", systemImage: "stop.fill")
+            }
+            .secondaryActionStyle(color: themeManager.stopButton)
+            .disabled(!appState.canCancel || isSessionActionInFlight)
+        default:
+            Button {
+                showDashStopConfirmation = true
+            } label: {
+                Label("중지", systemImage: "stop.fill")
+            }
+            .secondaryActionStyle(color: themeManager.stopButton)
+            .disabled(isSessionActionInFlight)
+        }
+    }
+
+    private var dashStopConfirmation: some View {
+        VStack(spacing: Constants.Design.spacingSM) {
+            Text("집중을 중지하시겠습니까?")
+                .font(.callout.weight(.medium))
+
+            HStack(spacing: Constants.Design.spacingSM) {
+                Button {
+                    showDashStopConfirmation = false
+                } label: {
+                    Label("계속 집중", systemImage: "play.fill")
+                }
+                .secondaryActionStyle(color: themeManager.primary)
+
+                Button {
+                    stopSessionFromDashboard()
+                } label: {
+                    Label("중지", systemImage: "stop.fill")
+                }
+                .primaryActionStyle(color: themeManager.stopButton)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var dashCancelLockoutBadge: some View {
+        if appState.currentCancelIntensity == 1, !appState.canCancel {
+            HStack(spacing: 4) {
+                Image(systemName: "lock.fill")
+                    .font(.caption2)
+                Text("중지 잠금 \(Int(appState.cancelLockoutRemainingSeconds))초 남음")
+                    .font(.caption)
+                    .monospacedDigit()
+            }
+            .foregroundStyle(themeManager.stopButton.opacity(0.7))
+        } else if appState.currentCancelIntensity == 2, !appState.isEmergencyUnlockActive {
+            HStack(spacing: 4) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.caption2)
+                Text(
+                    LocalizedStringKey(
+                        appState.emergencyUnlockUsedToday
+                            ? "오늘 비상 해제를 이미 사용했습니다"
+                            : "하드코어 모드 — 비상 해제만 가능"
+                    )
+                )
+                .font(.caption)
+            }
+            .foregroundStyle(themeManager.stopButton.opacity(0.7))
+        }
+    }
+
+    private var dashEmergencyUnlockView: some View {
+        VStack(spacing: Constants.Design.spacingXS) {
+            if appState.emergencyUnlockCountdown > 0 {
+                Text("\(Int(appState.emergencyUnlockCountdown))초 대기 중...")
+                    .font(.callout.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(themeManager.stopButton)
+            }
+
+            HStack(spacing: Constants.Design.spacingSM) {
+                Button {
+                    appState.cancelEmergencyUnlock()
+                } label: {
+                    Label("취소", systemImage: "xmark")
+                }
+                .secondaryActionStyle(color: themeManager.primary)
+
+                Button {
+                    Task {
+                        await appState.confirmEmergencyUnlock(modelContext: modelContext)
+                    }
+                } label: {
+                    Label("해제 확인", systemImage: "lock.open.fill")
+                }
+                .primaryActionStyle(color: themeManager.stopButton)
+                .disabled(appState.emergencyUnlockCountdown > 0)
+            }
+        }
+    }
+
+    // MARK: - 스케줄 배너
+
+    private func dashScheduleBanner(_ name: String) -> some View {
+        HStack(spacing: Constants.Design.spacingSM) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.callout)
+                .foregroundStyle(themeManager.primary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("진행 중인 스케줄")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Text(name)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(themeManager.primary)
+            }
+
+            Spacer()
+        }
+        .padding(Constants.Design.spacingMD)
+        .background(themeManager.primary.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: Constants.Design.cornerMD))
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
+                .stroke(themeManager.primary.opacity(0.15), lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - 스케줄 재참여 배너
+
+    private func dashScheduleRejoinBanner(_ info: AppState.PendingScheduleInfo) -> some View {
+        HStack(spacing: Constants.Design.spacingSM) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.title3)
+                .foregroundStyle(themeManager.accent)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(info.scheduleName)
+                    .font(.callout.weight(.semibold))
+                Text("\(info.endTimeFormatted)까지 진행 중")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                Task {
+                    await appState.rejoinPendingSchedule(modelContext: modelContext)
+                }
+            } label: {
+                Label("참여하기", systemImage: "play.fill")
+            }
+            .primaryActionStyle(color: themeManager.accent)
+            .frame(width: 120)
+        }
+        .padding(Constants.Design.spacingMD)
+        .background(themeManager.accent.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: Constants.Design.cornerMD))
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
+                .stroke(themeManager.accent.opacity(0.2), lineWidth: 0.5)
+        )
     }
 
     // MARK: - 상태 텍스트

@@ -7,10 +7,8 @@ struct SettingsView: View {
     @Environment(ThemeManager.self) private var themeManager
     @Environment(LicenseManager.self) private var licenseManager
 
-    @State private var isPreviewPlaying = false
-    @State private var previewTask: Task<Void, Never>?
     @State private var showPaywall = false
-    @State private var paywallReason: PaywallReason = .proFeature(.ambientSound)
+    @State private var paywallReason: PaywallReason = .proFeature(.unlimitedBlocks)
     @State private var expandedThemeCategory: String?
     @State private var showRestartAlert = false
 
@@ -29,7 +27,6 @@ struct SettingsView: View {
             // 탭 2: 집중
             Form {
                 focusExperienceSection
-                ambientSoundSection
                 burnoutSection
             }
             .formStyle(.grouped)
@@ -40,7 +37,6 @@ struct SettingsView: View {
                 focusModeSection
                 calendarSection
                 scheduleSection
-                appDimmingSection
             }
             .formStyle(.grouped)
             .tabItem { Label("연동", systemImage: "link") }
@@ -195,41 +191,38 @@ struct SettingsView: View {
 
     private var focusExperienceSection: some View {
         Section("집중 경험") {
-            Toggle("의도 입력", isOn: Bindable(viewModel).showIntentionInput)
+            proGatedToggle(
+                "의도 입력",
+                isOn: Bindable(viewModel).showIntentionInput,
+                feature: .intentionInput
+            )
             Text("세션 시작 전 집중할 내용을 입력합니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Toggle("동기부여 명언", isOn: Bindable(viewModel).showMotivationQuotes)
+            proGatedToggle(
+                "동기부여 명언",
+                isOn: Bindable(viewModel).showMotivationQuotes,
+                feature: .motivationQuotes
+            )
             Text("집중 중과 완료 화면에 동기부여 명언을 표시합니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Toggle("회고", isOn: Bindable(viewModel).showRetrospect)
+            proGatedToggle(
+                "회고",
+                isOn: Bindable(viewModel).showRetrospect,
+                feature: .retrospect
+            )
             Text("세션 완료 후 간단한 회고를 기록합니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             if viewModel.showRetrospect {
-                Picker("회고 레벨", selection: Binding(
-                    get: { viewModel.retrospectLevel },
-                    set: { newLevel in
-                        if licenseManager.canUseRetrospectLevel(newLevel) {
-                            viewModel.retrospectLevel = newLevel
-                        } else {
-                            paywallReason = .retrospectLimit
-                            showPaywall = true
-                        }
-                    }
-                )) {
+                Picker("회고 레벨", selection: Bindable(viewModel).retrospectLevel) {
                     ForEach(1...3, id: \.self) { level in
-                        HStack {
-                            Text(Constants.Retrospect.levelNames[level - 1])
-                            if level > Constants.Subscription.freeRetrospectMaxLevel && !licenseManager.isPro {
-                                ProBadge()
-                            }
-                        }
-                        .tag(level)
+                        Text(Constants.Retrospect.levelNames[level - 1])
+                            .tag(level)
                     }
                 }
             }
@@ -249,82 +242,6 @@ struct SettingsView: View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
         return "\(version) (\(build))"
-    }
-
-    // MARK: - 주변음 섹션
-
-    private var ambientSoundSection: some View {
-        Section("주변음") {
-            proGatedToggle(
-                "집중 시 배경 소리",
-                isOn: Bindable(viewModel).enableAmbientSound,
-                feature: .ambientSound
-            )
-
-            Text("세션 중 배경 노이즈를 재생합니다. 뽀모도로 휴식에는 자동 정지됩니다.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            if viewModel.enableAmbientSound {
-                Picker("소리 종류", selection: Bindable(viewModel).ambientSoundTrack) {
-                    ForEach(AmbientSoundTrack.allCases, id: \.rawValue) { track in
-                        Label(track.displayName, systemImage: track.icon)
-                            .tag(track.rawValue)
-                    }
-                }
-
-                HStack {
-                    Image(systemName: "speaker.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Slider(
-                        value: Bindable(viewModel).ambientSoundVolume,
-                        in: Constants.Sound.volumeRange
-                    )
-                    .accessibilityLabel("앰비언트 볼륨")
-                    Image(systemName: "speaker.wave.3.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Button {
-                    toggleSoundPreview()
-                } label: {
-                    Label(
-                        LocalizedStringKey(isPreviewPlaying ? "미리듣기 중지" : "미리듣기"),
-                        systemImage: isPreviewPlaying ? "stop.fill" : "play.fill"
-                    )
-                }
-                .secondaryActionStyle(color: themeManager.primary)
-            }
-        }
-        .animation(.quickEase, value: viewModel.enableAmbientSound)
-    }
-
-    private func toggleSoundPreview() {
-        previewTask?.cancel()
-        previewTask = nil
-
-        if isPreviewPlaying {
-            Task { await AmbientSoundManager.shared.stop() }
-            isPreviewPlaying = false
-            return
-        }
-
-        previewTask = Task {
-            let track = AmbientSoundTrack(rawValue: viewModel.ambientSoundTrack) ?? .whiteNoise
-            await AmbientSoundManager.shared.play(
-                track: track,
-                volume: Float(viewModel.ambientSoundVolume)
-            )
-            isPreviewPlaying = true
-
-            // 5초 후 자동 정지
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            await AmbientSoundManager.shared.stop()
-            isPreviewPlaying = false
-        }
     }
 
     // MARK: - 테마 섹션
@@ -474,6 +391,11 @@ struct SettingsView: View {
 
     // MARK: - Focus Mode (v1.4)
 
+    @State private var focusModeSetupComplete = false
+    @State private var focusModeCheckingSetup = false
+    @State private var focusModeInstalling = false
+    @State private var focusModePollingTask: Task<Void, Never>?
+
     private var focusModeSection: some View {
         Section("macOS Focus Mode") {
             proGatedToggle(
@@ -482,51 +404,100 @@ struct SettingsView: View {
                 feature: .focusModeIntegration
             )
 
-            Text("macOS 집중 모드 활성화 시 자동으로 집중 세션을 시작합니다.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    // MARK: - 앱 디밍 (v1.4)
-
-    private var appDimmingSection: some View {
-        Section("앱 디밍") {
-            proGatedToggle(
-                "비활성 앱 디밍",
-                isOn: Bindable(viewModel).enableAppDimming,
-                feature: .appDimming
-            )
-
-            Text("차단 앱 윈도우를 어둡게 표시하여 사용을 자제합니다.")
+            Text("집중 세션 시작 시 macOS 방해금지 모드를 자동으로 활성화합니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            if viewModel.enableAppDimming {
-                HStack {
-                    Text("불투명도")
-                    Slider(
-                        value: Bindable(viewModel).dimmingOpacity,
-                        in: 0.1...0.8,
-                        step: 0.1
-                    )
-                    Text("\(Int(viewModel.dimmingOpacity * 100))%")
+            if viewModel.enableFocusMode {
+                HStack(spacing: Constants.Design.spacingSM) {
+                    if focusModeCheckingSetup {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("단축어 확인 중...")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if focusModeInstalling {
+                        ProgressView()
+                            .controlSize(.small)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Shortcuts 앱에서 '추가'를 눌러주세요")
+                                .font(.caption)
+                                .foregroundStyle(.primary)
+                            Text("두 개의 단축어를 각각 추가해야 합니다.")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    } else if focusModeSetupComplete {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                        Text("단축어 설치 완료")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("재설치") {
+                            startFocusModeSetup()
+                        }
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                        .monospacedDigit()
-                        .frame(width: 36)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text("단축어 설치 필요")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("설치") {
+                            startFocusModeSetup()
+                        }
+                        .font(.caption)
+                    }
+                }
+                .task {
+                    focusModeCheckingSetup = true
+                    focusModeSetupComplete = await FocusModeController.shared.checkSetup()
+                    focusModeCheckingSetup = false
+                }
+                .onDisappear {
+                    focusModePollingTask?.cancel()
+                    focusModePollingTask = nil
                 }
             }
         }
-        .animation(.quickEase, value: viewModel.enableAppDimming)
+    }
+
+    /// 단축어 설치 시작 → 파일 생성/서명/열기 → 자동 폴링으로 설치 감지
+    private func startFocusModeSetup() {
+        focusModeInstalling = true
+        focusModePollingTask?.cancel()
+        focusModePollingTask = Task {
+            await FocusModeController.shared.performSetup()
+
+            // 설치 완료까지 2초 간격으로 폴링 (최대 60초)
+            for _ in 0..<30 {
+                guard !Task.isCancelled else { return }
+                try? await Task.sleep(for: .seconds(2))
+                guard !Task.isCancelled else { return }
+                let ready = await FocusModeController.shared.checkSetup()
+                if ready {
+                    focusModeSetupComplete = true
+                    focusModeInstalling = false
+                    return
+                }
+            }
+
+            // 타임아웃: 설치 상태로 복귀
+            focusModeInstalling = false
+        }
     }
 
     // MARK: - 번아웃 방지 (v1.5)
 
     private var burnoutSection: some View {
         Section("번아웃 방지") {
-            Toggle(
+            proGatedToggle(
                 "번아웃 경고",
-                isOn: Bindable(viewModel).enableBurnoutWarnings
+                isOn: Bindable(viewModel).enableBurnoutWarnings,
+                feature: .burnoutWarnings
             )
 
             Text("일일 집중 한계에 가까워지면 긍정적 톤의 알림을 표시합니다.")
@@ -579,12 +550,27 @@ struct SettingsView: View {
         Section("차단 방식") {
             Picker(
                 String(localized: "settings_blocking_strategy"),
-                selection: Bindable(viewModel).blockingStrategy
+                selection: Binding(
+                    get: { viewModel.blockingStrategy },
+                    set: { newValue in
+                        if newValue == "networkExtension" && licenseManager.requiresPro(feature: .networkExtension) {
+                            paywallReason = .proFeature(.networkExtension)
+                            showPaywall = true
+                        } else {
+                            viewModel.blockingStrategy = newValue
+                        }
+                    }
+                )
             ) {
                 Text(String(localized: "settings_blocking_hosts"))
                     .tag("hosts")
-                Text(String(localized: "settings_blocking_ne"))
-                    .tag("networkExtension")
+                HStack {
+                    Text(String(localized: "settings_blocking_ne"))
+                    if !licenseManager.isPro {
+                        ProBadge()
+                    }
+                }
+                .tag("networkExtension")
             }
 
             if viewModel.blockingStrategy == "networkExtension" {

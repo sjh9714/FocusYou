@@ -36,6 +36,7 @@ struct ScheduleListView: View {
                     systemImage: "calendar.badge.clock",
                     description: Text("요일별 자동 집중 스케줄을 추가하세요")
                 )
+                .frame(maxWidth: .infinity)
             } else {
                 ForEach(schedules) { schedule in
                     scheduleRow(schedule)
@@ -94,6 +95,17 @@ struct ScheduleListView: View {
                 .toggleStyle(.switch)
                 .controlSize(.small)
                 .tint(themeManager.primary)
+
+            Button(role: .destructive) {
+                withAnimation(.quickEase) {
+                    modelContext.delete(schedule)
+                }
+            } label: {
+                Image(systemName: "trash")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, Constants.Design.spacingXS)
         .contentShape(Rectangle())

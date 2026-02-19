@@ -101,36 +101,6 @@ final class SettingsViewModel {
         }
     }
 
-    /// 앰비언트 사운드 활성화 (v1.2)
-    var enableAmbientSound: Bool {
-        didSet {
-            defaults.set(
-                enableAmbientSound,
-                forKey: Constants.Settings.enableAmbientSoundKey
-            )
-        }
-    }
-
-    /// 앰비언트 사운드 트랙 (v1.2)
-    var ambientSoundTrack: String {
-        didSet {
-            defaults.set(
-                ambientSoundTrack,
-                forKey: Constants.Settings.ambientSoundTrackKey
-            )
-        }
-    }
-
-    /// 앰비언트 사운드 볼륨 (v1.2)
-    var ambientSoundVolume: Double {
-        didSet {
-            defaults.set(
-                ambientSoundVolume,
-                forKey: Constants.Settings.ambientSoundVolumeKey
-            )
-        }
-    }
-
     /// 로그인 시 자동 시작 (v1.2)
     var launchAtLogin: Bool {
         didSet {
@@ -162,6 +132,11 @@ final class SettingsViewModel {
                 enableSchedule,
                 forKey: Constants.Settings.enableScheduleKey
             )
+            if enableSchedule {
+                ScheduleManager.shared.startMonitoring()
+            } else {
+                ScheduleManager.shared.stopMonitoring()
+            }
         }
     }
 
@@ -171,31 +146,6 @@ final class SettingsViewModel {
             defaults.set(
                 enableFocusMode,
                 forKey: Constants.Settings.enableFocusModeKey
-            )
-        }
-    }
-
-    /// 비활성 앱 디밍 (v1.4)
-    var enableAppDimming: Bool {
-        didSet {
-            defaults.set(
-                enableAppDimming,
-                forKey: Constants.Settings.enableAppDimmingKey
-            )
-        }
-    }
-
-    /// 디밍 불투명도 (v1.4)
-    var dimmingOpacity: Double {
-        didSet {
-            let clamped = min(max(dimmingOpacity, 0.1), 0.8)
-            if clamped != dimmingOpacity {
-                dimmingOpacity = clamped
-                return
-            }
-            defaults.set(
-                dimmingOpacity,
-                forKey: Constants.Settings.dimmingOpacityKey
             )
         }
     }
@@ -347,21 +297,6 @@ final class SettingsViewModel {
             defaults: defaults,
             defaultValue: Constants.Settings.retrospectLevelDefault
         )
-        enableAmbientSound = Self.boolValue(
-            forKey: Constants.Settings.enableAmbientSoundKey,
-            defaults: defaults,
-            defaultValue: Constants.Settings.enableAmbientSoundDefault
-        )
-        ambientSoundTrack = Self.stringValue(
-            forKey: Constants.Settings.ambientSoundTrackKey,
-            defaults: defaults,
-            defaultValue: Constants.Settings.ambientSoundTrackDefault
-        )
-        ambientSoundVolume = Self.doubleValue(
-            forKey: Constants.Settings.ambientSoundVolumeKey,
-            defaults: defaults,
-            defaultValue: Constants.Settings.ambientSoundVolumeDefault
-        )
         launchAtLogin = Self.boolValue(
             forKey: Constants.Settings.launchAtLoginKey,
             defaults: defaults,
@@ -381,16 +316,6 @@ final class SettingsViewModel {
             forKey: Constants.Settings.enableFocusModeKey,
             defaults: defaults,
             defaultValue: Constants.Settings.enableFocusModeDefault
-        )
-        enableAppDimming = Self.boolValue(
-            forKey: Constants.Settings.enableAppDimmingKey,
-            defaults: defaults,
-            defaultValue: Constants.Settings.enableAppDimmingDefault
-        )
-        dimmingOpacity = Self.doubleValue(
-            forKey: Constants.Settings.dimmingOpacityKey,
-            defaults: defaults,
-            defaultValue: Constants.Settings.dimmingOpacityDefault
         )
         appLanguage = Self.stringValue(
             forKey: Constants.Settings.appLanguageKey,

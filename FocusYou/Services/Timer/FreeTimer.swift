@@ -105,6 +105,38 @@ final class FreeTimer {
         startTicking()
     }
 
+    /// 실시간 조정 재개 (스케줄 세션용)
+    /// 일시정지 중 흐른 실제 시간을 반영하여 남은 시간을 재계산하되, 실제 집중 시간은 보존
+    func resumeWithAdjustedRemaining(_ newRemaining: TimeInterval) {
+        guard state == .paused else { return }
+
+        let currentElapsed = elapsedTime
+        logger.info("실시간 조정 재개: 기존 경과 \(Int(currentElapsed))초, 새 남은 시간 \(Int(newRemaining))초")
+
+        if newRemaining <= 0 {
+            // 스케줄 종료 시간이 이미 지남 → 즉시 완료 처리
+            totalDuration = currentElapsed
+            remainingTime = 0
+            pauseStartDate = nil
+            state = .completed
+            onComplete?()
+            return
+        }
+
+        // totalDuration = 실제 집중 시간 + 새 남은 시간
+        totalDuration = currentElapsed + newRemaining
+        remainingTime = newRemaining
+
+        // 참조 시점 재설정: tick()에서 elapsed = Date() - referenceDate - pauseAccumulator
+        // 재개 직후 elapsed == currentElapsed 이 되도록 조정
+        referenceDate = Date().addingTimeInterval(-currentElapsed)
+        pauseAccumulator = 0
+        pauseStartDate = nil
+
+        state = .running
+        startTicking()
+    }
+
     /// 정지 (취소)
     func stop() {
         guard state == .running || state == .paused else { return }

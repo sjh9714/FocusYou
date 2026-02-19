@@ -27,7 +27,6 @@ final class LicenseManager {
     /// Pro 전용 기능 열거
     enum ProFeature: String, CaseIterable, Sendable {
         case overflow
-        case ambientSound
         case schedule
         case keywordBlocking
         case allowlistMode
@@ -35,7 +34,6 @@ final class LicenseManager {
         case focusModeIntegration
         case shortcuts
         case calendarSync
-        case appDimming
         case dataExport
         case unlimitedBlocks
         case unlimitedTimer
@@ -43,6 +41,11 @@ final class LicenseManager {
         case premiumThemes
         case advancedStats
         case advancedRetrospect
+        case intentionInput
+        case motivationQuotes
+        case retrospect
+        case burnoutWarnings
+        case networkExtension
     }
 
     init(defaults: UserDefaults = .standard) {

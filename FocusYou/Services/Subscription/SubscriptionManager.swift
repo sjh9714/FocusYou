@@ -92,6 +92,17 @@ actor SubscriptionManager {
 
     /// 현재 유효한 구매/구독을 확인하고 LicenseManager 갱신
     func refreshEntitlements() async {
+        #if DEBUG
+        // DEBUG 빌드: 수동 Pro 설정(defaults write)이 true이면 StoreKit 검증 스킵
+        if UserDefaults.standard.bool(forKey: Constants.Subscription.isProKey) {
+            logger.info("DEBUG: 수동 Pro 설정 감지 — StoreKit 검증 스킵")
+            await MainActor.run {
+                LicenseManager.shared.updateProStatus(true)
+            }
+            return
+        }
+        #endif
+
         var validIDs: Set<String> = []
 
         for await result in Transaction.currentEntitlements {

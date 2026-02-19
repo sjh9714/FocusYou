@@ -45,6 +45,15 @@ final class TimerViewModel {
     /// 뽀모도로 설정
     var pomodoroConfiguration: PomodoroConfiguration = .default
 
+    /// 취소 강도 (0=기본, 1=강함, 2=하드코어)
+    var cancelIntensity: Int = 0
+
+    /// 취소 잠금 시간 (분, Level 1에서 사용)
+    var cancelLockoutMinutes: Int = 5
+
+    /// 차단 모드 ("blocklist" | "allowlist")
+    var blocklistMode: String = "blocklist"
+
     /// 취소 확인 다이얼로그 표시 여부
     var showCancelConfirmation = false
 
@@ -108,5 +117,21 @@ final class TimerViewModel {
 
     func selectMode(_ mode: TimerMode) {
         selectedMode = mode
+    }
+
+    /// 프로필의 타이머 설정을 로드
+    func loadFromProfile(_ profile: BlockProfile) {
+        selectedMode = TimerMode(rawValue: profile.timerMode) ?? .free
+        let focusMinutes = profile.focusDuration / 60
+        selectPreset(focusMinutes)
+        pomodoroConfiguration = PomodoroConfiguration(
+            focusMinutes: focusMinutes,
+            shortBreakMinutes: profile.breakDuration / 60,
+            longBreakMinutes: profile.longBreakDuration / 60,
+            cycles: profile.pomodoroCount
+        )
+        cancelIntensity = profile.cancelIntensity ?? 0
+        cancelLockoutMinutes = profile.cancelLockoutMinutes ?? 5
+        blocklistMode = profile.blocklistMode ?? "blocklist"
     }
 }

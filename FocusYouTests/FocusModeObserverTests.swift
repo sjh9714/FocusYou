@@ -1,19 +1,19 @@
 import XCTest
 @testable import Focus_You
 
-final class FocusModeObserverTests: XCTestCase {
+final class FocusModeControllerTests: XCTestCase {
 
     @MainActor
     func testSingletonInstance() {
-        let observer = FocusModeObserver.shared
-        XCTAssertNotNil(observer)
-        XCTAssertTrue(observer === FocusModeObserver.shared)
+        let controller = FocusModeController.shared
+        XCTAssertNotNil(controller)
+        XCTAssertTrue(controller === FocusModeController.shared)
     }
 
     @MainActor
     func testInitialStateIsInactive() {
-        let observer = FocusModeObserver.shared
-        XCTAssertFalse(observer.isSystemFocusModeActive)
+        let controller = FocusModeController.shared
+        XCTAssertFalse(controller.isDNDActivatedByApp)
     }
 
     // MARK: - Settings Constants

@@ -20,11 +20,6 @@
 "flowmodoro_phase_focus" = "집중";
 "flowmodoro_phase_rest" = "휴식";
 
-// -- AmbientSoundTrack displayName --
-"sound_white_noise" = "화이트 노이즈";
-"sound_brown_noise" = "브라운 노이즈";
-"sound_pink_noise" = "핑크 노이즈";
-
 // -- GrowthStage name --
 "growth_seed" = "씨앗";
 "growth_sprout" = "새싹";

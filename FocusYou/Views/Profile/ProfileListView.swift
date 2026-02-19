@@ -60,6 +60,7 @@ struct ProfileListView: View {
         .sheet(isPresented: $viewModel.showEditor) {
             ProfileEditorView(viewModel: viewModel)
                 .environment(themeManager)
+                .environment(licenseManager)
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(reason: .profileLimit)

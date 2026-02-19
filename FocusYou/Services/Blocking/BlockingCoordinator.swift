@@ -128,17 +128,6 @@ actor BlockingCoordinator {
 
         state = .blocking
 
-        // 앱 디밍 (v1.4)
-        if !appBundleIds.isEmpty,
-           UserDefaults.standard.bool(forKey: Constants.Settings.enableAppDimmingKey) {
-            let opacity = UserDefaults.standard.double(forKey: Constants.Settings.dimmingOpacityKey)
-            let effectiveOpacity = opacity > 0 ? opacity : Constants.Settings.dimmingOpacityDefault
-            await AppDimmingManager.shared.activate(
-                bundleIds: appBundleIds,
-                opacity: effectiveOpacity
-            )
-        }
-
         logger.info("차단 활성화 완료")
     }
 
@@ -182,9 +171,6 @@ actor BlockingCoordinator {
         if managesSafetyNet, !usesNetworkExtension {
             removeSafetyNet()
         }
-
-        // 앱 디밍 해제 (v1.4)
-        await AppDimmingManager.shared.deactivate()
 
         state = .idle
 

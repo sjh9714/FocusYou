@@ -12,12 +12,10 @@ struct ScheduleEditorView: View {
 
     @State private var name = ""
     @State private var selectedWeekdays: Set<Int> = [2, 3, 4, 5, 6]
-    @State private var startTime = Calendar.current.date(
-        from: DateComponents(hour: 9, minute: 0)
-    ) ?? .now
-    @State private var endTime = Calendar.current.date(
-        from: DateComponents(hour: 12, minute: 0)
-    ) ?? .now
+    @State private var startHour = 9
+    @State private var startMinute = 0
+    @State private var endHour = 12
+    @State private var endMinute = 0
     @State private var selectedProfileIndex: Int?
 
     var body: some View {
@@ -130,30 +128,43 @@ struct ScheduleEditorView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: Constants.Design.spacingMD) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("시작")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    DatePicker(
-                        "",
-                        selection: $startTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .labelsHidden()
-                }
+            HStack(spacing: Constants.Design.spacingXL) {
+                timePicker(label: "시작", hour: $startHour, minute: $startMinute)
+                timePicker(label: "종료", hour: $endHour, minute: $endMinute)
+            }
+        }
+    }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("종료")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    DatePicker(
-                        "",
-                        selection: $endTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .labelsHidden()
+    private func timePicker(
+        label: String,
+        hour: Binding<Int>,
+        minute: Binding<Int>
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+
+            HStack(spacing: 2) {
+                Picker("", selection: hour) {
+                    ForEach(0..<24, id: \.self) { h in
+                        Text(String(format: "%02d", h)).tag(h)
+                    }
                 }
+                .labelsHidden()
+                .frame(width: 56)
+
+                Text(":")
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(.secondary)
+
+                Picker("", selection: minute) {
+                    ForEach(Array(stride(from: 0, to: 60, by: 5)), id: \.self) { m in
+                        Text(String(format: "%02d", m)).tag(m)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 56)
             }
         }
     }
@@ -212,19 +223,10 @@ struct ScheduleEditorView: View {
         name = schedule.name
         selectedWeekdays = Set(schedule.weekdayArray)
 
-        let calendar = Calendar.current
-        startTime = calendar.date(
-            from: DateComponents(
-                hour: schedule.startMinuteOfDay / 60,
-                minute: schedule.startMinuteOfDay % 60
-            )
-        ) ?? .now
-        endTime = calendar.date(
-            from: DateComponents(
-                hour: schedule.endMinuteOfDay / 60,
-                minute: schedule.endMinuteOfDay % 60
-            )
-        ) ?? .now
+        startHour = schedule.startMinuteOfDay / 60
+        startMinute = schedule.startMinuteOfDay % 60
+        endHour = schedule.endMinuteOfDay / 60
+        endMinute = schedule.endMinuteOfDay % 60
 
         if let profile = schedule.profile,
            let index = profiles.firstIndex(where: { $0.persistentModelID == profile.persistentModelID }) {
@@ -233,16 +235,13 @@ struct ScheduleEditorView: View {
     }
 
     private func save() {
-        let calendar = Calendar.current
-        let startMinute = calendar.component(.hour, from: startTime) * 60
-            + calendar.component(.minute, from: startTime)
-        let endMinute = calendar.component(.hour, from: endTime) * 60
-            + calendar.component(.minute, from: endTime)
+        let startTotal = startHour * 60 + startMinute
+        let endTotal = endHour * 60 + endMinute
 
         let weekdayString = selectedWeekdays.sorted().map(String.init).joined(separator: ",")
         let profile = selectedProfileIndex.flatMap { profiles.indices.contains($0) ? profiles[$0] : nil }
 
-        onSave(name, weekdayString, startMinute, endMinute, profile)
+        onSave(name, weekdayString, startTotal, endTotal, profile)
     }
 }
 

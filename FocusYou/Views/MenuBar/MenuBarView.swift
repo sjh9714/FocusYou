@@ -7,6 +7,7 @@ struct MenuBarView: View {
     @Environment(AppState.self) private var appState
     @Environment(ThemeManager.self) private var themeManager
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.modelContext) private var modelContext
 
     @Query(
         filter: #Predicate<FocusSession> { $0.wasCompleted },
@@ -27,6 +28,15 @@ struct MenuBarView: View {
 
             if appState.showPrivateRelayWarning {
                 privateRelayWarningPanel
+            }
+
+            if let scheduleName = appState.activeScheduleName {
+                activeScheduleBanner(scheduleName)
+            }
+
+            if let rejoinInfo = appState.pendingScheduleRejoin,
+               appState.focusState == .idle {
+                scheduleRejoinBanner(rejoinInfo)
             }
 
             Rectangle().fill(.quaternary).frame(height: 0.5)
@@ -51,13 +61,6 @@ struct MenuBarView: View {
         .frame(width: Constants.UI.popoverWidth)
         .animation(.quickEase, value: appState.showError)
         .animation(.quickEase, value: appState.showPrivateRelayWarning)
-        .task {
-            guard let delegate = NSApp.delegate as? AppDelegate,
-                  !delegate.hasAutoOpenedDashboard else { return }
-            delegate.hasAutoOpenedDashboard = true
-            try? await Task.sleep(for: .milliseconds(300))
-            openWindow(id: "main-dashboard")
-        }
     }
 
     // MARK: - 헤더
@@ -202,6 +205,67 @@ struct MenuBarView: View {
         .overlay(
             RoundedRectangle(cornerRadius: Constants.Design.cornerLG)
                 .stroke(themeManager.warning.opacity(0.15), lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - 활성 스케줄 배너
+
+    private func activeScheduleBanner(_ name: String) -> some View {
+        HStack(spacing: Constants.Design.spacingSM) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.caption)
+                .foregroundStyle(themeManager.primary)
+
+            Text("스케줄: \(name)")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(themeManager.primary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .background(themeManager.primary.opacity(0.08), in: Capsule())
+    }
+
+    // MARK: - 스케줄 재참여 배너
+
+    private func scheduleRejoinBanner(_ info: AppState.PendingScheduleInfo) -> some View {
+        HStack(spacing: Constants.Design.spacingSM) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.caption)
+                .foregroundStyle(themeManager.accent)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text("\(info.scheduleName)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text("\(info.endTimeFormatted)까지 진행 중")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                Task {
+                    await appState.rejoinPendingSchedule(
+                        modelContext: modelContext
+                    )
+                }
+            } label: {
+                Text("참여하기")
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(themeManager.accent, in: Capsule())
+                    .foregroundStyle(.white)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(Constants.Design.spacingSM)
+        .background(themeManager.accent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: Constants.Design.cornerMD))
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
+                .stroke(themeManager.accent.opacity(0.15), lineWidth: 0.5)
         )
     }
 
