@@ -164,6 +164,10 @@ struct BurnoutDetectorTests {
 
     @Test("90분 이상: 스트레칭 알림 필요 (첫 번째)")
     func testStretchReminder_at90min() {
+        // CI에서 enableBurnoutWarnings 기본값이 false이므로 명시적 설정
+        UserDefaults.standard.set(true, forKey: Constants.Settings.enableBurnoutWarningsKey)
+        defer { UserDefaults.standard.removeObject(forKey: Constants.Settings.enableBurnoutWarningsKey) }
+
         let detector = BurnoutDetector()
         detector.resetSession()
         let result = detector.shouldShowStretchReminder(elapsedSeconds: 5400)
@@ -172,6 +176,9 @@ struct BurnoutDetectorTests {
 
     @Test("markStretchReminderSent 후 재알림 안 됨")
     func testStretchReminder_sentOnce() {
+        UserDefaults.standard.set(true, forKey: Constants.Settings.enableBurnoutWarningsKey)
+        defer { UserDefaults.standard.removeObject(forKey: Constants.Settings.enableBurnoutWarningsKey) }
+
         let detector = BurnoutDetector()
         detector.resetSession()
         #expect(detector.shouldShowStretchReminder(elapsedSeconds: 5400) == true)
@@ -181,6 +188,9 @@ struct BurnoutDetectorTests {
 
     @Test("resetSession 후 알림 다시 활성화")
     func testStretchReminder_resetReenables() {
+        UserDefaults.standard.set(true, forKey: Constants.Settings.enableBurnoutWarningsKey)
+        defer { UserDefaults.standard.removeObject(forKey: Constants.Settings.enableBurnoutWarningsKey) }
+
         let detector = BurnoutDetector()
         detector.resetSession()
         detector.markStretchReminderSent()

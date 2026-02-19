@@ -101,7 +101,7 @@ private let logger = Logger(subsystem: "com.sungjh.focusyou", category: "Timer")
 
 ## 프로젝트 구조
 
-> v0.5 기준 실제 파일 구조. 이후 버전에서 추가되는 파일은 해당 버전 개발 시 생성.
+> v2.3.0 기준 실제 파일 구조. 소스 114파일, 테스트 42파일.
 
 ```
 FocusYou/
@@ -109,106 +109,171 @@ FocusYou/
 ├── Info.plist
 │
 ├── Models/                              # SwiftData (iCloud 호환 설계)
+│   ├── AppTheme.swift                   # 테마 모델
+│   ├── Badge.swift                      # 뱃지/마일스톤 (v1.5)
 │   ├── BlockProfile.swift               # 차단 프로필
-│   ├── BlockedSite.swift                # 차단 웹사이트
+│   ├── BlockSchedule.swift              # 스케줄 모델 (v1.3)
 │   ├── BlockedApp.swift                 # 차단 앱
-│   ├── FocusSession.swift               # 세션 기록 (모든 모드 공통)
-│   └── AppTheme.swift                   # 테마 모델
+│   ├── BlockedSite.swift                # 차단 웹사이트
+│   └── FocusSession.swift               # 세션 기록 (모든 모드 공통)
 │
 ├── ViewModels/
 │   ├── AppState.swift                   # @Observable 전역 상태
-│   ├── TimerViewModel.swift
 │   ├── BlockListViewModel.swift
-│   ├── ProfileViewModel.swift           # v0.5+
-│   ├── StatsViewModel.swift             # v0.5+
-│   └── SettingsViewModel.swift
+│   ├── ProfileViewModel.swift
+│   ├── SettingsViewModel.swift
+│   ├── StatsViewModel.swift
+│   └── TimerViewModel.swift
 │
 ├── Views/
 │   ├── MenuBar/
-│   │   └── MenuBarView.swift            # 메뉴바 팝오버 메인
+│   │   └── MenuBarView.swift            # 메뉴바 팝오버 메인 (~236줄)
 │   ├── Main/
-│   │   └── MainDashboardView.swift      # 메인 대시보드 윈도우 (v0.5+)
+│   │   ├── MainDashboardView.swift      # 메인 대시보드 윈도우 (~1,021줄)
+│   │   ├── DashboardStatsRowView.swift  # 오늘 통계 요약 행 (v2.3)
+│   │   ├── DashboardQuickActionsView.swift  # 퀵 액션 + 테마 피커 (v2.3)
+│   │   └── DashboardRecentSessionsView.swift # 오늘 세션 목록 (v2.3)
 │   ├── Timer/
-│   │   ├── TimerView.swift              # 타이머 영역 (모드별 분기)
-│   │   ├── PieChartTimerView.swift      # 파이차트 (v0.3+)
-│   │   └── PomodoroConfigView.swift     # 뽀모도로 설정 (v0.3+)
+│   │   ├── IdleContentView.swift        # 유휴 상태 UI (v2.3, 구 TimerView 분리)
+│   │   ├── FocusingContentView.swift    # 집중 중 UI (v2.3, 구 TimerView 분리)
+│   │   ├── CompletedContentView.swift   # 완료 UI (v2.3, 구 TimerView 분리)
+│   │   ├── PieChartTimerView.swift      # 파이차트
+│   │   ├── PomodoroConfigView.swift     # 뽀모도로 설정
+│   │   ├── IntentionInputView.swift     # 의도 입력 (v1.x)
+│   │   └── RetrospectView.swift         # 회고 (v1.x)
 │   ├── BlockList/
 │   │   ├── BlockListView.swift
 │   │   ├── WebsiteBlockView.swift
 │   │   ├── AppBlockView.swift
 │   │   └── CategoryPickerView.swift
-│   ├── Profile/                         # v0.5+
+│   ├── Profile/
 │   │   ├── ProfileListView.swift
 │   │   └── ProfileEditorView.swift
-│   ├── Stats/                           # v0.5+
-│   │   └── StatsView.swift              # 기본 통계 (Swift Charts)
+│   ├── Stats/
+│   │   ├── StatsView.swift              # 통계 메인 (~176줄)
+│   │   ├── StatsSummaryCardsView.swift  # 요약 카드 (v2.3)
+│   │   ├── StatsChartsView.swift        # 일별/모드 차트 (v2.3)
+│   │   ├── StatsSessionHistoryView.swift # 세션 히스토리 (v2.3)
+│   │   ├── BadgeGalleryView.swift       # 배지 갤러리 (v1.5)
+│   │   ├── ExportView.swift             # 데이터 내보내기 (v1.x)
+│   │   ├── GrowthView.swift             # 성장 시각화 (v1.5)
+│   │   ├── HeatmapView.swift            # 히트맵 (v1.5)
+│   │   ├── IntentionAnalysisView.swift  # 의도 분석 (v1.5)
+│   │   └── MonthlyTrendView.swift       # 월간 트렌드 (v1.5)
 │   ├── Settings/
-│   │   ├── SettingsView.swift           # 설정 + 테마 선택 통합
-│   │   └── ThemeLivePreviewPanel.swift  # 테마 라이브 프리뷰 (v0.5+)
-│   ├── Onboarding/                      # v1.0 예정
-│   │   └── OnboardingView.swift
+│   │   ├── SettingsView.swift           # 설정 TabView 래퍼 (~29줄)
+│   │   ├── SettingsGeneralTabView.swift # 일반 탭 (v2.3)
+│   │   ├── SettingsFocusTabView.swift   # 집중 탭 (v2.3)
+│   │   ├── SettingsIntegrationTabView.swift # 연동 탭 (v2.3)
+│   │   ├── SettingsAdvancedTabView.swift # 고급 탭 (v2.3)
+│   │   ├── HealthCheckView.swift        # 차단 진단
+│   │   └── ThemeLivePreviewPanel.swift  # 테마 라이브 프리뷰
+│   ├── Subscription/
+│   │   └── PaywallView.swift            # 구독 유도 UI (v2.0)
+│   ├── Schedule/
+│   │   ├── ScheduleListView.swift       # 스케줄 목록 (v1.3)
+│   │   └── ScheduleEditorView.swift     # 스케줄 편집 (v1.3)
+│   ├── Onboarding/
+│   │   ├── OnboardingView.swift
+│   │   ├── OnboardingWelcomeStepView.swift
+│   │   ├── OnboardingBlockStepView.swift
+│   │   └── OnboardingReadyStepView.swift
 │   └── Components/
-│       ├── TimePickerView.swift
-│       └── StreakBadgeView.swift         # v1.0 예정
+│       ├── BurnoutBannerView.swift      # 번아웃 경고 배너 (v1.5)
+│       ├── DisruptionTagPicker.swift    # 방해 요인 태그 (v1.x)
+│       ├── ErrorPanelView.swift         # 공유 에러 패널 (v2.3)
+│       ├── GrowthBadgeView.swift        # 성장 배지 (v1.5)
+│       ├── LevelBadgeView.swift         # 레벨 배지 (v1.x)
+│       ├── LevelUpCelebrationView.swift # 레벨업 축하 (v1.x)
+│       ├── MilestoneCelebrationView.swift # 마일스톤 축하 (v1.5)
+│       ├── PrivateRelayWarningPanel.swift # 공유 Private Relay 경고 (v2.3)
+│       ├── ProBadge.swift               # Pro 배지 (v2.0)
+│       ├── ProfileSelectorView.swift    # 프로필 선택기
+│       ├── QuoteView.swift              # 명언 (v1.x)
+│       ├── StarRatingView.swift         # 별점 (v1.x)
+│       └── TimePickerView.swift
 │
 ├── Services/
 │   ├── Blocking/
 │   │   ├── WebsiteBlocker.swift         # 프로토콜 (v1/v2 추상화)
 │   │   ├── HostsFileBlocker.swift       # v1 구현 (hosts 파일)
+│   │   ├── NetworkExtensionBlocker.swift # v2 구현 (Network Extension)
+│   │   ├── WebsiteBlockerFactory.swift  # 차단 엔진 팩토리 (v2.0)
 │   │   ├── AppBlocker.swift
 │   │   └── BlockingCoordinator.swift    # 차단 통합 (actor)
 │   ├── Timer/
 │   │   ├── FreeTimer.swift              # 자유 타이머 (슬립/웨이크 대응)
-│   │   ├── PomodoroEngine.swift         # v0.3+ (Overflow 포함)
-│   │   └── FlowmodoroEngine.swift       # v1.0 예정
+│   │   ├── PomodoroEngine.swift         # 뽀모도로 (Overflow 포함)
+│   │   └── FlowmodoroEngine.swift       # Flowmodoro
 │   ├── System/
 │   │   ├── HostsFileManager.swift       # hosts 파일 마커 관리
 │   │   ├── PrivilegedHelper.swift       # osascript 권한 상승
 │   │   ├── DNSManager.swift             # DNS 캐시 플러시
-│   │   └── PrivateRelayDetector.swift   # Private Relay 감지 (v0.5+)
-│   ├── QA/                              # DEBUG 전용
-│   │   └── QAAutomationController.swift # 셸 브리지 자동화 (v0.5+)
+│   │   ├── PrivateRelayDetector.swift   # Private Relay 감지
+│   │   ├── FocusModeObserver.swift      # macOS 집중 모드 연동 (v1.4)
+│   │   └── LaunchAtLoginManager.swift   # 로그인 시 자동 시작 (v1.x)
+│   ├── Data/
+│   │   ├── BurnoutDetector.swift        # 번아웃 감지 (v1.5)
+│   │   ├── ExportService.swift          # CSV/JSON 내보내기 (v1.x)
+│   │   ├── GrowthManager.swift          # 성장 5단계 (v1.5)
+│   │   ├── LevelManager.swift           # XP/레벨 시스템 (v1.x)
+│   │   ├── MilestoneDetector.swift      # 마일스톤/배지 감지 (v1.5)
+│   │   └── ProfileBootstrapper.swift    # 기본 프로필 초기화
+│   ├── Calendar/
+│   │   └── CalendarSyncService.swift    # Apple Calendar 동기화 (v1.3)
+│   ├── Schedule/
+│   │   └── ScheduleManager.swift        # 요일별 자동 스케줄 (v1.3)
+│   ├── Intents/                         # Shortcuts/Siri (v1.x)
+│   │   ├── FocusYouShortcuts.swift
+│   │   ├── StartFocusIntent.swift
+│   │   ├── StopFocusIntent.swift
+│   │   ├── TogglePauseIntent.swift
+│   │   ├── GetFocusStatusIntent.swift
+│   │   ├── GetStreakIntent.swift
+│   │   ├── StartProfileIntent.swift
+│   │   └── IntentError.swift
+│   ├── Subscription/
+│   │   ├── LicenseManager.swift         # Pro 상태 관리 (v2.0)
+│   │   └── SubscriptionManager.swift    # StoreKit 2 결제 (v2.0)
+│   ├── Shared/
+│   │   ├── SharedDataProvider.swift     # 앱↔위젯 데이터 공유
+│   │   └── SharedBlockingData.swift
 │   ├── Theme/
-│   │   └── ThemeManager.swift           # v0.5+ 테마 단일 진실 원천
+│   │   └── ThemeManager.swift           # 테마 단일 진실 원천
+│   ├── QA/                              # DEBUG 전용
+│   │   └── QAAutomationController.swift
 │   └── Notification/
 │       └── NotificationService.swift
 │
 ├── Resources/
 │   ├── Assets.xcassets
 │   ├── Presets/                          # 카테고리 차단 프리셋 (JSON)
-│   └── Themes/ThemeCatalog.json         # v0.5+
+│   ├── Themes/ThemeCatalog.json         # 72개 테마
+│   ├── ko.lproj/Localizable.strings     # 한국어
+│   └── en.lproj/Localizable.strings     # 영어
 │
 ├── Extensions/
+│   ├── Color+Theme.swift
 │   ├── Date+Extensions.swift
 │   ├── String+Extensions.swift
-│   ├── Color+Theme.swift
 │   └── View+Modifiers.swift
 │
 └── Helpers/
     ├── Constants.swift
-    └── FocusYouError.swift              # LocalizedError 열거형
+    ├── FocusYouError.swift              # LocalizedError 열거형
+    └── StreakCalculator.swift           # 스트릭 계산
 
 scripts/
 ├── qa_focusyou_state.sh                 # QA 스냅샷/자동화
 └── release_preflight.sh                 # 릴리스 검증
 
-FocusYouTests/
-├── AppStateLifecycleTests.swift         # 앱 상태 전이 테스트
+FocusYouTests/                           # 42 파일, 282+ 테스트
+├── AppStateLifecycleTests.swift
+├── AppStatePauseResumeTests.swift
 ├── BlockingCoordinatorTests.swift
-├── HostsFileManagerTests.swift
-├── NotificationServiceSettingsTests.swift
-├── PomodoroEngineTests.swift
-├── SettingsViewModelTests.swift
-├── StringExtensionsTests.swift
-└── ThemeManagerTests.swift
-
-# v1.x 이후 추가 예정 (필요 시 생성)
-# Services/Sound/SoundManager.swift        ← 앰비언트 사운드
-# Services/Schedule/ScheduleManager.swift  ← 스케줄
-# Services/Automation/ShortcutsProvider.swift ← Shortcuts
-# Services/Subscription/SubscriptionManager.swift ← v2.0 Pro
-# Views/Retrospect/                        ← 회고 시스템
-# Views/Widgets/                           ← 데스크톱 위젯
+├── BurnoutDetectorTests.swift
+├── ... (42 파일)
+└── WebsiteBlockerFactoryTests.swift
 ```
 
 ---

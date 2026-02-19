@@ -48,11 +48,11 @@ Focus You의 답: **타이머 시작 → 차단 자동 활성, 타이머 종료 
 ### 현재 프로젝트 현황 (스냅샷)
 
 ```
-버전: v2.0.1 (build 16)
-Swift 소스: 98 파일 | 테스트: 30 파일, 258 테스트 (238 XCTest + 23 Swift Testing)
+버전: v2.3.0 (build 22)
+Swift 소스: 114 파일 | 테스트: 42 파일, 282+ 테스트
 테마: 72개 (6 카테고리 × 12) | 로컬라이제이션: 한국어 + 영어
 위젯: 2개 (FocusStatus, Streak) | Shortcuts: 6개 인텐트
-Pro/Free 분리: LicenseManager + PaywallView 구현 완료
+Pro/Free 분리: LicenseManager + PaywallView + StoreKit 2 결제 완료
 빌드: xcodegen (project.yml) | Swift 6.0, macOS 14+
 ```
 
@@ -69,8 +69,9 @@ v0.1  "차단되는 타이머"        ✅ 완료
 v0.3  "뽀모도로 차단 앱"       ✅ 완료
 v0.5  "예쁜 집중 앱"           ✅ 완료
 v1.0  "출시할 수 있는 앱"      ✅ 완료
-v1.x  "사용자가 원하는 기능"   ✅ 거의 완료 (21/23 구현)
-v2.0  "Pro + App Store"        🔄 준비 중 (Pro 인프라 + StoreKit 2 결제 완료, NE 미연결)
+v1.x  "사용자가 원하는 기능"   ✅ 완료 (22/22 구현)
+v2.0  "Pro + App Store"        ✅ 완료 (Pro 인프라 + StoreKit 2 결제, NE 미연결)
+v2.x  코드 품질 개선            ✅ v2.1~v2.3 (테스트 282+개, 뷰 리팩토링)
 v3.0  "플랫폼"                 ❌ 미착수
 ```
 
@@ -463,12 +464,7 @@ Level 3 — 텍스트 + 별점(StarRatingView) + 방해 요인 태그(Disruption
 기본 OFF, 모든 레벨에서 "건너뛰기" 가능
 ```
 
-**4. 앰비언트 사운드** — `AmbientSoundManager.swift`
-```
-- 배경 사운드: 빗소리, 카페, 자연, 화이트노이즈
-- 볼륨 조절, 집중/휴식 시 다른 사운드
-- AVAudioEngine, 미사용 시 즉시 해제
-```
+**4. ~~앰비언트 사운드~~** — v2.2.0에서 제거 (앱 차단과 기능 중복, 향후 재설계 예정)
 
 **5. 테마 72개 (6카테고리)** — `ThemeCatalog.json`
 ```
@@ -536,11 +532,7 @@ Level 3 — 텍스트 + 별점(StarRatingView) + 방해 요인 태그(Disruption
 - 성장 타임라인 시각화
 ```
 
-**15. 비활성 앱 딤(Dim)** — `AppDimmingManager.swift`
-```
-- 집중 중 배경 앱 어둡게 (0~90%)
-- CALayer opacity 변경 (저자원)
-```
+**15. ~~비활성 앱 딤(Dim)~~** — v2.2.0에서 제거 (앱 terminate 방식과 중복)
 
 **16. 뱃지 / 마일스톤** — `Badge` 모델, `MilestoneDetector.swift`, `BadgeGalleryView.swift`
 ```
@@ -617,7 +609,9 @@ Level 3 — 텍스트 + 별점(StarRatingView) + 방해 요인 태그(Disruption
 ✅ StoreKit 2 실제 결제 연결 (SubscriptionManager actor)
 ✅ 구매 복원, 트랜잭션 실시간 감시, JWS on-device 검증
 ✅ StoreKit Configuration 파일 (로컬 테스트용)
-❌ Network Extension (App Store 차단 엔진)
+✅ NetworkExtensionBlocker 스텁 + WebsiteBlockerFactory 전략 패턴
+✅ v2.1~v2.3: 테스트 커버리지 282+개, 뷰 리팩토링 완료
+❌ Network Extension 실제 연결 (NEFilterDataProvider)
 ❌ App Store 심사 제출
 ```
 
@@ -752,7 +746,8 @@ v1.0부터 SwiftData 모델을 iCloud 호환으로 설계한 이유:
 BlockingCoordinator (actor, singleton)
 ├── WebsiteBlocker (protocol)
 │   ├── HostsFileBlocker (v1, sudo, 직접 배포)
-│   └── NetworkExtensionBlocker (v2, App Store) — 미구현
+│   ├── NetworkExtensionBlocker (v2, App Store)
+│   └── WebsiteBlockerFactory (전략 패턴 팩토리)
 ├── AppBlocker (NSWorkspace Notification 기반)
 └── 상태: idle / blocking / error
 
@@ -777,15 +772,12 @@ System
 ├── PrivilegedHelper (osascript 권한 상승)
 ├── DNSManager (DNS 캐시 플러시)
 ├── PrivateRelayDetector (iCloud Private Relay 상태 감지)
-├── AppDimmingManager (비활성 앱 딤 처리)
 ├── FocusModeObserver (macOS 집중 모드 연동)
 └── LaunchAtLoginManager (로그인 시 자동 시작)
 
-Sound
-└── AmbientSoundManager (앰비언트 사운드 재생)
-
 Data
 ├── GrowthManager (성장 5단계 계산)
+├── LevelManager (XP/레벨 시스템)
 ├── MilestoneDetector (마일스톤/배지 감지)
 ├── BurnoutDetector (번아웃 경고)
 ├── ExportService (CSV/JSON 내보내기)
@@ -808,7 +800,8 @@ Subscription
 └── SubscriptionManager (StoreKit 2 결제, 트랜잭션 감시, 권한 검증)
 
 Shared
-└── SharedDataProvider (앱↔위젯 데이터 공유)
+├── SharedDataProvider (앱↔위젯 데이터 공유)
+└── SharedBlockingData
 
 Notification
 └── NotificationService
