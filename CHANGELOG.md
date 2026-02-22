@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.3.2] - 2026-02-22
+
+### Added
+- 테스트 커버리지 강화: 1개 신규 + 3개 확장 테스트 파일, ~23개 테스트 추가.
+  - HostsFileManagerTests 확장: IPv6 엔트리, 중복 도메인, 빈 배열, readHostsFile 에러 경로, buildCleanContent 엣지 케이스 (+6개).
+  - PrivilegedHelperTests 신규: shellEscapeForDoubleQuotes 순수 로직 (백틱, 달러, 혼합, 일반, 빈 문자열) (+5개).
+  - AppIntentsTests 확장: TogglePauseIntent/GetFocusStatusIntent/StopFocusIntent 상태 전이 (+7개).
+  - NotificationServiceSettingsTests 확장: 명언 설정, 토글 반영 (+4개).
+
+### Changed
+- PrivilegedHelper: shellEscapeForDoubleQuotes 접근 제어자 private → internal (테스트 접근용).
+- AppStatePauseResumeTests/AppStateLifecycleTests/AppIntentsTests: 개발 환경 UserDefaults 오염 방지 setUp/tearDown 강화 (debugFastTimer, enableFocusMode, enableCalendarSync).
+
 ## [2.3.1] - 2026-02-19
 
 ### Changed

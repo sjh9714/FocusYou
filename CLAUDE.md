@@ -101,7 +101,7 @@ private let logger = Logger(subsystem: "com.sungjh.focusyou", category: "Timer")
 
 ## 프로젝트 구조
 
-> v2.3.0 기준 실제 파일 구조. 소스 114파일, 테스트 42파일.
+> v2.3.2 기준 실제 파일 구조. 소스 114파일, 테스트 43파일.
 
 ```
 FocusYou/
@@ -267,12 +267,12 @@ scripts/
 ├── qa_focusyou_state.sh                 # QA 스냅샷/자동화
 └── release_preflight.sh                 # 릴리스 검증
 
-FocusYouTests/                           # 42 파일, 282+ 테스트
+FocusYouTests/                           # 43 파일, 304 테스트
 ├── AppStateLifecycleTests.swift
 ├── AppStatePauseResumeTests.swift
 ├── BlockingCoordinatorTests.swift
 ├── BurnoutDetectorTests.swift
-├── ... (42 파일)
+├── ... (43 파일)
 └── WebsiteBlockerFactoryTests.swift
 ```
 

@@ -270,7 +270,7 @@ actor PrivilegedHelper {
     }
 
     /// double-quote 쉘 문자열 내 특수문자 이스케이프 (backtick, dollar)
-    private func shellEscapeForDoubleQuotes(_ value: String) -> String {
+    func shellEscapeForDoubleQuotes(_ value: String) -> String {
         value
             .replacingOccurrences(of: "`", with: "\\`")
             .replacingOccurrences(of: "$", with: "\\$")

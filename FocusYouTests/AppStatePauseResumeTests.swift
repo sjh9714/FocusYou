@@ -7,10 +7,14 @@ final class AppStatePauseResumeTests: XCTestCase {
     override func setUp() {
         super.setUp()
         UserDefaults.standard.set(false, forKey: Constants.Settings.debugFastTimerEnabledKey)
+        UserDefaults.standard.set(false, forKey: Constants.Settings.enableFocusModeKey)
+        UserDefaults.standard.set(false, forKey: Constants.Settings.enableCalendarSyncKey)
     }
 
     override func tearDown() {
         UserDefaults.standard.removeObject(forKey: Constants.Settings.debugFastTimerEnabledKey)
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.enableFocusModeKey)
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.enableCalendarSyncKey)
         super.tearDown()
     }
 

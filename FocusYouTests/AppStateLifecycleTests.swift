@@ -6,12 +6,16 @@ import XCTest
 final class AppStateLifecycleTests: XCTestCase {
     override func setUp() {
         super.setUp()
-        // 개발 환경 UserDefaults의 디버그 타이머 설정이 테스트에 영향을 주지 않도록 초기화
+        // 개발 환경 UserDefaults의 디버그 타이머/FocusMode/캘린더 설정이 테스트에 영향을 주지 않도록 초기화
         UserDefaults.standard.set(false, forKey: Constants.Settings.debugFastTimerEnabledKey)
+        UserDefaults.standard.set(false, forKey: Constants.Settings.enableFocusModeKey)
+        UserDefaults.standard.set(false, forKey: Constants.Settings.enableCalendarSyncKey)
     }
 
     override func tearDown() {
         UserDefaults.standard.removeObject(forKey: Constants.Settings.debugFastTimerEnabledKey)
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.enableFocusModeKey)
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.enableCalendarSyncKey)
         super.tearDown()
     }
 

@@ -28,6 +28,7 @@
 		1005C72E2A7CCC8F53BB8EDD /* TimerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F100A34A1240A3486B9F0AF3 /* TimerViewModelTests.swift */; };
 		13A51D7659A41EB161349892 /* MonthlyTrendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8C657F6C77F74714DFB770 /* MonthlyTrendView.swift */; };
 		171CEFFD2D465E8D0458DBD2 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC734DF4EC1E70CAE31C56C /* Badge.swift */; };
+		17290B7E45E3A4F0889B99F5 /* PrivilegedHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66B58CA2A059CB001A51D0F /* PrivilegedHelperTests.swift */; };
 		1B27E3DEBD8522A21E90D15F /* SettingsThemeSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967B5F88777159DD4C3BD82 /* SettingsThemeSectionView.swift */; };
 		1BB0F58FE6391E2EBF22F1CD /* ThemeCatalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */; };
 		1BC78B25D051B7ABF492A96B /* AppStateLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B194AB28333746A3DB3700A /* AppStateLifecycleTests.swift */; };
@@ -427,6 +428,7 @@
 		E1253C394407F81E88611851 /* PomodoroEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngineTests.swift; sourceTree = "<group>"; };
 		E3C65E5F7BA82264521F661C /* BlockingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockingCoordinatorTests.swift; sourceTree = "<group>"; };
 		E4A54D40EAA9967B9F83E5F6 /* AppBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockView.swift; sourceTree = "<group>"; };
+		E66B58CA2A059CB001A51D0F /* PrivilegedHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedHelperTests.swift; sourceTree = "<group>"; };
 		EA949D5D08807017F69675E9 /* FocusingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusingContentView.swift; sourceTree = "<group>"; };
 		EB3F3CA340FDF4DC545044AE /* StreakWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakWidget.swift; sourceTree = "<group>"; };
 		EBA4FC911BE2CAB18C87FB2A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -755,6 +757,7 @@
 				2D606059812507F08173AE9A /* NotificationServiceSettingsTests.swift */,
 				E1253C394407F81E88611851 /* PomodoroEngineTests.swift */,
 				D8B6A1357D2A7DD5ED535A89 /* PrivateRelayDetectorTests.swift */,
+				E66B58CA2A059CB001A51D0F /* PrivilegedHelperTests.swift */,
 				7547322B6D120557BCC560EB /* ProfileBootstrapperTests.swift */,
 				4BCB748BAF713CB958EE56F7 /* ProfileViewModelTests.swift */,
 				16D049A67CC800AC7454780E /* ScheduleManagerTests.swift */,
@@ -1201,6 +1204,7 @@
 				6E82E0928C9BA2B277CE68F6 /* NotificationServiceSettingsTests.swift in Sources */,
 				DCD9BE315136CCA2B27798D1 /* PomodoroEngineTests.swift in Sources */,
 				BEE0E4218A2B05B59AE43BD1 /* PrivateRelayDetectorTests.swift in Sources */,
+				17290B7E45E3A4F0889B99F5 /* PrivilegedHelperTests.swift in Sources */,
 				85BEA563AC8A2AC80B9DBFD1 /* ProfileBootstrapperTests.swift in Sources */,
 				853E5EF5EB2C6C259A093FF5 /* ProfileViewModelTests.swift in Sources */,
 				F22285F56A06D103AEEB7D27 /* ScheduleManagerTests.swift in Sources */,
@@ -1533,7 +1537,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 23;
+				CURRENT_PROJECT_VERSION = 24;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;
@@ -1558,7 +1562,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.3.1;
+				MARKETING_VERSION = 2.3.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1648,7 +1652,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 23;
+				CURRENT_PROJECT_VERSION = 24;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;
@@ -1667,7 +1671,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.3.1;
+				MARKETING_VERSION = 2.3.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sungjh.focusyou;
