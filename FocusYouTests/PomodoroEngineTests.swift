@@ -13,17 +13,19 @@ final class PomodoroEngineTests: XCTestCase {
 
         let phases = PomodoroEngine.buildPhases(configuration: configuration)
 
-        // 4 cycles: focus, shortBreak, focus, shortBreak, focus, shortBreak, focus (마지막 사이클 후 break 없음)
-        XCTAssertEqual(phases.count, 7)
-        XCTAssertEqual(phases.first?.type, .focus)
-        XCTAssertEqual(phases.first?.duration, 25 * 60)
+        // 4 cycles: focus, shortBreak, focus, shortBreak, focus, shortBreak, focus, longBreak
+        XCTAssertEqual(phases.count, 8)
+        XCTAssertEqual(phases[0].type, .focus)
+        XCTAssertEqual(phases[0].duration, 25 * 60)
         XCTAssertEqual(phases[1].type, .shortBreak)
         XCTAssertEqual(phases[1].duration, 5 * 60)
         XCTAssertEqual(phases[3].type, .shortBreak)
         XCTAssertEqual(phases[5].type, .shortBreak)
-        XCTAssertEqual(phases.last?.type, .focus)
-        XCTAssertEqual(phases.last?.duration, 25 * 60)
-        XCTAssertEqual(phases.last?.cycleIndex, 4)
+        XCTAssertEqual(phases[6].type, .focus)
+        XCTAssertEqual(phases[6].cycleIndex, 4)
+        XCTAssertEqual(phases[7].type, .longBreak)
+        XCTAssertEqual(phases[7].duration, 15 * 60)
+        XCTAssertEqual(phases[7].cycleIndex, 4)
     }
 
     func testAdvancePhaseMovesUntilEndThenReturnsNil() {
@@ -50,7 +52,13 @@ final class PomodoroEngineTests: XCTestCase {
         XCTAssertEqual(third?.duration, 20 * 60)
         XCTAssertEqual(third?.cycleIndex, 2)
 
-        // 마지막 사이클 후 break 없음 → 즉시 nil
+        // 마지막 사이클 후 긴 휴식
+        let fourth = engine.advancePhase()
+        XCTAssertEqual(fourth?.type, .longBreak)
+        XCTAssertEqual(fourth?.duration, 10 * 60)
+        XCTAssertEqual(fourth?.cycleIndex, 2)
+
+        // 긴 휴식 이후 nil
         XCTAssertNil(engine.advancePhase())
     }
 
@@ -64,14 +72,14 @@ final class PomodoroEngineTests: XCTestCase {
 
         let phases = PomodoroEngine.buildPhases(configuration: configuration)
 
-        // 3 cycles: focus, shortBreak, focus, shortBreak, focus (마지막 사이클 후 break 없음)
-        XCTAssertEqual(phases.count, 5)
-        XCTAssertEqual(phases.map(\.type), [.focus, .shortBreak, .focus, .shortBreak, .focus])
-        XCTAssertEqual(phases.map(\.duration), [1800, 420, 1800, 420, 1800])
-        XCTAssertEqual(phases.map(\.cycleIndex), [1, 1, 2, 2, 3])
+        // 3 cycles: focus, shortBreak, focus, shortBreak, focus, longBreak
+        XCTAssertEqual(phases.count, 6)
+        XCTAssertEqual(phases.map(\.type), [.focus, .shortBreak, .focus, .shortBreak, .focus, .longBreak])
+        XCTAssertEqual(phases.map(\.duration), [1800, 420, 1800, 420, 1800, 1200])
+        XCTAssertEqual(phases.map(\.cycleIndex), [1, 1, 2, 2, 3, 3])
     }
 
-    func testBuildPhasesSingleCycleHasOnlyFocus() {
+    func testBuildPhasesSingleCycleHasOnlyFocusAndLongBreak() {
         let configuration = PomodoroConfiguration(
             focusMinutes: 40,
             shortBreakMinutes: 10,
@@ -81,11 +89,11 @@ final class PomodoroEngineTests: XCTestCase {
 
         let phases = PomodoroEngine.buildPhases(configuration: configuration)
 
-        // 1 cycle: focus만 (마지막=유일 사이클 후 break 없음)
-        XCTAssertEqual(phases.count, 1)
-        XCTAssertEqual(phases.map(\.type), [.focus])
-        XCTAssertEqual(phases.map(\.duration), [2400])
-        XCTAssertEqual(phases.map(\.cycleIndex), [1])
+        // 1 cycle: focus + longBreak
+        XCTAssertEqual(phases.count, 2)
+        XCTAssertEqual(phases.map(\.type), [.focus, .longBreak])
+        XCTAssertEqual(phases.map(\.duration), [2400, 1500])
+        XCTAssertEqual(phases.map(\.cycleIndex), [1, 1])
     }
 
     func testBuildPhasesMaxCycleMatchesExpectedTimelineAndDurations() {
@@ -99,17 +107,18 @@ final class PomodoroEngineTests: XCTestCase {
 
         let phases = PomodoroEngine.buildPhases(configuration: configuration)
 
-        // maxCycles개 focus + (maxCycles-1)개 shortBreak, 마지막 사이클 후 break 없음
-        XCTAssertEqual(phases.count, maxCycles * 2 - 1)
+        // maxCycles개 focus + (maxCycles-1)개 shortBreak + 1개 longBreak
+        XCTAssertEqual(phases.count, maxCycles * 2)
         XCTAssertEqual(phases.filter { $0.type == .focus }.count, maxCycles)
-        XCTAssertEqual(phases.filter { $0.type == .shortBreak }.count, max(maxCycles - 1, 0))
-        XCTAssertEqual(phases.filter { $0.type == .longBreak }.count, 0)
-        XCTAssertEqual(phases.last?.type, .focus)
+        XCTAssertEqual(phases.filter { $0.type == .shortBreak }.count, maxCycles - 1)
+        XCTAssertEqual(phases.filter { $0.type == .longBreak }.count, 1)
+        XCTAssertEqual(phases.last?.type, .longBreak)
         XCTAssertEqual(phases.last?.cycleIndex, maxCycles)
 
         let expectedTotalDuration = TimeInterval(
             (configuration.focusMinutes * maxCycles)
-                + (configuration.shortBreakMinutes * max(maxCycles - 1, 0))
+                + (configuration.shortBreakMinutes * (maxCycles - 1))
+                + configuration.longBreakMinutes
         ) * 60
         let timelineDuration = phases.reduce(0) { $0 + $1.duration }
         XCTAssertEqual(timelineDuration, expectedTotalDuration)

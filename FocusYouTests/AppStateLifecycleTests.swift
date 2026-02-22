@@ -4,7 +4,14 @@ import XCTest
 
 @MainActor
 final class AppStateLifecycleTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        // 개발 환경 UserDefaults의 디버그 타이머 설정이 테스트에 영향을 주지 않도록 초기화
+        UserDefaults.standard.set(false, forKey: Constants.Settings.debugFastTimerEnabledKey)
+    }
+
     override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.debugFastTimerEnabledKey)
         super.tearDown()
     }
 

@@ -4,6 +4,16 @@ import XCTest
 
 @MainActor
 final class AppStatePauseResumeTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        UserDefaults.standard.set(false, forKey: Constants.Settings.debugFastTimerEnabledKey)
+    }
+
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: Constants.Settings.debugFastTimerEnabledKey)
+        super.tearDown()
+    }
+
     func testPauseSessionTransitionsToPaused() async throws {
         let appState = makeAppState()
         let modelContext = try makeModelContext()
@@ -131,6 +141,15 @@ final class AppStatePauseResumeTests: XCTestCase {
             )
         )
 
+        // 1차: focus 페이즈 완료 → longBreak 전환
+        appState.timer.onComplete?()
+
+        let didAdvanceToBreak = await waitUntil {
+            appState.currentPomodoroPhase?.type == .longBreak
+        }
+        XCTAssertTrue(didAdvanceToBreak)
+
+        // 2차: longBreak 완료 → 세션 완료
         appState.timer.onComplete?()
 
         let didComplete = await waitUntil {

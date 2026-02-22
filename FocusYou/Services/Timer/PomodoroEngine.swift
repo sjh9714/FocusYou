@@ -89,12 +89,21 @@ final class PomodoroEngine {
                 )
             )
 
-            // 마지막 사이클 후에는 break 없음 → 세션 완료
             if cycle < configuration.cycles {
+                // 중간 사이클: 짧은 휴식
                 built.append(
                     Phase(
                         type: .shortBreak,
                         duration: TimeInterval(configuration.shortBreakMinutes * 60),
+                        cycleIndex: cycle
+                    )
+                )
+            } else {
+                // 마지막 사이클: 긴 휴식
+                built.append(
+                    Phase(
+                        type: .longBreak,
+                        duration: TimeInterval(configuration.longBreakMinutes * 60),
                         cycleIndex: cycle
                     )
                 )
