@@ -48,7 +48,7 @@ Focus You의 답: **타이머 시작 → 차단 자동 활성, 타이머 종료 
 ### 현재 프로젝트 현황 (스냅샷)
 
 ```
-버전: v2.3.2 (build 24)
+버전: v2.3.3 (build 25)
 Swift 소스: 123 파일 | 테스트: 43 파일, 304 XCTest + 123 Swift Testing
 테마: 72개 (6 카테고리 × 12) | 로컬라이제이션: 한국어 + 영어
 위젯: 2개 (FocusStatus, Streak) | Shortcuts: 6개 인텐트
