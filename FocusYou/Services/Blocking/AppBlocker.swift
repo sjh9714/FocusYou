@@ -35,6 +35,9 @@ final class AppBlocker {
         terminateRunningBlockedApps()
 
         // 새 앱 실행 감시 시작
+        if isMonitoringActive {
+            stopMonitoring()
+        }
         startMonitoring()
     }
 
@@ -72,24 +75,26 @@ final class AppBlocker {
         guard !isMonitoringActive else { return }
         isMonitoringActive = true
 
+        let blockedBundleIds = blockedBundleIds
+        let logger = logger
+
         launchObservation = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didLaunchApplicationNotification,
             object: nil,
             queue: .main
-        ) { [weak self] notification in
-            guard let self,
-                  let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey]
+        ) { notification in
+            guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey]
                     as? NSRunningApplication,
                   let bundleId = app.bundleIdentifier,
-                  self.blockedBundleIds.contains(bundleId) else {
+                  blockedBundleIds.contains(bundleId) else {
                 return
             }
 
             let appName = app.localizedName ?? bundleId
-            self.logger.info("차단된 앱 실행 감지: \(appName)")
+            logger.info("차단된 앱 실행 감지: \(appName)")
 
             if !app.terminate() {
-                self.logger.warning("정상 종료 실패, 강제 종료: \(appName)")
+                logger.warning("정상 종료 실패, 강제 종료: \(appName)")
                 app.forceTerminate()
             }
 

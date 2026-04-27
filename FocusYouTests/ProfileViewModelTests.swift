@@ -6,14 +6,18 @@ import XCTest
 final class ProfileViewModelTests: XCTestCase {
     private var viewModel: ProfileViewModel!
 
-    override func setUp() {
-        super.setUp()
-        viewModel = ProfileViewModel()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            viewModel = ProfileViewModel()
+        }
     }
 
-    override func tearDown() {
-        viewModel = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            viewModel = nil
+        }
+        try await super.tearDown()
     }
 
     // MARK: - 새 프로필 준비

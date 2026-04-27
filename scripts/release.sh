@@ -81,17 +81,31 @@ pass "Project generated"
 
 # ─── Step 2: Archive ─────────────────────────────────────────
 
+ARCHIVE_SIGNING_ARGS=(
+  DEVELOPMENT_TEAM="9VRNY5PMG3"
+  CODE_SIGN_IDENTITY="Developer ID Application"
+  CODE_SIGNING_REQUIRED=YES
+  CODE_SIGNING_ALLOWED=YES
+  ENABLE_HARDENED_RUNTIME=YES
+)
+
+if [[ "$SKIP_SIGN" -eq 1 ]]; then
+  ARCHIVE_SIGNING_ARGS=(
+    DEVELOPMENT_TEAM=""
+    CODE_SIGN_IDENTITY=""
+    CODE_SIGNING_REQUIRED=NO
+    CODE_SIGNING_ALLOWED=NO
+    ENABLE_HARDENED_RUNTIME=YES
+  )
+fi
+
 info "Archiving $SCHEME..."
 xcodebuild archive \
   -project "$PROJECT" \
   -scheme "$SCHEME" \
   -configuration Release \
   -archivePath "$ARCHIVE_PATH" \
-  DEVELOPMENT_TEAM="9VRNY5PMG3" \
-  CODE_SIGN_IDENTITY="Developer ID Application" \
-  CODE_SIGNING_REQUIRED=YES \
-  CODE_SIGNING_ALLOWED=YES \
-  ENABLE_HARDENED_RUNTIME=YES \
+  "${ARCHIVE_SIGNING_ARGS[@]}" \
   SKIP_INSTALL=NO \
   BUILD_LIBRARY_FOR_DISTRIBUTION=NO \
   | tail -5

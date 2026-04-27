@@ -91,22 +91,36 @@ if [[ "$SKIP_FETCH" -eq 0 ]]; then
   git fetch origin main develop --tags >/dev/null 2>&1 || fail "git fetch failed"
 fi
 
-git rev-parse --verify main >/dev/null 2>&1 || fail "local branch 'main' not found"
-git rev-parse --verify develop >/dev/null 2>&1 || fail "local branch 'develop' not found"
 git rev-parse --verify origin/main >/dev/null 2>&1 || fail "remote ref 'origin/main' not found"
 git rev-parse --verify origin/develop >/dev/null 2>&1 || fail "remote ref 'origin/develop' not found"
 
-main_head="$(git rev-parse main)"
-develop_head="$(git rev-parse develop)"
+main_ref="origin/main"
+develop_ref="origin/develop"
+
+if git rev-parse --verify main >/dev/null 2>&1; then
+  main_ref="main"
+fi
+
+if git rev-parse --verify develop >/dev/null 2>&1; then
+  develop_ref="develop"
+fi
+
+main_head="$(git rev-parse "$main_ref")"
+develop_head="$(git rev-parse "$develop_ref")"
 origin_main_head="$(git rev-parse origin/main)"
 origin_develop_head="$(git rev-parse origin/develop)"
 
-[[ "$main_head" == "$origin_main_head" ]] || fail "local main != origin/main (pull/push first)"
-[[ "$develop_head" == "$origin_develop_head" ]] || fail "local develop != origin/develop (pull/push first)"
+if [[ "$main_ref" == "main" ]]; then
+  [[ "$main_head" == "$origin_main_head" ]] || fail "local main != origin/main (pull/push first)"
+fi
+
+if [[ "$develop_ref" == "develop" ]]; then
+  [[ "$develop_head" == "$origin_develop_head" ]] || fail "local develop != origin/develop (pull/push first)"
+fi
 
 if [[ "$main_head" != "$develop_head" ]]; then
-  divergence="$(git rev-list --left-right --count main...develop)"
-  fail "main/develop not synchronized (main...develop=$divergence)"
+  divergence="$(git rev-list --left-right --count "$main_ref...$develop_ref")"
+  fail "main/develop not synchronized ($main_ref...$develop_ref=$divergence)"
 fi
 pass "main and develop are synchronized"
 

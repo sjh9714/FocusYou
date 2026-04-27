@@ -7,7 +7,7 @@
 ## 주요 기능
 
 **타이머**
-- **자유 타이머** — 1~180분, 프리셋 또는 슬라이더로 설정
+- **자유 타이머** — 1~240분, 프리셋 또는 슬라이더로 설정 (무료 120분)
 - **뽀모도로** — 집중/휴식 사이클, Overflow 모드, 파이차트 UI
 - **Flowmodoro** — 자유 집중 → 1/5 비례 자동 휴식
 
@@ -30,7 +30,7 @@
 - **데이터 내보내기** — CSV/JSON
 
 **연동**
-- **70+ 테마** — 12개 카테고리
+- **70+ 테마** — 6개 카테고리
 - **Shortcuts/Siri** — 음성으로 세션 제어
 - **데스크톱 위젯** — 집중 상태/스트릭 표시
 - **macOS Focus Mode** — 시스템 집중 모드 연동
@@ -42,7 +42,7 @@
 
 ### DMG 다운로드 (권장)
 
-1. [Releases](https://github.com/sungjh/FocusYou/releases)에서 최신 `FocusYou-x.x.x.dmg` 다운로드
+1. [Releases](https://github.com/jinhyuk9714/FocusYou/releases)에서 배포된 `FocusYou-x.x.x.dmg` 다운로드
 2. DMG를 열고 `Focus You.app`을 `Applications` 폴더로 드래그
 3. 최초 실행 시 **Control + 클릭 → 열기** (미서명 앱 허용)
 
@@ -50,7 +50,7 @@
 
 요구 사항:
 - macOS 14.0 (Sonoma) 이상
-- Xcode 15+
+- Xcode 26.2+ (CI 기준)
 - [xcodegen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 
 ```bash
@@ -59,7 +59,7 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
 # 프로젝트 생성 + 빌드
 xcodegen generate
-xcodebuild -scheme FocusYou -configuration Debug build
+xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
 또는 Xcode에서 `FocusYou.xcodeproj`를 열고 Run (Cmd+R).

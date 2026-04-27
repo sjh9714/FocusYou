@@ -43,6 +43,7 @@ targets:
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "완료된 집중 세션을 Apple Calendar에 기록합니다."
     dependencies:
+      - sdk: AppIntents.framework
       - target: FocusYouWidget
         embed: true
       - target: FocusYouNetworkExtension
@@ -53,9 +54,7 @@ targets:
     sources:
       - path: FocusYouNetworkExtension
       - path: FocusYou/Services/Shared/SharedBlockingData.swift
-        group: Shared
       - path: FocusYou/Helpers/Constants.swift
-        group: Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sungjh.focusyou.network-extension
@@ -71,6 +70,7 @@ targets:
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
     dependencies:
+      - sdk: AppIntents.framework
       - sdk: NetworkExtension.framework
   FocusYouWidget:
     type: app-extension
@@ -78,9 +78,7 @@ targets:
     sources:
       - path: FocusYouWidget
       - path: FocusYou/Services/Shared/SharedDataProvider.swift
-        group: Shared
       - path: FocusYou/Helpers/Constants.swift
-        group: Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sungjh.focusyou.widget

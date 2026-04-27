@@ -11,6 +11,7 @@
 		00BABD309AA330A714550F04 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6B61CCB5BDA99D508C0B43D6 /* Localizable.strings */; };
 		0156279D8FBC229B765C8D53 /* DNSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C2057280949E9F448AE711 /* DNSManager.swift */; };
 		036C9BC4AB24D1C31277A981 /* IntentionAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9673419B26B070F6B87085BA /* IntentionAnalysisView.swift */; };
+		0390240A5FA1220F9DB83610 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D63E3E47628ED4086CD21A /* AppIntents.framework */; };
 		05E19AE2DDA201D8D1619554 /* StatsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */; };
 		067B53F305A6FBB0D379E68A /* SharedDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B73E45F668260BB9B96443 /* SharedDataProvider.swift */; };
 		0975E061C0C01A6593ED6A64 /* games.json in Resources */ = {isa = PBXBuildFile; fileRef = D5694D96C1975D74CDAE10E0 /* games.json */; };
@@ -57,6 +58,7 @@
 		426C64779D07C930A6900EF1 /* GrowthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2BF1971342581463E1AC4 /* GrowthView.swift */; };
 		432B6715E62F9933022FA065 /* FocusYouApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03355D227440BC47048DC646 /* FocusYouApp.swift */; };
 		4B8131D21109186C0F18672D /* FocusModeObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758F6B2813BD5B07F87D81BD /* FocusModeObserver.swift */; };
+		4BD9CB58D33807606B503EC5 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D63E3E47628ED4086CD21A /* AppIntents.framework */; };
 		4BDFD390A0691774D076EFEC /* ProfileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF71C7E4163B1A0467DA61CF /* ProfileListView.swift */; };
 		4BECFC8D0509B6A08163E286 /* SharedDataProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2EC023E5EA44D652557629 /* SharedDataProviderTests.swift */; };
 		4CF72176209286290C286348 /* IdleContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373F8F2693CFBD489EAB3588 /* IdleContentView.swift */; };
@@ -274,7 +276,7 @@
 		17EF1530A9E5E293E37F683F /* DashboardRecentSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardRecentSessionsView.swift; sourceTree = "<group>"; };
 		180C8A945AD4A277828C840E /* PomodoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngine.swift; sourceTree = "<group>"; };
 		19662B67B9D0D34CC63F035C /* AppBlockerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockerTests.swift; sourceTree = "<group>"; };
-		1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = FocusYou/Helpers/Constants.swift; sourceTree = "<group>"; };
+		1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		1BAD2FEEFD93DF6F2BA42339 /* ThemeLivePreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeLivePreviewPanel.swift; sourceTree = "<group>"; };
 		1D0A920447BB7B9570357643 /* ProBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProBadge.swift; sourceTree = "<group>"; };
 		1DD3B8E333EA7D156126F140 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -283,6 +285,7 @@
 		209EA62DF1B37D9C804B49CA /* SettingsFocusTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFocusTabView.swift; sourceTree = "<group>"; };
 		23938FC7537258BF99825D34 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		24C1A612B440EA95CF85CFC3 /* StreakCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalculatorTests.swift; sourceTree = "<group>"; };
+		24D63E3E47628ED4086CD21A /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 		27D06F5277739FECAF993061 /* IntentionInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentionInputView.swift; sourceTree = "<group>"; };
 		28217721F7276AFF4B690021 /* FreeTimerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTimerTests.swift; sourceTree = "<group>"; };
 		28A9B287B1634FDF97BE0DA3 /* Quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Quotes.json; sourceTree = "<group>"; };
@@ -362,7 +365,7 @@
 		8B18D5DD185752CC322ECABF /* FocusYouTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusYouTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BEC784CCCAF57AEECBF97ED /* FocusYou.storekit */ = {isa = PBXFileReference; path = FocusYou.storekit; sourceTree = "<group>"; };
 		8DB4C1B387452451633A4970 /* CancelIntensityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelIntensityTests.swift; sourceTree = "<group>"; };
-		91B73E45F668260BB9B96443 /* SharedDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDataProvider.swift; path = FocusYou/Services/Shared/SharedDataProvider.swift; sourceTree = "<group>"; };
+		91B73E45F668260BB9B96443 /* SharedDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataProvider.swift; sourceTree = "<group>"; };
 		923F7679B21AE4E12016F775 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouFilterDataProvider.swift; sourceTree = "<group>"; };
 		940DEEE65F8E319F78D5DB2E /* GrowthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthManager.swift; sourceTree = "<group>"; };
@@ -395,7 +398,7 @@
 		B92F5C4C45461B9FCA6D4D16 /* StreakCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalculator.swift; sourceTree = "<group>"; };
 		B9A600D5B8F1C8C61B73A668 /* GetStreakIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetStreakIntent.swift; sourceTree = "<group>"; };
 		BA4EFEB2F1CBE531A6AAEA6F /* MainDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDashboardView.swift; sourceTree = "<group>"; };
-		BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedBlockingData.swift; path = FocusYou/Services/Shared/SharedBlockingData.swift; sourceTree = "<group>"; };
+		BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedBlockingData.swift; sourceTree = "<group>"; };
 		BC929065CCF7442C450405B3 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
 		BCE568A09278F59FE68649E8 /* ThemeCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCategoryTests.swift; sourceTree = "<group>"; };
 		C1B8217DB1E77557E093543C /* ProfileEditorFormSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditorFormSections.swift; sourceTree = "<group>"; };
@@ -452,6 +455,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BD9CB58D33807606B503EC5 /* AppIntents.framework in Frameworks */,
 				D537904AF50D5D71561E0B4C /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -462,6 +466,14 @@
 			files = (
 				425F32681AE8CDC7603538F5 /* WidgetKit.framework in Frameworks */,
 				C2E5B3E3B85AAFC60ED41E60 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FCC1749B4884BB0633D76F48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0390240A5FA1220F9DB83610 /* AppIntents.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -507,6 +519,7 @@
 		09499013C254A12172B6364C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				24D63E3E47628ED4086CD21A /* AppIntents.framework */,
 				3A9B7BCA1FF03A464DDA27E2 /* NetworkExtension.framework */,
 				35A93E3659C0291BC02B305F /* SwiftUI.framework */,
 				03C18891FC98729777E6DC5B /* WidgetKit.framework */,
@@ -588,16 +601,6 @@
 			path = Intents;
 			sourceTree = "<group>";
 		};
-		2D1BB7479EEEE7AC76109042 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */,
-				BAE893E5349ABB088F33BAE1 /* SharedBlockingData.swift */,
-				91B73E45F668260BB9B96443 /* SharedDataProvider.swift */,
-			);
-			name = Shared;
-			sourceTree = "<group>";
-		};
 		2FD437F2C3035F5DB16F70C2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -673,7 +676,6 @@
 				566FCCE2568DFBC180BE9D54 /* FocusYouNetworkExtension */,
 				75E9FC3F0D99B7062021B117 /* FocusYouTests */,
 				AC7CB4629FC26F0B4BF4365F /* FocusYouWidget */,
-				2D1BB7479EEEE7AC76109042 /* Shared */,
 				09499013C254A12172B6364C /* Frameworks */,
 				9772FF4E521F20AC894D4862 /* Products */,
 			);
@@ -999,6 +1001,7 @@
 			buildPhases = (
 				E66F2D9631CAD08E293838E9 /* Sources */,
 				959BC0AD0059AB96A309511A /* Resources */,
+				FCC1749B4884BB0633D76F48 /* Frameworks */,
 				D8DB30BA62CEEA5D79081277 /* Embed Foundation Extensions */,
 				F979855328766FD84837AF5F /* Embed System Extensions */,
 			);

@@ -1,5 +1,5 @@
 import Foundation
-import NetworkExtension
+@preconcurrency import NetworkExtension
 import SystemExtensions
 import os
 
@@ -104,16 +104,15 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
     /// 필터 활성화
     private func enableFilter() async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let manager = NEFilterManager.shared()
-            manager.loadFromPreferences { error in
+            NEFilterManager.shared().loadFromPreferences { error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
                 }
 
+                let manager = NEFilterManager.shared()
                 if manager.providerConfiguration == nil {
                     let config = NEFilterProviderConfiguration()
-                    config.filterBrowsers = true
                     config.filterSockets = true
                     manager.providerConfiguration = config
                 }
@@ -128,14 +127,14 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
                     }
 
                     // 저장 후 재로드하여 활성 상태 검증
-                    manager.loadFromPreferences { verifyError in
+                    NEFilterManager.shared().loadFromPreferences { verifyError in
                         if let verifyError {
                             self.logger.error("NEFilterManager 검증 실패: \(verifyError.localizedDescription)")
                             continuation.resume(throwing: FocusYouError.networkExtensionActivationFailed)
                             return
                         }
 
-                        guard manager.isEnabled else {
+                        guard NEFilterManager.shared().isEnabled else {
                             self.logger.error("NEFilterManager 저장 후 비활성 — 활성화 실패")
                             continuation.resume(throwing: FocusYouError.networkExtensionActivationFailed)
                             return
@@ -152,13 +151,13 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
     /// 필터 비활성화
     private func disableFilter() async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let manager = NEFilterManager.shared()
-            manager.loadFromPreferences { error in
+            NEFilterManager.shared().loadFromPreferences { error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
                 }
 
+                let manager = NEFilterManager.shared()
                 manager.isEnabled = false
 
                 manager.saveToPreferences { saveError in
@@ -169,14 +168,14 @@ actor NetworkExtensionBlocker: WebsiteBlocker {
                     }
 
                     // 저장 후 재로드하여 비활성 상태 검증
-                    manager.loadFromPreferences { verifyError in
+                    NEFilterManager.shared().loadFromPreferences { verifyError in
                         if let verifyError {
                             self.logger.error("NEFilterManager 비활성화 검증 실패: \(verifyError.localizedDescription)")
                             continuation.resume(throwing: FocusYouError.networkExtensionDeactivationFailed)
                             return
                         }
 
-                        if manager.isEnabled {
+                        if NEFilterManager.shared().isEnabled {
                             self.logger.error("NEFilterManager 저장 후 여전히 활성 — 비활성화 실패")
                             continuation.resume(throwing: FocusYouError.networkExtensionDeactivationFailed)
                             return

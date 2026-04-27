@@ -14,7 +14,7 @@
   - 대안: Focus on You
 - **번들 ID**: com.sungjh.focusyou
 - **타겟**: macOS 14.0+ (Sonoma 이상)
-- **언어**: Swift 5.9+
+- **언어**: Swift 6.0+
 - **UI**: SwiftUI (AppKit 사용 최소화)
 - **아키텍처**: MVVM + Service Layer
 - **디자인 철학**: "출시된 제품 > 완벽한 계획." 프로그레시브 디스클로저. 집중을 방해하는 집중 앱이 되지 말 것.
@@ -328,15 +328,15 @@ v2.0.0  — Pro 구독 + App Store 출시
 v3.0.0  — AI + iOS 확장
 ```
 
-Focus You 버전 계획:
+Focus You 버전 현황:
 ```
-v0.1.0  메뉴바 + 자유 타이머 + 차단          (내부 사용)
-v0.3.0  뽀모도로 + 파이차트                   (지인 테스트)
-v0.5.0  테마 + 프로필 + 통계                  (베타 배포)
-v1.0.0  Flowmodoro + 스트릭 + 온보딩          (첫 공개 출시)
-v1.x.0  의도 입력, 회고, 사운드 등            (피드백 기반)
-v2.0.0  Pro 구독 + Network Extension          (App Store)
-v3.0.0  AI 인사이트 + iOS                     (플랫폼 확장)
+v0.1.0  메뉴바 + 자유 타이머 + 차단          ✅
+v0.3.x  뽀모도로 + 파이차트                   ✅
+v0.5.x  테마 + 프로필 + 통계                  ✅
+v1.x    Flowmodoro + 스트릭 + 온보딩/연동     ✅
+v2.0    Pro 구독 + Network Extension 인프라   ✅
+v2.3.2  테스트/리팩토링 안정화 기준선          현재 develop
+v3.0.0  AI 인사이트 + iOS                     예정
 ```
 
 ### Git 브랜치 전략
@@ -348,18 +348,18 @@ feature/ — 기능 개발: develop에서 분기 → develop에 머지
 hotfix/  — 긴급 수정: main에서 분기 → main + develop에 머지
 
 흐름:
-main:     v0.1.0 --------→ v0.3.0 --------→ v1.0.0
-              ↑                ↑                ↑
-develop:  ──●──●──●──머지──●──●──●──머지──●──●──머지
-              ↑     ↑           ↑
-feature:  pomodoro  pie-chart   flowmodoro
+feature/fix/chore → develop → main/tag/release
+
+주의:
+main은 배포 기준선이고 develop이 앞설 수 있다. 릴리스 전에는
+`release_preflight.sh`로 main/develop/tag/CHANGELOG 정합성을 확인한다.
 ```
 
 버전 태그:
 ```bash
 git checkout main
 git merge develop
-git tag v0.1.0
+git tag vX.Y.Z
 git push origin main --tags
 ```
 

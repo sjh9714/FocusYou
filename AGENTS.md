@@ -16,21 +16,21 @@ Recent baseline is already stabilized for:
 - helper-based hosts restore
 - QA script and CI (`macOS Tests`)
 
-## 2) v0.3 Scope (Do This)
+## 2) Current Maintenance Scope
 
-Target release: `v0.3.0`
+Current baseline: `v2.3.2`
 
 In scope:
-- Pomodoro mode implementation
-- Pie chart timer UX
-- session flow integration with existing blocking lifecycle
+- warning-free Swift 6 / XcodeGen builds
+- blocking lifecycle safety and recovery maintenance
+- release script, CI, and documentation consistency
 - regression-safe integration with current QA/test setup
 
 Out of scope:
-- subscription/paywall
-- Network Extension
-- major UI theme system work (`v0.5+`)
 - iOS expansion
+- AI insights
+- major UI theme rewrites
+- unreviewed release/tag publishing
 
 ## 3) Canonical Commands
 
@@ -90,7 +90,7 @@ Rules:
 
 Branching:
 - base: `develop`
-- feature branches: `feature/v0.3-*`
+- feature branches: `feature/*`, `fix/*`, or `chore/*`
 
 Commit style:
 - `feat: ...`
@@ -102,12 +102,12 @@ Commit style:
 
 Prefer small, reviewable commits with build/test passing per logical unit.
 
-## 7) Done Criteria for v0.3 Work Items
+## 7) Done Criteria
 
 Before marking done:
 1. `xcodegen generate` succeeds
-2. `xcodebuild ... test` succeeds
-3. QA baseline returns to clean state:
+2. `xcodebuild ... build` / `test` / `analyze` succeed for the changed surface
+3. QA baseline returns to clean state when blocking code or scripts are touched:
    - `assert-helper-ready` PASS
    - `assert-clean` PASS
 4. CI workflow (`.github/workflows/macos-tests.yml`) remains green on push/PR

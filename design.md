@@ -48,8 +48,8 @@ Focus You의 답: **타이머 시작 → 차단 자동 활성, 타이머 종료 
 ### 현재 프로젝트 현황 (스냅샷)
 
 ```
-버전: v2.3.0 (build 22)
-Swift 소스: 114 파일 | 테스트: 42 파일, 282+ 테스트
+버전: v2.3.2 (build 24)
+Swift 소스: 123 파일 | 테스트: 43 파일, 304 XCTest + 123 Swift Testing
 테마: 72개 (6 카테고리 × 12) | 로컬라이제이션: 한국어 + 영어
 위젯: 2개 (FocusStatus, Streak) | Shortcuts: 6개 인텐트
 Pro/Free 분리: LicenseManager + PaywallView + StoreKit 2 결제 완료
@@ -70,8 +70,8 @@ v0.3  "뽀모도로 차단 앱"       ✅ 완료
 v0.5  "예쁜 집중 앱"           ✅ 완료
 v1.0  "출시할 수 있는 앱"      ✅ 완료
 v1.x  "사용자가 원하는 기능"   ✅ 완료 (22/22 구현)
-v2.0  "Pro + App Store"        ✅ 완료 (Pro 인프라 + StoreKit 2 결제, NE 미연결)
-v2.x  코드 품질 개선            ✅ v2.1~v2.3 (테스트 282+개, 뷰 리팩토링)
+v2.0  "Pro + App Store"        ✅ 완료 (Pro 인프라 + StoreKit 2 결제, NE 인프라)
+v2.x  코드 품질 개선            ✅ v2.1~v2.3 (테스트 304+123개, 뷰 리팩토링)
 v3.0  "플랫폼"                 ❌ 미착수
 ```
 
@@ -609,9 +609,9 @@ Level 3 — 텍스트 + 별점(StarRatingView) + 방해 요인 태그(Disruption
 ✅ StoreKit 2 실제 결제 연결 (SubscriptionManager actor)
 ✅ 구매 복원, 트랜잭션 실시간 감시, JWS on-device 검증
 ✅ StoreKit Configuration 파일 (로컬 테스트용)
-✅ NetworkExtensionBlocker 스텁 + WebsiteBlockerFactory 전략 패턴
-✅ v2.1~v2.3: 테스트 커버리지 282+개, 뷰 리팩토링 완료
-❌ Network Extension 실제 연결 (NEFilterDataProvider)
+✅ NetworkExtensionBlocker + NEFilterDataProvider 인프라
+✅ WebsiteBlockerFactory 전략 패턴
+✅ v2.1~v2.3: 테스트 커버리지 304 XCTest + 123 Swift Testing, 뷰 리팩토링 완료
 ❌ App Store 심사 제출
 ```
 

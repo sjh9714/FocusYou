@@ -5,15 +5,19 @@ import XCTest
 final class FreeTimerTests: XCTestCase {
     private var timer: FreeTimer!
 
-    override func setUp() {
-        super.setUp()
-        timer = FreeTimer()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            timer = FreeTimer()
+        }
     }
 
-    override func tearDown() {
-        timer.reset()
-        timer = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            timer.reset()
+            timer = nil
+        }
+        try await super.tearDown()
     }
 
     // MARK: - 초기 상태

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "2620"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "11C2220FF5EA37B4F5D3C6D1"
-               BuildableName = "Focus You.app"
+               BuildableName = "FocusYou.app"
                BlueprintName = "FocusYou"
                ReferencedContainer = "container:FocusYou.xcodeproj">
             </BuildableReference>
@@ -29,7 +30,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "88F6D2E88A8B0D0BEB606E68"
-               BuildableName = "FocusYouFilter.systemextension"
+               BuildableName = "FocusYouNetworkExtension.systemextension"
                BlueprintName = "FocusYouNetworkExtension"
                ReferencedContainer = "container:FocusYou.xcodeproj">
             </BuildableReference>
@@ -54,12 +55,13 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "11C2220FF5EA37B4F5D3C6D1"
-            BuildableName = "Focus You.app"
+            BuildableName = "FocusYou.app"
             BlueprintName = "FocusYou"
             ReferencedContainer = "container:FocusYou.xcodeproj">
          </BuildableReference>
@@ -77,6 +79,8 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -93,11 +97,13 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "11C2220FF5EA37B4F5D3C6D1"
-            BuildableName = "Focus You.app"
+            BuildableName = "FocusYou.app"
             BlueprintName = "FocusYou"
             ReferencedContainer = "container:FocusYou.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
       <StoreKitConfigurationFileReference
          identifier = "../../FocusYou/FocusYou.storekit">
       </StoreKitConfigurationFileReference>
@@ -113,7 +119,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "11C2220FF5EA37B4F5D3C6D1"
-            BuildableName = "Focus You.app"
+            BuildableName = "FocusYou.app"
             BlueprintName = "FocusYou"
             ReferencedContainer = "container:FocusYou.xcodeproj">
          </BuildableReference>

@@ -5,14 +5,18 @@ import XCTest
 final class TimerViewModelTests: XCTestCase {
     private var viewModel: TimerViewModel!
 
-    override func setUp() {
-        super.setUp()
-        viewModel = TimerViewModel()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            viewModel = TimerViewModel()
+        }
     }
 
-    override func tearDown() {
-        viewModel = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            viewModel = nil
+        }
+        try await super.tearDown()
     }
 
     // MARK: - 기본 상태

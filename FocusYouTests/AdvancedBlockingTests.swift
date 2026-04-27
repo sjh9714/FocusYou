@@ -5,13 +5,13 @@ final class AdvancedBlockingTests: XCTestCase {
 
     // MARK: - 키워드 확장
 
-    func testExpandKeywordPatternProducesTLDVariants() async {
+    func testExpandKeywordPatternProducesTLDVariants() {
         let manager = HostsFileManager(
             hostsPath: "/tmp/focusyou-test-hosts-\(UUID().uuidString)",
             backupPath: "/tmp/focusyou-test-backup-\(UUID().uuidString)"
         )
 
-        let results = await manager.expandKeywordPattern("youtube")
+        let results = manager.expandKeywordPattern("youtube")
         XCTAssertTrue(results.contains("youtube.com"))
         XCTAssertTrue(results.contains("youtube.net"))
         XCTAssertTrue(results.contains("youtube.org"))
@@ -20,23 +20,23 @@ final class AdvancedBlockingTests: XCTestCase {
         XCTAssertEqual(results.count, 5)
     }
 
-    func testExpandKeywordPatternNormalizesInput() async {
+    func testExpandKeywordPatternNormalizesInput() {
         let manager = HostsFileManager(
             hostsPath: "/tmp/focusyou-test-hosts-\(UUID().uuidString)",
             backupPath: "/tmp/focusyou-test-backup-\(UUID().uuidString)"
         )
 
-        let results = await manager.expandKeywordPattern("  YouTube  ")
+        let results = manager.expandKeywordPattern("  YouTube  ")
         XCTAssertTrue(results.contains("youtube.com"))
     }
 
-    func testExpandKeywordPatternReturnsEmptyForBlank() async {
+    func testExpandKeywordPatternReturnsEmptyForBlank() {
         let manager = HostsFileManager(
             hostsPath: "/tmp/focusyou-test-hosts-\(UUID().uuidString)",
             backupPath: "/tmp/focusyou-test-backup-\(UUID().uuidString)"
         )
 
-        let results = await manager.expandKeywordPattern("   ")
+        let results = manager.expandKeywordPattern("   ")
         XCTAssertTrue(results.isEmpty)
     }
 

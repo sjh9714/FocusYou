@@ -5,15 +5,19 @@ import XCTest
 final class AppBlockerTests: XCTestCase {
     private var blocker: AppBlocker!
 
-    override func setUp() {
-        super.setUp()
-        blocker = AppBlocker.shared
-        blocker.deactivate()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            blocker = AppBlocker.shared
+            blocker.deactivate()
+        }
     }
 
-    override func tearDown() {
-        blocker.deactivate()
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            blocker.deactivate()
+        }
+        try await super.tearDown()
     }
 
     func testActivateWithEmptyBundleIdsIsNoop() {

@@ -6,9 +6,11 @@ import SwiftData
 final class CalendarSyncServiceTests: XCTestCase {
     private var service: CalendarSyncService!
 
-    override func setUp() {
-        super.setUp()
-        service = CalendarSyncService.shared
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            service = CalendarSyncService.shared
+        }
     }
 
     // MARK: - eventTitle

@@ -7,14 +7,18 @@ import XCTest
 final class BlockListViewModelTests: XCTestCase {
     private var viewModel: BlockListViewModel!
 
-    override func setUp() {
-        super.setUp()
-        viewModel = BlockListViewModel()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            viewModel = BlockListViewModel()
+        }
     }
 
-    override func tearDown() {
-        viewModel = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            viewModel = nil
+        }
+        try await super.tearDown()
     }
 
     // MARK: - 웹사이트 추가

@@ -36,8 +36,17 @@ enum StreakCalculator {
         let todayCompleted = completedDates.contains(today)
 
         // 2. 현재 스트릭: 오늘 또는 어제부터 역순 카운트
+        let currentStreakStartDate: Date
+        if todayCompleted {
+            currentStreakStartDate = today
+        } else if let yesterday = calendar.date(byAdding: .day, value: -1, to: today) {
+            currentStreakStartDate = yesterday
+        } else {
+            currentStreakStartDate = today
+        }
+
         let currentStreak = countConsecutiveDays(
-            from: todayCompleted ? today : calendar.date(byAdding: .day, value: -1, to: today)!,
+            from: currentStreakStartDate,
             completedDates: completedDates,
             calendar: calendar
         )

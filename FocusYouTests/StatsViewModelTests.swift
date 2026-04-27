@@ -6,14 +6,18 @@ final class StatsViewModelTests: XCTestCase {
     private let calendar = Calendar.current
     private var viewModel: StatsViewModel!
 
-    override func setUp() {
-        super.setUp()
-        viewModel = StatsViewModel()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            viewModel = StatsViewModel()
+        }
     }
 
-    override func tearDown() {
-        viewModel = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            viewModel = nil
+        }
+        try await super.tearDown()
     }
 
     // MARK: - 헬퍼
