@@ -353,6 +353,7 @@
 		78E8393058B00270FBC46036 /* TogglePauseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogglePauseIntent.swift; sourceTree = "<group>"; };
 		7A506D1C89B5DCDBCC50E20E /* PomodoroConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroConfigView.swift; sourceTree = "<group>"; };
 		7E4D50889113C0AF74856AAA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7FD1C942E57F8659BFB5E664 /* FocusYouNetworkExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYouNetworkExtensionRelease.entitlements; sourceTree = "<group>"; };
 		7FE9A1DAFD3F44FA1FAA3EBF /* ScheduleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleListView.swift; sourceTree = "<group>"; };
 		803FA979E8DE6F6A379765F9 /* BlockScheduleModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockScheduleModelTests.swift; sourceTree = "<group>"; };
 		8102D337C08B0D73BB98938B /* OnboardingWelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWelcomeStepView.swift; sourceTree = "<group>"; };
@@ -706,6 +707,7 @@
 			children = (
 				92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */,
 				AB76D53C51DD585CD177589B /* FocusYouNetworkExtension.entitlements */,
+				7FD1C942E57F8659BFB5E664 /* FocusYouNetworkExtensionRelease.entitlements */,
 				C34697CBEA3DA3B61268C6EC /* Info.plist */,
 				B809334BD79336E1364C666A /* main.swift */,
 			);
@@ -1427,6 +1429,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "완료된 집중 세션을 Apple Calendar에 기록합니다.";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1468,6 +1471,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "완료된 집중 세션을 Apple Calendar에 기록합니다.";
 				LD_RUNPATH_SEARCH_PATHS = (
