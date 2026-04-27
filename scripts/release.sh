@@ -274,6 +274,28 @@ rm -rf "$DMG_STAGING"
 [[ -f "$DMG_PATH" ]] || fail "DMG not found at $DMG_PATH"
 pass "DMG created: $DMG_PATH"
 
+if [[ "$SKIP_SIGN" -eq 0 ]]; then
+  info "Signing DMG with Developer ID..."
+  codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG_PATH" || fail "DMG signing failed"
+  codesign --verify --verbose=2 "$DMG_PATH" || fail "DMG signing verification failed"
+  pass "DMG signed and verified"
+else
+  info "Skipping DMG signing (--skip-sign)"
+fi
+
+if [[ "$SKIP_SIGN" -eq 0 && "$SKIP_NOTARIZE" -eq 0 ]]; then
+  info "Submitting DMG for notarization..."
+  xcrun notarytool submit "$DMG_PATH" \
+    --keychain-profile "FocusYou-Notarize" \
+    --wait || fail "DMG notarization failed"
+
+  info "Stapling DMG notarization ticket..."
+  xcrun stapler staple "$DMG_PATH" || fail "DMG stapling failed"
+  pass "DMG notarization complete"
+else
+  info "Skipping DMG notarization"
+fi
+
 # ─── Summary ─────────────────────────────────────────────────
 
 DMG_SIZE=$(du -sh "$DMG_PATH" | cut -f1)

@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - 프로젝트 정리: XcodeGen shared source 구성, Swift 6 경고, AppIntents 의존성, 릴리즈 스크립트, 문서 스냅샷 정합성 개선.
+- 공식 DMG 배포 경로가 앱과 DMG 모두 Developer ID 서명, notarization, stapling을 거치도록 보강.
 
 ## [2.3.2] - 2026-02-22
 
