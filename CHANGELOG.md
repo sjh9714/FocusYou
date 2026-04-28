@@ -7,6 +7,7 @@ All notable changes to this project are documented in this file.
 ### Changed
 - README 설치 및 릴리즈 빌드 안내를 signed/notarized DMG 배포 흐름에 맞게 갱신.
 - AppState 구조 안정화: 세션 라이프사이클, 타이머 모드, 프로필/스케줄, 에러 처리, 보상/위젯 공유 로직을 extension 및 작은 helper 타입으로 분리.
+- 브랜치 운영 정책을 main-only로 정리하고, CI/릴리즈 preflight/문서의 기준 브랜치를 `main`으로 통일.
 
 ## [2.3.3] - 2026-04-28
 

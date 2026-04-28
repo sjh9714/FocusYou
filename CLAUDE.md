@@ -335,30 +335,26 @@ v0.3.x  뽀모도로 + 파이차트                   ✅
 v0.5.x  테마 + 프로필 + 통계                  ✅
 v1.x    Flowmodoro + 스트릭 + 온보딩/연동     ✅
 v2.0    Pro 구독 + Network Extension 인프라   ✅
-v2.3.3  릴리즈 정리 및 빌드 경고 제거          현재 main/develop
+v2.3.3  릴리즈 정리 및 빌드 경고 제거          현재 main
 v3.0.0  AI 인사이트 + iOS                     예정
 ```
 
 ### Git 브랜치 전략
 
 ```
-main     — 항상 동작하는 코드. 직접 커밋 금지.
-develop  — 일상 개발 브랜치.
-feature/ — 기능 개발: develop에서 분기 → develop에 머지
-hotfix/  — 긴급 수정: main에서 분기 → main + develop에 머지
+main     — 일상 작업과 릴리즈의 단일 기준 브랜치.
+feature/ — 명시 요청이 있을 때만 임시로 사용하고 main에 머지
 
 흐름:
-feature/fix/chore → develop → main/tag/release
+main → tag/release
 
 주의:
-main은 배포 기준선이고 develop이 앞설 수 있다. 릴리스 전에는
-`release_preflight.sh`로 main/develop/tag/CHANGELOG 정합성을 확인한다.
+릴리스 전에는 `release_preflight.sh`로 main/tag/CHANGELOG 정합성을 확인한다.
 ```
 
 버전 태그:
 ```bash
 git checkout main
-git merge develop
 git tag vX.Y.Z
 git push origin main --tags
 ```
@@ -406,7 +402,7 @@ chore: SwiftLint 설정 추가
 
 - `design.md` — 상세 기능 명세, UX 설계, 수익 모델
 - `docs/release-preflight.md` — 릴리스 브랜치/태그/체인지로그 정합성 검증 절차
-- Apple HIG: https://developer.apple.com/design/human-interface-guidelines/
-- SwiftUI: https://developer.apple.com/documentation/swiftui/
-- StoreKit 2: https://developer.apple.com/documentation/storekit/
-- AppIntents: https://developer.apple.com/documentation/appintents/
+- Apple HIG: https://Developer.apple.com/design/human-interface-guidelines/
+- SwiftUI: https://Developer.apple.com/documentation/swiftui/
+- StoreKit 2: https://Developer.apple.com/documentation/storekit/
+- AppIntents: https://Developer.apple.com/documentation/appintents/

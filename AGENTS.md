@@ -8,7 +8,7 @@ This file defines project-specific operating rules for coding agents (Codex) in 
 - Bundle ID: `com.sungjh.focusyou`
 - Target: macOS 14+
 - Architecture: SwiftUI + SwiftData + Service Layer + actor-based blocking flow
-- Main branch for daily work: `develop`
+- Main branch for daily work and releases: `main`
 
 Recent baseline is already stabilized for:
 - blocking activation/deactivation safety
@@ -89,8 +89,9 @@ Rules:
 ## 6) Branch and Commit Policy
 
 Branching:
-- base: `develop`
-- feature branches: `feature/*`, `fix/*`, or `chore/*`
+- base: `main`
+- work directly on `main` for approved changes
+- use temporary branches only when explicitly requested, then merge back to `main`
 
 Commit style:
 - `feat: ...`

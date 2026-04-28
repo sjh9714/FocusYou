@@ -19,13 +19,13 @@ Description:
   Release preflight checks for branch/tag/changelog consistency.
 
 Checks:
-  1) main/develop branch synchronization policy
+  1) main branch synchronization policy
   2) expected release tag matches top CHANGELOG version
   3) (tagged stage) tag points to intended release commit
 
 Stages:
   --stage pre-tag
-    - Requires main == develop
+    - Requires local main == origin/main when local main exists
     - Requires top CHANGELOG version is valid
     - Requires expected tag value matches top CHANGELOG version
     - Tag may be missing (pre-tag state)
@@ -33,7 +33,7 @@ Stages:
   --stage tagged
     - Includes all pre-tag checks
     - Requires expected tag exists
-    - Requires tag commit == main HEAD == develop HEAD
+    - Requires tag commit == main HEAD
 EOF
 }
 
@@ -87,42 +87,26 @@ if [[ ! -f "$CHANGELOG_PATH" ]]; then
 fi
 
 if [[ "$SKIP_FETCH" -eq 0 ]]; then
-  info "fetching latest refs (origin/main, origin/develop, tags)"
-  git fetch origin main develop --tags >/dev/null 2>&1 || fail "git fetch failed"
+  info "fetching latest refs (origin/main, tags)"
+  git fetch origin main --tags >/dev/null 2>&1 || fail "git fetch failed"
 fi
 
 git rev-parse --verify origin/main >/dev/null 2>&1 || fail "remote ref 'origin/main' not found"
-git rev-parse --verify origin/develop >/dev/null 2>&1 || fail "remote ref 'origin/develop' not found"
 
 main_ref="origin/main"
-develop_ref="origin/develop"
 
 if git rev-parse --verify main >/dev/null 2>&1; then
   main_ref="main"
 fi
 
-if git rev-parse --verify develop >/dev/null 2>&1; then
-  develop_ref="develop"
-fi
-
 main_head="$(git rev-parse "$main_ref")"
-develop_head="$(git rev-parse "$develop_ref")"
 origin_main_head="$(git rev-parse origin/main)"
-origin_develop_head="$(git rev-parse origin/develop)"
 
 if [[ "$main_ref" == "main" ]]; then
   [[ "$main_head" == "$origin_main_head" ]] || fail "local main != origin/main (pull/push first)"
 fi
 
-if [[ "$develop_ref" == "develop" ]]; then
-  [[ "$develop_head" == "$origin_develop_head" ]] || fail "local develop != origin/develop (pull/push first)"
-fi
-
-if [[ "$main_head" != "$develop_head" ]]; then
-  divergence="$(git rev-list --left-right --count "$main_ref...$develop_ref")"
-  fail "main/develop not synchronized ($main_ref...$develop_ref=$divergence)"
-fi
-pass "main and develop are synchronized"
+pass "main is synchronized with origin/main"
 
 top_changelog_version="$(
   sed -nE 's/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*$/\1/p' "$CHANGELOG_PATH" | head -n 1

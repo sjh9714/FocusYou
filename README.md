@@ -82,7 +82,7 @@ xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -de
 GitHub Actions에서 macOS 테스트를 자동 실행합니다:
 
 - workflow: `.github/workflows/macos-tests.yml`
-- trigger: `push`, `pull_request` (`develop`, `main`)
+- trigger: `push`, `pull_request` (`main`)
 - command: `xcodegen generate` + `xcodebuild ... test`
 
 ## Debug Fast Timer (개발용)
