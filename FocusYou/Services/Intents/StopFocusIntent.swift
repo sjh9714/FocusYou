@@ -21,10 +21,13 @@ struct StopFocusIntent: AppIntent {
             return .result(dialog: "현재 취소 강도 설정으로 인해 세션을 중지할 수 없습니다.")
         }
 
-        let container = try ModelContainer(
-            for: BlockProfile.self, BlockedSite.self, BlockedApp.self,
-            FocusSession.self, BlockSchedule.self
-        )
+        let dataAccess = try AppIntentDataAccess.makeContainer()
+        if let dialog = dataAccess.unavailableDialog {
+            return .result(dialog: "\(dialog)")
+        }
+        guard let container = dataAccess.container else {
+            return .result(dialog: "\(AppIntentDataAccess.dataStoreUnavailableDialog)")
+        }
 
         await appState.stopSession(modelContext: container.mainContext)
 

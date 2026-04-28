@@ -24,10 +24,13 @@ struct StartFocusIntent: AppIntent {
             return .result(dialog: "이미 집중 중입니다.")
         }
 
-        let container = try ModelContainer(
-            for: BlockProfile.self, BlockedSite.self, BlockedApp.self,
-            FocusSession.self, BlockSchedule.self
-        )
+        let dataAccess = try AppIntentDataAccess.makeContainer()
+        if let dialog = dataAccess.unavailableDialog {
+            return .result(dialog: "\(dialog)")
+        }
+        guard let container = dataAccess.container else {
+            return .result(dialog: "\(AppIntentDataAccess.dataStoreUnavailableDialog)")
+        }
         let context = container.mainContext
 
         let profiles = try context.fetch(FetchDescriptor<BlockProfile>())

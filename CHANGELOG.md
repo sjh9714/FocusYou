@@ -9,6 +9,7 @@ All notable changes to this project are documented in this file.
 - AppState 구조 안정화: 세션 라이프사이클, 타이머 모드, 프로필/스케줄, 에러 처리, 보상/위젯 공유 로직을 extension 및 작은 helper 타입으로 분리.
 - 브랜치 운영 정책을 main-only로 정리하고, CI/릴리즈 preflight/문서의 기준 브랜치를 `main`으로 통일.
 - 앱 시작 안정화: SwiftData 저장소 생성 실패 시 원본 데이터를 건드리지 않고 in-memory 안전 모드로 시작하며 복구 안내 창을 표시하도록 변경.
+- 데이터 저장소 진단/백업 도구를 추가하고 AppIntents의 `ModelContainer` 생성 경로를 앱 시작 정책과 동일한 factory로 통일.
 
 ## [2.3.3] - 2026-04-28
 

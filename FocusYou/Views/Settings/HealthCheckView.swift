@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import os
 
 // MARK: - 차단 상태 진단 (v1.3)
@@ -8,8 +9,10 @@ struct HealthCheckView: View {
 
     @State private var privateRelayStatus: PrivateRelayDetector.Status?
     @State private var hostsBlockingActive = false
+    @State private var dataStoreDiagnostics: AppDataStoreDiagnosticsReport?
     @State private var isDiagnosing = false
     @State private var dnsFlushResult: String?
+    @State private var dataStoreBackupResult: String?
 
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
@@ -24,6 +27,7 @@ struct HealthCheckView: View {
             VStack(spacing: Constants.Design.spacingMD) {
                 privateRelayRow
                 hostsBlockingRow
+                dataStoreRow
                 dnsFlushRow
             }
 
@@ -108,6 +112,40 @@ struct HealthCheckView: View {
         .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
     }
 
+    // MARK: - 데이터 저장소
+
+    private var dataStoreRow: some View {
+        HStack(spacing: Constants.Design.spacingMD) {
+            diagnosticIcon(status: dataStoreDiagnostics?.isHealthy ?? true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("데이터 저장소")
+                    .font(.callout.weight(.medium))
+
+                Text(dataStoreDiagnostics?.statusSummary ?? "진단 중...")
+                    .font(.caption)
+                    .foregroundStyle(dataStoreDiagnostics?.isHealthy == false ? themeManager.stopButton : Color.secondary)
+
+                if let dataStoreBackupResult {
+                    Text(dataStoreBackupResult)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
+            }
+
+            Spacer()
+
+            Button("백업") {
+                createDataStoreBackup()
+            }
+            .font(.caption)
+            .buttonStyle(.plain)
+            .foregroundStyle(themeManager.primary)
+        }
+        .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
+    }
+
     // MARK: - DNS 캐시 플러시
 
     private var dnsFlushRow: some View {
@@ -152,6 +190,7 @@ struct HealthCheckView: View {
 
         privateRelayStatus = PrivateRelayDetector.detect()
         hostsBlockingActive = await HostsFileManager.shared.hasActiveBlocking()
+        dataStoreDiagnostics = AppDataStoreDiagnostics.inspect()
 
         isDiagnosing = false
     }
@@ -162,6 +201,34 @@ struct HealthCheckView: View {
             dnsFlushResult = String(localized: "DNS 캐시 플러시 완료")
         } catch {
             dnsFlushResult = String(localized: "플러시 실패: \(error.localizedDescription)")
+        }
+    }
+
+    private func createDataStoreBackup() {
+        let diagnostics = AppDataStoreDiagnostics.inspect()
+        dataStoreDiagnostics = diagnostics
+
+        let panel = NSOpenPanel()
+        panel.title = "백업 저장 위치 선택"
+        panel.prompt = "백업 만들기"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            return
+        }
+
+        do {
+            let result = try DataStoreBackupService.createBackup(
+                destinationDirectoryURL: destinationURL,
+                diagnostics: diagnostics
+            )
+            dataStoreBackupResult = "백업 완료: \(result.backupDirectoryURL.path)"
+            NSWorkspace.shared.activateFileViewerSelecting([result.backupDirectoryURL])
+        } catch {
+            dataStoreBackupResult = "백업 실패: \(error.localizedDescription)"
         }
     }
 

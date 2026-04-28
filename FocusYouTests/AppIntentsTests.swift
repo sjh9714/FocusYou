@@ -199,18 +199,45 @@ final class AppIntentsTests: XCTestCase {
         XCTAssertEqual(appState.focusState, .idle)
     }
 
+    @MainActor
+    func testAppIntentDataAccessReturnsUnavailableDialogWhenFactoryFallsBack() throws {
+        let container = try makeContainer()
+        let result = try AppIntentDataAccess.makeContainer {
+            AppModelContainerResult(
+                container: container,
+                startupDataIssue: StartupDataIssue(
+                    originalErrorDescription: "persistent failed",
+                    isUsingInMemoryFallback: true,
+                    supportDirectoryURL: URL(fileURLWithPath: "/tmp/focusyou")
+                )
+            )
+        }
+
+        switch result {
+        case .available:
+            XCTFail("Fallback containers should not be used by AppIntents")
+        case .unavailable(let dialog):
+            XCTAssertTrue(dialog.contains("데이터 저장소 문제"))
+            XCTAssertTrue(dialog.contains("앱을 열어"))
+        }
+    }
+
     // MARK: - Helpers
 
     private func makeModelContext() throws -> ModelContext {
+        ModelContext(try makeContainer())
+    }
+
+    private func makeContainer() throws -> ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(
+        return try ModelContainer(
             for: BlockProfile.self,
             BlockedSite.self,
             BlockedApp.self,
             FocusSession.self,
             BlockSchedule.self,
+            Badge.self,
             configurations: configuration
         )
-        return ModelContext(container)
     }
 }
