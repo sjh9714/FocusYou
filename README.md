@@ -42,9 +42,9 @@
 
 ### DMG 다운로드 (권장)
 
-1. [Releases](https://github.com/jinhyuk9714/FocusYou/releases)에서 배포된 `FocusYou-x.x.x.dmg` 다운로드
+1. [최신 Release](https://github.com/jinhyuk9714/FocusYou/releases/latest)에서 배포된 `FocusYou-x.x.x.dmg` 다운로드
 2. DMG를 열고 `Focus You.app`을 `Applications` 폴더로 드래그
-3. 최초 실행 시 **Control + 클릭 → 열기** (미서명 앱 허용)
+3. Developer ID 서명 및 Apple notarization을 거친 DMG이므로 일반 앱처럼 실행
 
 ### 소스에서 빌드
 
@@ -67,8 +67,14 @@ xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -de
 ### 릴리즈 빌드 (DMG 생성)
 
 ```bash
-./scripts/release.sh --skip-sign --skip-notarize
+./scripts/release.sh
 # 결과: build/FocusYou-{version}.dmg
+```
+
+서명/공증 없이 배포 흐름만 확인할 때는 테스트용으로만 실행하세요:
+
+```bash
+./scripts/release.sh --skip-sign --skip-notarize
 ```
 
 ## CI

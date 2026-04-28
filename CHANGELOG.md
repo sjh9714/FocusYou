@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- README 설치 및 릴리즈 빌드 안내를 signed/notarized DMG 배포 흐름에 맞게 갱신.
+
 ## [2.3.3] - 2026-04-28
 
 ### Changed
