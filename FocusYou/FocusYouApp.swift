@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import Darwin
 import os
 
 @main
@@ -9,6 +10,7 @@ struct FocusYouApp: App {
     @State private var settingsViewModel: SettingsViewModel
     @State private var themeManager: ThemeManager
     @State private var licenseManager: LicenseManager
+    @State private var startupDataIssue: StartupDataIssue?
     @State private var didBootstrap = false
     @Environment(\.openWindow) private var openWindow
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
@@ -17,25 +19,21 @@ struct FocusYouApp: App {
     let modelContainer: ModelContainer
 
     init() {
+        let containerResult: AppModelContainerResult
         do {
-            let container = try ModelContainer(
-                for: BlockProfile.self,
-                BlockedSite.self,
-                BlockedApp.self,
-                FocusSession.self,
-                BlockSchedule.self,
-                Badge.self
-            )
-            modelContainer = container
+            containerResult = try AppModelContainerFactory.make()
         } catch {
-            fatalError("ModelContainer 생성 실패: \(error)")
+            Self.terminateAfterUnrecoverableStartupFailure(error)
         }
+
+        modelContainer = containerResult.container
 
         let state = AppState()
         _appState = State(initialValue: state)
         _settingsViewModel = State(initialValue: SettingsViewModel())
         _themeManager = State(initialValue: ThemeManager.shared)
         _licenseManager = State(initialValue: LicenseManager.shared)
+        _startupDataIssue = State(initialValue: containerResult.startupDataIssue)
 
         #if DEBUG
         QAAutomationController.shared.startIfNeeded(
@@ -82,8 +80,12 @@ struct FocusYouApp: App {
                         ScheduleManager.shared.startMonitoring()
                     }
 
-                    // 앱 시작 시 대시보드 자동 열기
-                    openWindow(id: "main-dashboard")
+                    if startupDataIssue == nil {
+                        // 앱 시작 시 대시보드 자동 열기
+                        openWindow(id: "main-dashboard")
+                    } else {
+                        openWindow(id: "startup-data-issue")
+                    }
                 }
         } label: {
             HStack(spacing: 4) {
@@ -158,6 +160,25 @@ struct FocusYouApp: App {
                 .preferredColorScheme(settingsViewModel.preferredColorScheme)
         }
         .defaultSize(width: 420, height: 360)
+
+        Window("데이터 저장소 문제", id: "startup-data-issue") {
+            if let startupDataIssue {
+                StartupDataIssueView(issue: startupDataIssue)
+                    .environment(themeManager)
+                    .preferredColorScheme(settingsViewModel.preferredColorScheme)
+            } else {
+                EmptyView()
+            }
+        }
+        .defaultSize(width: 560, height: 360)
+    }
+
+    private static func terminateAfterUnrecoverableStartupFailure(_ error: Error) -> Never {
+        let message = "Focus You startup failed: \(error.localizedDescription)\n"
+        if let data = message.data(using: .utf8) {
+            FileHandle.standardError.write(data)
+        }
+        exit(EXIT_FAILURE)
     }
 }
 
@@ -180,7 +201,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 앱 윈도우로 인식할 Window Scene ID (로케일 무관)
     private static let appWindowIDs: Set<String> = [
-        "main-dashboard", "block-list", "profiles", "stats", "settings"
+        "main-dashboard", "block-list", "profiles", "stats", "settings",
+        "startup-data-issue"
     ]
 
     func applicationDidFinishLaunching(_ notification: Notification) {

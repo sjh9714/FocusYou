@@ -58,6 +58,15 @@ struct ExportServiceTests {
         return Calendar.current.date(from: comps)!
     }
 
+    private func jsonObject(from json: String) throws -> [String: Any] {
+        let data = try #require(json.data(using: .utf8))
+        return try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    private func jsonSessions(from object: [String: Any]) throws -> [[String: Any]] {
+        try #require(object["sessions"] as? [[String: Any]])
+    }
+
     // MARK: - CSV 테스트
 
     @Test("CSV 헤더 포함")
@@ -143,9 +152,8 @@ struct ExportServiceTests {
         let container = try makeContainer()
         let sessions = makeSessions(container: container)
         let json = ExportService.exportToJSON(sessions: sessions)
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        #expect(obj != nil)
+        let obj = try jsonObject(from: json)
+        #expect(!obj.isEmpty)
     }
 
     @Test("JSON totalSessions 필드")
@@ -153,8 +161,7 @@ struct ExportServiceTests {
         let container = try makeContainer()
         let sessions = makeSessions(container: container)
         let json = ExportService.exportToJSON(sessions: sessions)
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let obj = try jsonObject(from: json)
         #expect(obj["totalSessions"] as? Int == 2)
     }
 
@@ -163,10 +170,9 @@ struct ExportServiceTests {
         let container = try makeContainer()
         let sessions = makeSessions(container: container)
         let json = ExportService.exportToJSON(sessions: sessions)
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        let arr = obj["sessions"] as? [[String: Any]]
-        #expect(arr?.count == 2)
+        let obj = try jsonObject(from: json)
+        let arr = try jsonSessions(from: obj)
+        #expect(arr.count == 2)
     }
 
     @Test("JSON exportDate 포함")
@@ -174,19 +180,17 @@ struct ExportServiceTests {
         let container = try makeContainer()
         let sessions = makeSessions(container: container)
         let json = ExportService.exportToJSON(sessions: sessions)
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let obj = try jsonObject(from: json)
         #expect(obj["exportDate"] is String)
     }
 
     @Test("JSON 빈 세션 배열")
     func testJSON_emptySessions() throws {
         let json = ExportService.exportToJSON(sessions: [])
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let obj = try jsonObject(from: json)
         #expect(obj["totalSessions"] as? Int == 0)
-        let arr = obj["sessions"] as? [[String: Any]]
-        #expect(arr?.isEmpty == true)
+        let arr = try jsonSessions(from: obj)
+        #expect(arr.isEmpty)
     }
 
     @Test("JSON optional 필드: intention 포함")
@@ -194,9 +198,8 @@ struct ExportServiceTests {
         let container = try makeContainer()
         let sessions = makeSessions(container: container)
         let json = ExportService.exportToJSON(sessions: sessions)
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        let arr = obj["sessions"] as! [[String: Any]]
+        let obj = try jsonObject(from: json)
+        let arr = try jsonSessions(from: obj)
         // session1: intention = "코딩"
         let first = arr[0]
         #expect(first["intention"] as? String == "코딩")
@@ -210,9 +213,8 @@ struct ExportServiceTests {
         let container = try makeContainer()
         let sessions = makeSessions(container: container)
         let json = ExportService.exportToJSON(sessions: sessions)
-        let data = json.data(using: .utf8)!
-        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        let arr = obj["sessions"] as! [[String: Any]]
+        let obj = try jsonObject(from: json)
+        let arr = try jsonSessions(from: obj)
         #expect(arr[0]["mode"] as? String == "free")
         #expect(arr[1]["mode"] as? String == "pomodoro")
     }
