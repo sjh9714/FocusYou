@@ -155,6 +155,42 @@ Expected:
 - 실패 시점에는 `assert-recovery-pending`가 PASS여야 함.
 - 복구 재시도 성공 후 `assert-recovered`가 PASS여야 함.
 
+## Scenario 6: Data Tools Output Verification
+
+Goal:
+- 설정 > 진단의 데이터 도구가 만든 백업/진단 산출물을 로컬에서 재현 가능하게 검증합니다.
+- 검증 명령은 지정한 폴더를 읽기만 하며 원본 Application Support와 백업 파일을 수정하지 않아야 합니다.
+
+1. Open `설정 > 진단 > 데이터 도구 > 백업 만들기`.
+2. Select a temporary destination folder and create a backup.
+3. Verify the generated backup folder:
+
+```bash
+./scripts/qa_focusyou_state.sh assert-data-backup /path/to/FocusYouBackup-yyyyMMdd-HHmmss
+```
+
+4. If the current app has a SwiftData store file, also run:
+
+```bash
+./scripts/qa_focusyou_state.sh assert-data-backup /path/to/FocusYouBackup-yyyyMMdd-HHmmss --require-store
+```
+
+5. Open `설정 > 진단 > 데이터 도구 > 진단 로그 내보내기`.
+6. Verify the generated diagnostics folder:
+
+```bash
+./scripts/qa_focusyou_state.sh assert-diagnostics-bundle /path/to/FocusYouDiagnostics-yyyyMMdd-HHmmss
+```
+
+7. Run `백업 미리보기` against the backup folder and confirm that the summary opens without changing the backup folder.
+8. Run `백업 가져오기` only from the normal settings screen, confirm the final confirmation dialog appears, and import only after selecting at least one candidate.
+
+Expected:
+- Backup validation reports `PASS: data backup bundle is valid`.
+- Diagnostics validation reports `PASS: diagnostics bundle is valid`.
+- Diagnostics validation fails if `manifest.json` or `redaction-policy.txt` is missing, or if the manifest/policy contains the raw home directory path.
+- Safe mode window still offers backup, preview, diagnostics export, and Application Support actions, but does not offer Import.
+
 ## Optional Live Monitor
 
 Use this during manual actions:

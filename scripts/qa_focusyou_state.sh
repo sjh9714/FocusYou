@@ -178,6 +178,127 @@ qa_smoke_start_stop() {
   assert_clean
 }
 
+json_file_is_valid() {
+  local path="$1"
+  python3 -m json.tool "$path" >/dev/null 2>&1
+}
+
+assert_directory_basename() {
+  local path="$1"
+  local prefix="$2"
+  local label="$3"
+  local basename_value
+
+  basename_value="$(basename "$path")"
+  case "$basename_value" in
+    "$prefix"-*)
+      return 0
+      ;;
+    *)
+      echo "FAIL: $label directory name must start with $prefix- ($basename_value)"
+      return 1
+      ;;
+  esac
+}
+
+assert_data_backup() {
+  local backup_dir="${1:-}"
+  local require_store=0
+  local manifest_path
+  local store_candidate
+
+  if [ -z "$backup_dir" ]; then
+    echo "FAIL: backup directory path required"
+    return 1
+  fi
+  shift || true
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --require-store)
+        require_store=1
+        shift
+        ;;
+      *)
+        echo "FAIL: unknown assert-data-backup option ($1)"
+        return 1
+        ;;
+    esac
+  done
+
+  if [ ! -d "$backup_dir" ]; then
+    echo "FAIL: backup directory missing ($backup_dir)"
+    return 1
+  fi
+
+  assert_directory_basename "$backup_dir" "FocusYouBackup" "backup" || return 1
+
+  manifest_path="$backup_dir/diagnostics.json"
+  if [ ! -f "$manifest_path" ]; then
+    echo "FAIL: diagnostics.json missing ($manifest_path)"
+    return 1
+  fi
+
+  if ! json_file_is_valid "$manifest_path"; then
+    echo "FAIL: diagnostics.json is not valid JSON ($manifest_path)"
+    return 1
+  fi
+
+  if [ "$require_store" -eq 1 ]; then
+    store_candidate="$(
+      find "$backup_dir" -maxdepth 1 -type f \( -name "*.store" -o -name "*.sqlite" \) -print -quit
+    )"
+    if [ -z "$store_candidate" ]; then
+      echo "FAIL: store file not found in backup ($backup_dir)"
+      return 1
+    fi
+  fi
+
+  echo "PASS: data backup bundle is valid ($backup_dir)"
+}
+
+assert_diagnostics_bundle() {
+  local bundle_dir="${1:-}"
+  local manifest_path
+  local policy_path
+
+  if [ -z "$bundle_dir" ]; then
+    echo "FAIL: diagnostics bundle directory path required"
+    return 1
+  fi
+
+  if [ ! -d "$bundle_dir" ]; then
+    echo "FAIL: diagnostics bundle directory missing ($bundle_dir)"
+    return 1
+  fi
+
+  assert_directory_basename "$bundle_dir" "FocusYouDiagnostics" "diagnostics bundle" || return 1
+
+  manifest_path="$bundle_dir/manifest.json"
+  if [ ! -f "$manifest_path" ]; then
+    echo "FAIL: manifest.json missing ($manifest_path)"
+    return 1
+  fi
+
+  if ! json_file_is_valid "$manifest_path"; then
+    echo "FAIL: manifest.json is not valid JSON ($manifest_path)"
+    return 1
+  fi
+
+  policy_path="$bundle_dir/redaction-policy.txt"
+  if [ ! -f "$policy_path" ]; then
+    echo "FAIL: redaction-policy.txt missing ($policy_path)"
+    return 1
+  fi
+
+  if [ -n "$HOME" ] && grep -R -F "$HOME" "$manifest_path" "$policy_path" >/dev/null 2>&1; then
+    echo "FAIL: home directory path appears in diagnostics bundle ($bundle_dir)"
+    return 1
+  fi
+
+  echo "PASS: diagnostics bundle is valid ($bundle_dir)"
+}
+
 snapshot() {
   print_header
   echo "hosts markers: $(hosts_marker_count)"
@@ -364,6 +485,8 @@ Usage:
   $(basename "$0") assert-helper-ready
   $(basename "$0") assert-recovery-pending
   $(basename "$0") assert-recovered
+  $(basename "$0") assert-data-backup <FocusYouBackup-* dir> [--require-store]
+  $(basename "$0") assert-diagnostics-bundle <FocusYouDiagnostics-* dir>
   $(basename "$0") qa-start-session [duration_seconds] [domain]
   $(basename "$0") qa-stop-session
   $(basename "$0") qa-reset-to-idle
@@ -394,6 +517,14 @@ case "$cmd" in
     ;;
   assert-recovered)
     assert_recovered
+    ;;
+  assert-data-backup)
+    shift
+    assert_data_backup "$@"
+    ;;
+  assert-diagnostics-bundle)
+    shift
+    assert_diagnostics_bundle "$@"
     ;;
   qa-start-session)
     qa_start_session "${2:-120}" "${3:-example.com}"

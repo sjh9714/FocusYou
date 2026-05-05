@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- 데이터 백업/진단 번들 산출물을 터미널에서 검증하는 QA 스크립트 명령과 수동 QA 체크리스트를 보강.
+
 ## [2.3.7] - 2026-05-05
 
 ### Changed

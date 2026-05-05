@@ -163,6 +163,13 @@ FocusYou/
 ./scripts/qa_focusyou_state.sh assert-recovered
 ```
 
+데이터 도구 산출물 검증:
+
+```bash
+./scripts/qa_focusyou_state.sh assert-data-backup /path/to/FocusYouBackup-yyyyMMdd-HHmmss --require-store
+./scripts/qa_focusyou_state.sh assert-diagnostics-bundle /path/to/FocusYouDiagnostics-yyyyMMdd-HHmmss
+```
+
 상세 체크리스트는 `docs/manual-qa-checklist.md` 참고.
 
 ## 라이선스
