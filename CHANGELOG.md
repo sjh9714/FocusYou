@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- DEBUG QA 자동화에 백업 Import 미리보기와 in-memory dry-run 검증 명령을 추가해 복구 Import 흐름을 터미널에서 재현 가능하게 확인.
+
 ## [2.3.9] - 2026-05-05
 
 ### Changed

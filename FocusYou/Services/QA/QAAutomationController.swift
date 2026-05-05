@@ -10,6 +10,8 @@ struct QAAutomationCommand: Decodable, Equatable {
         case resetToIdle = "reset_to_idle"
         case createDataBackup = "create_data_backup"
         case createDiagnosticsBundle = "create_diagnostics_bundle"
+        case previewDataImport = "preview_data_import"
+        case validateDataImport = "validate_data_import"
     }
 
     let id: String
@@ -17,6 +19,32 @@ struct QAAutomationCommand: Decodable, Equatable {
     let durationSeconds: TimeInterval?
     let domain: String?
     let destinationPath: String?
+    let backupPath: String?
+    let selectedCandidateIDs: Set<String>?
+    let includeFocusSessions: Bool?
+    let includeBadges: Bool?
+
+    init(
+        id: String,
+        action: Action,
+        durationSeconds: TimeInterval? = nil,
+        domain: String? = nil,
+        destinationPath: String? = nil,
+        backupPath: String? = nil,
+        selectedCandidateIDs: Set<String>? = nil,
+        includeFocusSessions: Bool? = nil,
+        includeBadges: Bool? = nil
+    ) {
+        self.id = id
+        self.action = action
+        self.durationSeconds = durationSeconds
+        self.domain = domain
+        self.destinationPath = destinationPath
+        self.backupPath = backupPath
+        self.selectedCandidateIDs = selectedCandidateIDs
+        self.includeFocusSessions = includeFocusSessions
+        self.includeBadges = includeBadges
+    }
 }
 
 struct QAAutomationCommandResult: Encodable, Equatable {
@@ -25,49 +53,99 @@ struct QAAutomationCommandResult: Encodable, Equatable {
     let message: String
     let handledAt: TimeInterval
     let outputPath: String?
+    let details: [String: Int]?
 
     init(
         id: String,
         status: String,
         message: String,
         handledAt: TimeInterval,
-        outputPath: String? = nil
+        outputPath: String? = nil,
+        details: [String: Int]? = nil
     ) {
         self.id = id
         self.status = status
         self.message = message
         self.handledAt = handledAt
         self.outputPath = outputPath
+        self.details = details
     }
-}
-
-struct QAAutomationDataToolServices: @unchecked Sendable {
-    let createBackup: (URL) throws -> URL
-    let createDiagnosticsBundle: (URL) throws -> URL
-
-    static let live = QAAutomationDataToolServices(
-        createBackup: { destinationURL in
-            try DataStoreBackupService.createBackup(
-                destinationDirectoryURL: destinationURL
-            ).backupDirectoryURL
-        },
-        createDiagnosticsBundle: { destinationURL in
-            try SupportDiagnosticsBundleService.createBundle(
-                destinationDirectoryURL: destinationURL
-            ).bundleDirectoryURL
-        }
-    )
-
-    static let noop = QAAutomationDataToolServices(
-        createBackup: { _ in throw QAAutomationDataToolServiceError.unexpectedCall },
-        createDiagnosticsBundle: { _ in throw QAAutomationDataToolServiceError.unexpectedCall }
-    )
 }
 
 private enum QAAutomationDataToolServiceError: Error {
     case unexpectedCall
 }
 
+struct QAAutomationDataToolServices: @unchecked Sendable {
+    let createBackup: (URL) throws -> URL
+    let createDiagnosticsBundle: (URL) throws -> URL
+    let previewDataImport: (URL) throws -> DataStoreRecoveryImportPreview
+    let validateDataImport: (URL, DataStoreRecoveryImportSelection) throws -> DataStoreRecoveryImportResult
+
+    init(
+        createBackup: @escaping (URL) throws -> URL = { _ in
+            throw QAAutomationDataToolServiceError.unexpectedCall
+        },
+        createDiagnosticsBundle: @escaping (URL) throws -> URL = { _ in
+            throw QAAutomationDataToolServiceError.unexpectedCall
+        },
+        previewDataImport: @escaping (URL) throws -> DataStoreRecoveryImportPreview = { _ in
+            throw QAAutomationDataToolServiceError.unexpectedCall
+        },
+        validateDataImport: @escaping (URL, DataStoreRecoveryImportSelection) throws -> DataStoreRecoveryImportResult = { _, _ in
+            throw QAAutomationDataToolServiceError.unexpectedCall
+        }
+    ) {
+        self.createBackup = createBackup
+        self.createDiagnosticsBundle = createDiagnosticsBundle
+        self.previewDataImport = previewDataImport
+        self.validateDataImport = validateDataImport
+    }
+
+    @MainActor
+    static var live: QAAutomationDataToolServices {
+        QAAutomationDataToolServices(
+            createBackup: { destinationURL in
+                try DataStoreBackupService.createBackup(
+                    destinationDirectoryURL: destinationURL
+                ).backupDirectoryURL
+            },
+            createDiagnosticsBundle: { destinationURL in
+                try SupportDiagnosticsBundleService.createBundle(
+                    destinationDirectoryURL: destinationURL
+                ).bundleDirectoryURL
+            },
+            previewDataImport: { backupURL in
+                try DataStoreRecoveryImportService.previewImport(at: backupURL)
+            },
+            validateDataImport: { backupURL, selection in
+                let container = try makeDryRunImportContainer()
+                let context = ModelContext(container)
+                return try DataStoreRecoveryImportService.importSelectedCandidates(
+                    from: backupURL,
+                    selection: selection,
+                    into: context
+                )
+            }
+        )
+    }
+
+    static let noop = QAAutomationDataToolServices()
+
+    private static func makeDryRunImportContainer() throws -> ModelContainer {
+        try ModelContainer(
+            for: BlockProfile.self,
+            BlockedSite.self,
+            BlockedApp.self,
+            FocusSession.self,
+            BlockSchedule.self,
+            Badge.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+    }
+}
+
+@MainActor
 enum QAAutomationDataToolExecutor {
     static func execute(
         command: QAAutomationCommand,
@@ -128,6 +206,78 @@ enum QAAutomationDataToolExecutor {
                 )
             }
 
+        case .previewDataImport:
+            guard let backupURL = backupURL(
+                from: command.backupPath,
+                fileManager: fileManager
+            ) else {
+                return invalidBackupResult(command: command, now: now)
+            }
+
+            do {
+                let preview = try services.previewDataImport(backupURL)
+                guard !preview.profileCandidates.isEmpty else {
+                    return noImportCandidatesResult(command: command, now: now)
+                }
+
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "ok",
+                    message: "previewed_data_import",
+                    handledAt: now.timeIntervalSince1970,
+                    details: previewDetails(preview)
+                )
+            } catch {
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "error",
+                    message: "failed_to_preview_data_import",
+                    handledAt: now.timeIntervalSince1970
+                )
+            }
+
+        case .validateDataImport:
+            guard let backupURL = backupURL(
+                from: command.backupPath,
+                fileManager: fileManager
+            ) else {
+                return invalidBackupResult(command: command, now: now)
+            }
+
+            do {
+                let preview = try services.previewDataImport(backupURL)
+                guard !preview.profileCandidates.isEmpty else {
+                    return noImportCandidatesResult(command: command, now: now)
+                }
+
+                let selectedCandidateIDs = command.selectedCandidateIDs
+                    ?? Set(preview.profileCandidates.map(\.id))
+                let selection = DataStoreRecoveryImportSelection(
+                    selectedCandidateIDs: selectedCandidateIDs,
+                    includeFocusSessions: command.includeFocusSessions ?? false,
+                    includeBadges: command.includeBadges ?? false
+                )
+                let result = try services.validateDataImport(backupURL, selection)
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "ok",
+                    message: "validated_data_import",
+                    handledAt: now.timeIntervalSince1970,
+                    details: validationDetails(
+                        preview: preview,
+                        selection: selection,
+                        result: result
+                    )
+                )
+            } catch {
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "error",
+                    message: "failed_to_validate_data_import",
+                    handledAt: now.timeIntervalSince1970
+                )
+            }
+
         case .startSession, .stopSession, .resetToIdle:
             return nil
         }
@@ -141,6 +291,30 @@ enum QAAutomationDataToolExecutor {
             id: command.id,
             status: "error",
             message: "invalid_destination",
+            handledAt: now.timeIntervalSince1970
+        )
+    }
+
+    private static func invalidBackupResult(
+        command: QAAutomationCommand,
+        now: Date
+    ) -> QAAutomationCommandResult {
+        QAAutomationCommandResult(
+            id: command.id,
+            status: "error",
+            message: "invalid_backup",
+            handledAt: now.timeIntervalSince1970
+        )
+    }
+
+    private static func noImportCandidatesResult(
+        command: QAAutomationCommand,
+        now: Date
+    ) -> QAAutomationCommandResult {
+        QAAutomationCommandResult(
+            id: command.id,
+            status: "error",
+            message: "no_import_candidates",
             handledAt: now.timeIntervalSince1970
         )
     }
@@ -160,6 +334,63 @@ enum QAAutomationDataToolExecutor {
             return nil
         }
         return url
+    }
+
+    private static func backupURL(
+        from backupPath: String?,
+        fileManager: FileManager
+    ) -> URL? {
+        guard let backupPath else { return nil }
+        let trimmedPath = backupPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else { return nil }
+
+        let url = URL(fileURLWithPath: trimmedPath, isDirectory: true)
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory),
+              isDirectory.boolValue else {
+            return nil
+        }
+        return url
+    }
+
+    private static func previewDetails(
+        _ preview: DataStoreRecoveryImportPreview
+    ) -> [String: Int] {
+        [
+            "profileCandidateCount": preview.profileCandidates.count,
+            "selectedCandidateCount": 0,
+            "siteCandidateCount": preview.profileCandidates.reduce(0) { $0 + $1.siteCount },
+            "appCandidateCount": preview.profileCandidates.reduce(0) { $0 + $1.appCount },
+            "scheduleCandidateCount": preview.profileCandidates.reduce(0) { $0 + $1.scheduleCount },
+            "focusSessionCandidateCount": preview.skippedFocusSessionCount,
+            "badgeCandidateCount": preview.skippedBadgeCount,
+            "importedProfileCount": 0,
+            "importedSiteCount": 0,
+            "importedAppCount": 0,
+            "importedScheduleCount": 0,
+            "importedFocusSessionCount": 0,
+            "importedBadgeCount": 0,
+            "skippedFocusSessionCount": preview.skippedFocusSessionCount,
+            "skippedBadgeCount": preview.skippedBadgeCount,
+        ]
+    }
+
+    private static func validationDetails(
+        preview: DataStoreRecoveryImportPreview,
+        selection: DataStoreRecoveryImportSelection,
+        result: DataStoreRecoveryImportResult
+    ) -> [String: Int] {
+        var details = previewDetails(preview)
+        details["selectedCandidateCount"] = selection.selectedCandidateIDs.count
+        details["importedProfileCount"] = result.importedProfileCount
+        details["importedSiteCount"] = result.importedSiteCount
+        details["importedAppCount"] = result.importedAppCount
+        details["importedScheduleCount"] = result.importedScheduleCount
+        details["importedFocusSessionCount"] = result.importedFocusSessionCount
+        details["importedBadgeCount"] = result.importedBadgeCount
+        details["skippedFocusSessionCount"] = result.skippedFocusSessionCount
+        details["skippedBadgeCount"] = result.skippedBadgeCount
+        return details
     }
 }
 
@@ -335,7 +566,7 @@ final class QAAutomationController {
                 handledAt: Date().timeIntervalSince1970
             )
 
-        case .createDataBackup, .createDiagnosticsBundle:
+        case .createDataBackup, .createDiagnosticsBundle, .previewDataImport, .validateDataImport:
             return QAAutomationCommandResult(
                 id: command.id,
                 status: "error",

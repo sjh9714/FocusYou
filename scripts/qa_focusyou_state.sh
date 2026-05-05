@@ -17,6 +17,7 @@ QA_AUTOMATION_COMMAND_KEY="qaAutomationCommand"
 QA_AUTOMATION_RESULT_KEY="qaAutomationResult"
 QA_COMMAND_TIMEOUT_SECONDS=20
 APP_COMMAND_OUTPUT_PATH=""
+APP_COMMAND_RESULT_JSON=""
 
 print_header() {
   echo "=== FocusYou QA Snapshot ($(date '+%Y-%m-%d %H:%M:%S')) ==="
@@ -101,18 +102,53 @@ if isinstance(value, str):
 PY
 }
 
+json_extract_detail_int() {
+  local json="$1"
+  local key="$2"
+  JSON_INPUT="$json" python3 - "$key" <<'PY' 2>/dev/null
+import json
+import os
+import sys
+
+try:
+    payload = json.loads(os.environ.get("JSON_INPUT", ""))
+except json.JSONDecodeError:
+    sys.exit(0)
+
+details = payload.get("details")
+if not isinstance(details, dict):
+    sys.exit(0)
+
+value = details.get(sys.argv[1])
+if isinstance(value, int):
+    print(value)
+PY
+}
+
 build_app_command_json() {
   local command_id="$1"
   local action="$2"
   local duration_seconds="${3:-}"
   local domain="${4:-}"
   local destination_path="${5:-}"
+  local backup_path="${6:-}"
+  local include_focus_sessions="${7:-}"
+  local include_badges="${8:-}"
 
-  python3 - "$command_id" "$action" "$duration_seconds" "$domain" "$destination_path" <<'PY'
+  python3 - "$command_id" "$action" "$duration_seconds" "$domain" "$destination_path" "$backup_path" "$include_focus_sessions" "$include_badges" <<'PY'
 import json
 import sys
 
-command_id, action, duration_seconds, domain, destination_path = sys.argv[1:6]
+(
+    command_id,
+    action,
+    duration_seconds,
+    domain,
+    destination_path,
+    backup_path,
+    include_focus_sessions,
+    include_badges,
+) = sys.argv[1:9]
 payload = {
     "id": command_id,
     "action": action,
@@ -124,6 +160,12 @@ if domain:
     payload["domain"] = domain
 if destination_path:
     payload["destinationPath"] = destination_path
+if backup_path:
+    payload["backupPath"] = backup_path
+if include_focus_sessions:
+    payload["includeFocusSessions"] = include_focus_sessions.lower() == "true"
+if include_badges:
+    payload["includeBadges"] = include_badges.lower() == "true"
 
 print(json.dumps(payload, separators=(",", ":")))
 PY
@@ -154,6 +196,7 @@ send_app_command() {
 
   command_id="$(uuidgen | tr '[:upper:]' '[:lower:]')"
   APP_COMMAND_OUTPUT_PATH=""
+  APP_COMMAND_RESULT_JSON=""
 
   case "$action" in
     start_session)
@@ -164,6 +207,12 @@ send_app_command() {
       ;;
     create_data_backup|create_diagnostics_bundle)
       command_json="$(build_app_command_json "$command_id" "$action" "" "" "$destination_path")"
+      ;;
+    preview_data_import)
+      command_json="$(build_app_command_json "$command_id" "$action" "" "" "" "$destination_path")"
+      ;;
+    validate_data_import)
+      command_json="$(build_app_command_json "$command_id" "$action" "" "" "" "$destination_path" "${5:-}" "${6:-}")"
       ;;
     *)
       echo "FAIL: unknown app command action ($action)"
@@ -184,6 +233,7 @@ send_app_command() {
         result_status="$(json_extract_string "$result_json" "status")"
         result_message="$(json_extract_string "$result_json" "message")"
         result_output_path="$(json_extract_string "$result_json" "outputPath")"
+        APP_COMMAND_RESULT_JSON="$result_json"
         if [ "$result_status" = "ok" ]; then
           APP_COMMAND_OUTPUT_PATH="$result_output_path"
           echo "PASS: app command '$action' succeeded ($result_message)"
@@ -295,6 +345,113 @@ qa_smoke_data_tools() {
 
   qa_create_data_backup "$destination_dir" || return 1
   qa_create_diagnostics_bundle "$destination_dir"
+}
+
+require_import_detail() {
+  local key="$1"
+  local value
+  value="$(json_extract_detail_int "$APP_COMMAND_RESULT_JSON" "$key")"
+  if [ -z "$value" ]; then
+    echo "FAIL: import details missing integer field ($key)"
+    return 1
+  fi
+  printf '%s\n' "$value"
+}
+
+qa_preview_data_import() {
+  local backup_dir="${1:-}"
+  local profile_count
+  local session_count
+  local badge_count
+
+  if [ -z "$backup_dir" ]; then
+    echo "FAIL: backup directory path required"
+    return 1
+  fi
+
+  assert_data_backup "$backup_dir" --require-store || return 1
+  ensure_app_running || return 1
+  send_app_command "preview_data_import" "" "" "$backup_dir" || return 1
+
+  profile_count="$(require_import_detail "profileCandidateCount")" || return 1
+  session_count="$(require_import_detail "focusSessionCandidateCount")" || return 1
+  badge_count="$(require_import_detail "badgeCandidateCount")" || return 1
+
+  if [ "$profile_count" -lt 1 ]; then
+    echo "FAIL: data import preview found no profile candidates"
+    return 1
+  fi
+
+  echo "PASS: data import preview is valid (profiles=$profile_count sessions=$session_count badges=$badge_count)"
+}
+
+qa_validate_data_import() {
+  local backup_dir="${1:-}"
+  local include_sessions="false"
+  local include_badges="false"
+  local selected_count
+  local imported_profiles
+  local imported_sessions
+  local imported_badges
+
+  if [ -z "$backup_dir" ]; then
+    echo "FAIL: backup directory path required"
+    return 1
+  fi
+  shift || true
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --include-sessions)
+        include_sessions="true"
+        shift
+        ;;
+      --include-badges)
+        include_badges="true"
+        shift
+        ;;
+      *)
+        echo "FAIL: unknown qa-validate-data-import option ($1)"
+        return 1
+        ;;
+    esac
+  done
+
+  assert_data_backup "$backup_dir" --require-store || return 1
+  ensure_app_running || return 1
+  send_app_command "validate_data_import" "" "" "$backup_dir" "$include_sessions" "$include_badges" || return 1
+
+  selected_count="$(require_import_detail "selectedCandidateCount")" || return 1
+  imported_profiles="$(require_import_detail "importedProfileCount")" || return 1
+  imported_sessions="$(require_import_detail "importedFocusSessionCount")" || return 1
+  imported_badges="$(require_import_detail "importedBadgeCount")" || return 1
+
+  if [ "$selected_count" -lt 1 ]; then
+    echo "FAIL: data import validation selected no candidates"
+    return 1
+  fi
+
+  echo "PASS: data import dry-run is valid (selected=$selected_count profiles=$imported_profiles sessions=$imported_sessions badges=$imported_badges)"
+}
+
+qa_smoke_recovery_import() {
+  local destination_dir="${1:-}"
+  local backup_dir
+
+  if [ -z "$destination_dir" ]; then
+    echo "FAIL: destination directory path required"
+    return 1
+  fi
+
+  qa_create_data_backup "$destination_dir" --require-store || return 1
+  backup_dir="$APP_COMMAND_OUTPUT_PATH"
+  if [ -z "$backup_dir" ]; then
+    echo "FAIL: app command did not return backup outputPath"
+    return 1
+  fi
+
+  qa_preview_data_import "$backup_dir" || return 1
+  qa_validate_data_import "$backup_dir"
 }
 
 json_file_is_valid() {
@@ -613,6 +770,9 @@ Usage:
   $(basename "$0") qa-create-data-backup <destination-dir> [--require-store]
   $(basename "$0") qa-create-diagnostics-bundle <destination-dir>
   $(basename "$0") qa-smoke-data-tools <destination-dir>
+  $(basename "$0") qa-preview-data-import <FocusYouBackup-* dir>
+  $(basename "$0") qa-validate-data-import <FocusYouBackup-* dir> [--include-sessions] [--include-badges]
+  $(basename "$0") qa-smoke-recovery-import <destination-dir>
   $(basename "$0") watch [interval_seconds]
 EOF
 }
@@ -670,6 +830,17 @@ case "$cmd" in
     ;;
   qa-smoke-data-tools)
     qa_smoke_data_tools "${2:-}"
+    ;;
+  qa-preview-data-import)
+    shift
+    qa_preview_data_import "$@"
+    ;;
+  qa-validate-data-import)
+    shift
+    qa_validate_data_import "$@"
+    ;;
+  qa-smoke-recovery-import)
+    qa_smoke_recovery_import "${2:-}"
     ;;
   watch)
     interval="${2:-2}"

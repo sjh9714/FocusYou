@@ -176,6 +176,9 @@ DEBUG 앱이 실행 중이면 생성과 검증을 한 번에 수행할 수 있�
 ./scripts/qa_focusyou_state.sh qa-create-data-backup /path/to/output --require-store
 ./scripts/qa_focusyou_state.sh qa-create-diagnostics-bundle /path/to/output
 ./scripts/qa_focusyou_state.sh qa-smoke-data-tools /path/to/output
+./scripts/qa_focusyou_state.sh qa-preview-data-import /path/to/FocusYouBackup-yyyyMMdd-HHmmss
+./scripts/qa_focusyou_state.sh qa-validate-data-import /path/to/FocusYouBackup-yyyyMMdd-HHmmss --include-sessions --include-badges
+./scripts/qa_focusyou_state.sh qa-smoke-recovery-import /path/to/output
 ```
 
 상세 체크리스트는 `docs/manual-qa-checklist.md` 참고.

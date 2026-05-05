@@ -205,9 +205,18 @@ mkdir -p /tmp/focusyou-data-tools-qa
 ./scripts/qa_focusyou_state.sh qa-smoke-data-tools /tmp/focusyou-data-tools-qa
 ```
 
+백업 Import 미리보기와 dry-run 검증까지 확인하려면:
+
+```bash
+./scripts/qa_focusyou_state.sh qa-preview-data-import /path/to/FocusYouBackup-yyyyMMdd-HHmmss
+./scripts/qa_focusyou_state.sh qa-validate-data-import /path/to/FocusYouBackup-yyyyMMdd-HHmmss --include-sessions --include-badges
+./scripts/qa_focusyou_state.sh qa-smoke-recovery-import /tmp/focusyou-data-tools-qa
+```
+
 참고:
 - 이 생성 훅은 DEBUG 전용입니다. Release 빌드에서는 동작하지 않습니다.
 - 명령은 지정한 destination 아래에 새 백업/진단 폴더를 만들고, 반환된 경로를 곧바로 검증합니다.
+- Import 검증은 in-memory context에서만 dry-run으로 실행하며 현재 persistent store에 새 데이터를 저장하지 않습니다.
 
 ## Optional Live Monitor
 

@@ -142,24 +142,32 @@ import sys
 command = json.loads(sys.argv[1])
 action = command["action"]
 output_path = os.environ.get("QA_FAKE_COMMAND_OUTPUT_PATH", "")
+message = f"fake_{action}"
+details = None
 if action == "create_data_backup":
     output_path = os.environ.get("QA_FAKE_BACKUP_OUTPUT_PATH", output_path)
 elif action == "create_diagnostics_bundle":
     output_path = os.environ.get("QA_FAKE_DIAGNOSTICS_OUTPUT_PATH", output_path)
+elif action in ("preview_data_import", "validate_data_import"):
+    output_path = ""
+    details = json.loads(os.environ.get("QA_FAKE_IMPORT_DETAILS", "{}"))
 
-if not output_path:
+if action in ("create_data_backup", "create_diagnostics_bundle") and not output_path:
     raise SystemExit("missing fake command output path")
 
 if os.environ.get("QA_FAKE_ESCAPE_OUTPUT_SLASHES") == "1":
     output_path = output_path.replace("/", "\\/")
 
-print(json.dumps({
+payload = {
     "id": command["id"],
     "status": "ok",
-    "message": f"fake_{action}",
+    "message": message,
     "handledAt": 1714867200,
     "outputPath": output_path,
-}))
+}
+if details is not None:
+    payload["details"] = details
+print(json.dumps(payload))
 PY
     else
       printf '%s\n' "$value" > "$store_dir/$key"
@@ -252,5 +260,28 @@ QA_FAKE_DIAGNOSTICS_OUTPUT_PATH="$smoke_diagnostics" \
 PATH="$fake_bin:$PATH" \
 run_success "qa smoke data tools handles empty backup options" \
   "$QA_SCRIPT" qa-smoke-data-tools "$TMP_DIR/QA Destination"
+
+import_details='{"profileCandidateCount":1,"selectedCandidateCount":1,"siteCandidateCount":2,"appCandidateCount":1,"scheduleCandidateCount":1,"focusSessionCandidateCount":3,"badgeCandidateCount":2,"importedProfileCount":1,"importedSiteCount":2,"importedAppCount":1,"importedScheduleCount":1,"importedFocusSessionCount":3,"importedBadgeCount":2,"skippedFocusSessionCount":0,"skippedBadgeCount":0}'
+
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_IMPORT_DETAILS="$import_details" \
+PATH="$fake_bin:$PATH" \
+run_success "qa preview data import parses details" \
+  "$QA_SCRIPT" qa-preview-data-import "$valid_backup"
+
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_IMPORT_DETAILS="$import_details" \
+PATH="$fake_bin:$PATH" \
+run_success "qa validate data import handles history flags" \
+  "$QA_SCRIPT" qa-validate-data-import "$valid_backup" --include-sessions --include-badges
+
+recovery_backup="$TMP_DIR/Generated Output/Recovery/FocusYouBackup-20260505-070809"
+make_backup_fixture "$recovery_backup"
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_BACKUP_OUTPUT_PATH="$recovery_backup" \
+QA_FAKE_IMPORT_DETAILS="$import_details" \
+PATH="$fake_bin:$PATH" \
+run_success "qa smoke recovery import creates backup and dry-runs import" \
+  "$QA_SCRIPT" qa-smoke-recovery-import "$TMP_DIR/QA Destination"
 
 echo "PASS: qa_focusyou_state data tool tests"
