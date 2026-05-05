@@ -77,18 +77,26 @@ enum DataStoreRecoveryPreviewError: Error, Equatable, LocalizedError {
 }
 
 @MainActor
-enum DataStoreRecoveryPreviewService {
+struct DataStoreRecoveryCopiedStore {
+    let container: ModelContainer
+    let sourceDirectoryURL: URL
+    let sourceStoreFileName: String
+    let copiedStoreFiles: [String]
+}
+
+@MainActor
+enum DataStoreRecoveryStoreReader {
     private static let primaryStoreFileNames = [
         "default.store",
         "FocusYou.store",
     ]
 
-    static func previewBackup(
+    static func withCopiedStore<Result>(
         at backupDirectoryURL: URL,
         temporaryDirectoryURL: URL = FileManager.default.temporaryDirectory,
         fileManager: FileManager = .default,
-        now: Date = Date()
-    ) throws -> DataStoreRecoveryPreview {
+        body: (DataStoreRecoveryCopiedStore) throws -> Result
+    ) throws -> Result {
         try validateDirectory(backupDirectoryURL, fileManager: fileManager)
 
         let sourceStoreURL = try sourceStoreFileURL(
@@ -110,7 +118,6 @@ enum DataStoreRecoveryPreviewService {
         } catch {
             throw DataStoreRecoveryPreviewError.failedToCopyStore(error.localizedDescription)
         }
-        defer { try? fileManager.removeItem(at: stagingDirectoryURL) }
 
         do {
             for fileURL in sourceStoreFiles {
@@ -119,21 +126,27 @@ enum DataStoreRecoveryPreviewService {
                 try fileManager.copyItem(at: fileURL, to: destinationURL)
             }
         } catch {
+            try? fileManager.removeItem(at: stagingDirectoryURL)
             throw DataStoreRecoveryPreviewError.failedToCopyStore(error.localizedDescription)
         }
 
         let stagedStoreURL = stagingDirectoryURL
             .appendingPathComponent(sourceStoreURL.lastPathComponent)
         do {
-            return try previewCopiedStore(
+            let result = try readCopiedStore(
                 at: stagedStoreURL,
                 sourceDirectoryURL: backupDirectoryURL,
+                sourceStoreFileName: sourceStoreURL.lastPathComponent,
                 copiedStoreFiles: sourceStoreFiles.map(\.lastPathComponent),
-                now: now
+                body: body
             )
+            try? fileManager.removeItem(at: stagingDirectoryURL)
+            return result
         } catch let error as DataStoreRecoveryPreviewError {
+            try? fileManager.removeItem(at: stagingDirectoryURL)
             throw error
         } catch {
+            try? fileManager.removeItem(at: stagingDirectoryURL)
             throw DataStoreRecoveryPreviewError.failedToReadBackup(error.localizedDescription)
         }
     }
@@ -199,13 +212,13 @@ enum DataStoreRecoveryPreviewService {
         }
     }
 
-    private static func previewCopiedStore(
-        at storeURL: URL,
+    private static func readCopiedStore<Result>(
+        at stagedStoreURL: URL,
         sourceDirectoryURL: URL,
+        sourceStoreFileName: String,
         copiedStoreFiles: [String],
-        now: Date
-    ) throws -> DataStoreRecoveryPreview {
-        let configuration = ModelConfiguration(url: storeURL)
+        body: (DataStoreRecoveryCopiedStore) throws -> Result
+    ) throws -> Result {
         let container = try ModelContainer(
             for: BlockProfile.self,
             BlockedSite.self,
@@ -213,9 +226,41 @@ enum DataStoreRecoveryPreviewService {
             FocusSession.self,
             BlockSchedule.self,
             Badge.self,
-            configurations: configuration
+            configurations: ModelConfiguration(url: stagedStoreURL)
         )
-        let context = ModelContext(container)
+        return try body(
+            DataStoreRecoveryCopiedStore(
+                container: container,
+                sourceDirectoryURL: sourceDirectoryURL,
+                sourceStoreFileName: sourceStoreFileName,
+                copiedStoreFiles: copiedStoreFiles
+            )
+        )
+    }
+}
+
+@MainActor
+enum DataStoreRecoveryPreviewService {
+    static func previewBackup(
+        at backupDirectoryURL: URL,
+        temporaryDirectoryURL: URL = FileManager.default.temporaryDirectory,
+        fileManager: FileManager = .default,
+        now: Date = Date()
+    ) throws -> DataStoreRecoveryPreview {
+        try DataStoreRecoveryStoreReader.withCopiedStore(
+            at: backupDirectoryURL,
+            temporaryDirectoryURL: temporaryDirectoryURL,
+            fileManager: fileManager
+        ) { copiedStore in
+            try previewCopiedStore(copiedStore, now: now)
+        }
+    }
+
+    private static func previewCopiedStore(
+        _ copiedStore: DataStoreRecoveryCopiedStore,
+        now: Date
+    ) throws -> DataStoreRecoveryPreview {
+        let context = ModelContext(copiedStore.container)
 
         let sessions = try context.fetch(
             FetchDescriptor<FocusSession>(
@@ -226,9 +271,9 @@ enum DataStoreRecoveryPreviewService {
 
         return DataStoreRecoveryPreview(
             inspectedAt: now,
-            sourceDirectoryURL: sourceDirectoryURL,
-            sourceStoreFileName: storeURL.lastPathComponent,
-            copiedStoreFiles: copiedStoreFiles,
+            sourceDirectoryURL: copiedStore.sourceDirectoryURL,
+            sourceStoreFileName: copiedStore.sourceStoreFileName,
+            copiedStoreFiles: copiedStore.copiedStoreFiles,
             profileCount: try context.fetch(FetchDescriptor<BlockProfile>()).count,
             blockedSiteCount: try context.fetch(FetchDescriptor<BlockedSite>()).count,
             blockedAppCount: try context.fetch(FetchDescriptor<BlockedApp>()).count,

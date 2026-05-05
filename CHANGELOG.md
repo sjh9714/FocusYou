@@ -7,6 +7,7 @@ All notable changes to this project are documented in this file.
 ### Added
 - 로컬 진단 로그 번들 내보내기: 설정 진단 섹션과 시작 안전 모드 창에서 민감정보가 redaction된 manifest, 데이터 저장소/차단 상태 요약, 최근 unified log 요약을 폴더로 생성.
 - 데이터 백업 미리보기: 선택한 백업 store를 임시 복사본으로 열어 모델별 개수와 세션 날짜 범위를 확인할 수 있게 함.
+- 데이터 백업 선택 가져오기: 정상 설정 화면에서 백업의 프로필, 차단 사이트/앱, 스케줄을 새 항목으로 가져올 수 있게 함.
 
 ## [2.3.4] - 2026-04-28
 

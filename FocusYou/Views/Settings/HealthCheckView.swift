@@ -16,7 +16,12 @@ struct HealthCheckView: View {
     @State private var dnsFlushResult: String?
     @State private var dataStoreBackupResult: String?
     @State private var dataStoreRecoveryPreviewResult: String?
+    @State private var dataStoreImportResult: String?
     @State private var supportDiagnosticsResult: String?
+    @State private var selectedImportBackupURL: URL?
+    @State private var dataStoreImportPreview: DataStoreRecoveryImportPreview?
+    @State private var selectedImportCandidateIDs: Set<String> = []
+    @State private var isImportPreviewPresented = false
 
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
@@ -43,6 +48,16 @@ struct HealthCheckView: View {
         .padding()
         .task {
             await runDiagnostics()
+        }
+        .sheet(isPresented: $isImportPreviewPresented) {
+            if let dataStoreImportPreview {
+                DataStoreRecoveryImportPreviewSheet(
+                    preview: dataStoreImportPreview,
+                    selectedCandidateIDs: $selectedImportCandidateIDs,
+                    onCancel: clearImportPreview,
+                    onImport: importSelectedBackupCandidates
+                )
+            }
         }
     }
 
@@ -144,6 +159,13 @@ struct HealthCheckView: View {
                         .textSelection(.enabled)
                 }
 
+                if let dataStoreImportResult {
+                    Text(dataStoreImportResult)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
+
                 if let supportDiagnosticsResult {
                     Text(supportDiagnosticsResult)
                         .font(.caption)
@@ -154,28 +176,37 @@ struct HealthCheckView: View {
 
             Spacer()
 
-            HStack(spacing: 8) {
-                Button("백업") {
+            Menu {
+                Button {
                     createDataStoreBackup()
+                } label: {
+                    Label("백업 만들기", systemImage: "archivebox")
                 }
-                .font(.caption)
-                .buttonStyle(.plain)
-                .foregroundStyle(themeManager.primary)
 
-                Button("백업 미리보기") {
+                Button {
                     previewDataStoreBackup()
+                } label: {
+                    Label("백업 미리보기", systemImage: "doc.text.magnifyingglass")
                 }
-                .font(.caption)
-                .buttonStyle(.plain)
-                .foregroundStyle(themeManager.primary)
 
-                Button("진단 로그") {
-                    createSupportDiagnosticsBundle()
+                Button {
+                    chooseBackupForImport()
+                } label: {
+                    Label("백업 가져오기", systemImage: "tray.and.arrow.down")
                 }
-                .font(.caption)
-                .buttonStyle(.plain)
-                .foregroundStyle(themeManager.primary)
+
+                Divider()
+
+                Button {
+                    createSupportDiagnosticsBundle()
+                } label: {
+                    Label("진단 로그 내보내기", systemImage: "waveform.path.ecg")
+                }
+            } label: {
+                Label("데이터 도구", systemImage: "externaldrive")
             }
+            .font(.caption)
+            .foregroundStyle(themeManager.primary)
         }
         .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
     }
@@ -285,6 +316,64 @@ struct HealthCheckView: View {
         } catch {
             dataStoreRecoveryPreviewResult = "백업 미리보기 실패: \(error.localizedDescription)"
         }
+    }
+
+    private func chooseBackupForImport() {
+        let panel = NSOpenPanel()
+        panel.title = "가져올 백업 폴더 선택"
+        panel.prompt = "미리보기"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = false
+        panel.allowsMultipleSelection = false
+
+        guard panel.runModal() == .OK, let backupURL = panel.url else {
+            return
+        }
+
+        do {
+            let preview = try DataStoreRecoveryImportService.previewImport(at: backupURL)
+            guard !preview.profileCandidates.isEmpty else {
+                dataStoreImportResult = "가져올 설정 데이터가 없습니다."
+                return
+            }
+
+            selectedImportBackupURL = backupURL
+            dataStoreImportPreview = preview
+            selectedImportCandidateIDs = Set(preview.profileCandidates.map { $0.id })
+            isImportPreviewPresented = true
+        } catch {
+            dataStoreImportResult = "백업 가져오기 실패: \(error.localizedDescription)"
+        }
+    }
+
+    private func importSelectedBackupCandidates() {
+        guard let selectedImportBackupURL else {
+            dataStoreImportResult = "백업 가져오기 실패: 백업 폴더를 찾을 수 없습니다."
+            clearImportPreview()
+            return
+        }
+
+        do {
+            let result = try DataStoreRecoveryImportService.importSelectedCandidates(
+                from: selectedImportBackupURL,
+                selectedCandidateIDs: selectedImportCandidateIDs,
+                into: modelContext
+            )
+            dataStoreImportResult = result.statusSummary
+            dataStoreDiagnostics = AppDataStoreDiagnostics.inspect()
+        } catch {
+            dataStoreImportResult = "백업 가져오기 실패: \(error.localizedDescription)"
+        }
+
+        clearImportPreview()
+    }
+
+    private func clearImportPreview() {
+        isImportPreviewPresented = false
+        dataStoreImportPreview = nil
+        selectedImportBackupURL = nil
+        selectedImportCandidateIDs = []
     }
 
     private func createSupportDiagnosticsBundle() {
