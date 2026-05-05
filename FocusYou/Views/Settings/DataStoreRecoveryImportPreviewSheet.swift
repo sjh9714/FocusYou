@@ -3,17 +3,32 @@ import SwiftUI
 struct DataStoreRecoveryImportPreviewSheet: View {
     let preview: DataStoreRecoveryImportPreview
     @Binding var selectedCandidateIDs: Set<String>
+    let isImporting: Bool
     let onCancel: () -> Void
     let onImport: () -> Void
 
+    @State private var isImportConfirmationPresented = false
+
     var body: some View {
+        let summary = preview.selectionSummary(selectedCandidateIDs: selectedCandidateIDs)
+
         VStack(alignment: .leading, spacing: 16) {
             Label("백업 가져오기", systemImage: "tray.and.arrow.down")
                 .font(.title3.bold())
 
-            Text(preview.statusSummary)
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("백업: \(summary.sourceSummary)")
+                    .font(.callout.weight(.medium))
+                    .textSelection(.enabled)
+
+                Text(summary.importSummaryText)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+
+                Text(summary.skippedSummaryText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
@@ -37,7 +52,7 @@ struct DataStoreRecoveryImportPreviewSheet: View {
             }
             .frame(minHeight: 180)
 
-            Text("세션 기록과 배지는 이번 가져오기에서 복사하지 않습니다.")
+            Text("기존 데이터는 덮어쓰거나 삭제하지 않고, 선택한 설정을 새 프로필로만 추가합니다.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -45,18 +60,31 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                 Button("취소") {
                     onCancel()
                 }
+                .disabled(isImporting)
 
                 Spacer()
 
                 Button("선택 항목 가져오기") {
-                    onImport()
+                    isImportConfirmationPresented = true
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(selectedCandidateIDs.isEmpty)
+                .disabled(selectedCandidateIDs.isEmpty || isImporting)
             }
         }
+        .confirmationDialog(
+            "선택한 백업 설정을 가져올까요?",
+            isPresented: $isImportConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("새 항목으로 가져오기") {
+                onImport()
+            }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("기존 데이터는 변경하지 않고 선택 항목을 새 프로필로 추가합니다. 세션 기록과 배지는 가져오지 않습니다.")
+        }
         .padding(24)
-        .frame(minWidth: 520, minHeight: 380)
+        .frame(minWidth: 560, minHeight: 420)
     }
 
     private func selectionBinding(for id: String) -> Binding<Bool> {

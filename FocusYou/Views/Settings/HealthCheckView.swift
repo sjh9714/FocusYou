@@ -22,6 +22,7 @@ struct HealthCheckView: View {
     @State private var dataStoreImportPreview: DataStoreRecoveryImportPreview?
     @State private var selectedImportCandidateIDs: Set<String> = []
     @State private var isImportPreviewPresented = false
+    @State private var importExecutionGate = DataStoreRecoveryImportExecutionGate()
 
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
@@ -54,6 +55,7 @@ struct HealthCheckView: View {
                 DataStoreRecoveryImportPreviewSheet(
                     preview: dataStoreImportPreview,
                     selectedCandidateIDs: $selectedImportCandidateIDs,
+                    isImporting: importExecutionGate.isImportInProgress,
                     onCancel: clearImportPreview,
                     onImport: importSelectedBackupCandidates
                 )
@@ -194,6 +196,7 @@ struct HealthCheckView: View {
                 } label: {
                     Label("백업 가져오기", systemImage: "tray.and.arrow.down")
                 }
+                .disabled(importExecutionGate.isImportInProgress)
 
                 Divider()
 
@@ -348,6 +351,14 @@ struct HealthCheckView: View {
     }
 
     private func importSelectedBackupCandidates() {
+        guard importExecutionGate.begin() else {
+            dataStoreImportResult = "이미 백업 가져오기를 진행 중입니다."
+            return
+        }
+        defer {
+            importExecutionGate.finish()
+        }
+
         guard let selectedImportBackupURL else {
             dataStoreImportResult = "백업 가져오기 실패: 백업 폴더를 찾을 수 없습니다."
             clearImportPreview()

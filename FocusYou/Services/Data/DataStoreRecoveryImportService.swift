@@ -51,6 +51,7 @@ struct DataStoreRecoveryImportResult: Equatable {
 enum DataStoreRecoveryImportError: Error, Equatable, LocalizedError {
     case noCandidatesSelected
     case selectedCandidatesNotFound
+    case failedToSaveImport(String)
 
     var errorDescription: String? {
         switch self {
@@ -58,6 +59,8 @@ enum DataStoreRecoveryImportError: Error, Equatable, LocalizedError {
             return String(localized: "가져올 백업 항목을 선택하세요.")
         case .selectedCandidatesNotFound:
             return String(localized: "선택한 백업 항목을 찾을 수 없습니다.")
+        case .failedToSaveImport(let reason):
+            return String(localized: "가져온 데이터를 저장할 수 없습니다: \(reason)")
         }
     }
 }
@@ -98,7 +101,10 @@ enum DataStoreRecoveryImportService {
         into targetContext: ModelContext,
         temporaryDirectoryURL: URL = FileManager.default.temporaryDirectory,
         fileManager: FileManager = .default,
-        now: Date = Date()
+        now: Date = Date(),
+        save: (ModelContext) throws -> Void = { context in
+            try context.save()
+        }
     ) throws -> DataStoreRecoveryImportResult {
         guard !selectedCandidateIDs.isEmpty else {
             throw DataStoreRecoveryImportError.noCandidatesSelected
@@ -113,8 +119,10 @@ enum DataStoreRecoveryImportService {
             let allCandidates = try sourceCandidates(in: sourceContext)
             let selectedCandidates = allCandidates
                 .filter { selectedCandidateIDs.contains($0.candidate.id) }
+            let resolvedCandidateIDs = Set(selectedCandidates.map(\.candidate.id))
 
-            guard !selectedCandidates.isEmpty else {
+            guard !selectedCandidates.isEmpty,
+                  resolvedCandidateIDs == selectedCandidateIDs else {
                 throw DataStoreRecoveryImportError.selectedCandidatesNotFound
             }
 
@@ -126,37 +134,42 @@ enum DataStoreRecoveryImportService {
             var importedAppCount = 0
             var importedScheduleCount = 0
 
-            for sourceCandidate in selectedCandidates {
-                let importedProfile = makeProfile(
-                    from: sourceCandidate,
-                    usedProfileNames: &usedProfileNames
-                )
-                targetContext.insert(importedProfile)
-                importedProfileCount += 1
-
-                for site in sourceCandidate.sites {
-                    let importedSite = copySite(site, profile: importedProfile)
-                    targetContext.insert(importedSite)
-                    importedSiteCount += 1
-                }
-
-                for app in sourceCandidate.apps {
-                    let importedApp = copyApp(app, profile: importedProfile)
-                    targetContext.insert(importedApp)
-                    importedAppCount += 1
-                }
-
-                for schedule in sourceCandidate.schedules {
-                    let importedSchedule = copySchedule(
-                        schedule,
-                        profile: importedProfile
+            do {
+                for sourceCandidate in selectedCandidates {
+                    let importedProfile = makeProfile(
+                        from: sourceCandidate,
+                        usedProfileNames: &usedProfileNames
                     )
-                    targetContext.insert(importedSchedule)
-                    importedScheduleCount += 1
-                }
-            }
+                    targetContext.insert(importedProfile)
+                    importedProfileCount += 1
 
-            try targetContext.save()
+                    for site in sourceCandidate.sites {
+                        let importedSite = copySite(site, profile: importedProfile)
+                        targetContext.insert(importedSite)
+                        importedSiteCount += 1
+                    }
+
+                    for app in sourceCandidate.apps {
+                        let importedApp = copyApp(app, profile: importedProfile)
+                        targetContext.insert(importedApp)
+                        importedAppCount += 1
+                    }
+
+                    for schedule in sourceCandidate.schedules {
+                        let importedSchedule = copySchedule(
+                            schedule,
+                            profile: importedProfile
+                        )
+                        targetContext.insert(importedSchedule)
+                        importedScheduleCount += 1
+                    }
+                }
+
+                try save(targetContext)
+            } catch {
+                targetContext.rollback()
+                throw DataStoreRecoveryImportError.failedToSaveImport(error.localizedDescription)
+            }
 
             return DataStoreRecoveryImportResult(
                 importedProfileCount: importedProfileCount,

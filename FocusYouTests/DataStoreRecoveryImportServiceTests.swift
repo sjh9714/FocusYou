@@ -64,6 +64,39 @@ struct DataStoreRecoveryImportServiceTests {
         #expect(try target.context.fetch(FetchDescriptor<BlockProfile>()).isEmpty)
     }
 
+    @Test("stale selected candidate ids fail before mutating current context")
+    func staleSelectedCandidateIDsFailWithoutMutatingCurrentContext() throws {
+        let backup = try makeBackupStore()
+        defer {
+            try? FileManager.default.removeItem(at: backup.directory)
+            try? FileManager.default.removeItem(at: backup.temporaryDirectory)
+        }
+
+        let target = try makeTargetContext()
+        let preview = try DataStoreRecoveryImportService.previewImport(
+            at: backup.directory,
+            temporaryDirectoryURL: backup.temporaryDirectory
+        )
+        let selected = try #require(preview.profileCandidates.first { $0.sourceName == "Import Me" })
+
+        do {
+            _ = try DataStoreRecoveryImportService.importSelectedCandidates(
+                from: backup.directory,
+                selectedCandidateIDs: [selected.id, "stale-candidate-id"],
+                into: target.context,
+                temporaryDirectoryURL: backup.temporaryDirectory
+            )
+            Issue.record("Expected import to fail when any selected candidate id is stale")
+        } catch {
+            #expect(error.localizedDescription.contains("선택한 백업 항목을 찾을 수 없습니다"))
+        }
+
+        #expect(try target.context.fetch(FetchDescriptor<BlockProfile>()).isEmpty)
+        #expect(try target.context.fetch(FetchDescriptor<BlockedSite>()).isEmpty)
+        #expect(try target.context.fetch(FetchDescriptor<BlockedApp>()).isEmpty)
+        #expect(try target.context.fetch(FetchDescriptor<BlockSchedule>()).isEmpty)
+    }
+
     @Test("import preview summarizes candidates and skipped history")
     func importPreviewSummarizesCandidatesAndSkippedHistory() throws {
         let backup = try makeBackupStore()
@@ -179,6 +212,40 @@ struct DataStoreRecoveryImportServiceTests {
         #expect(try modificationDate(of: backup.storeURL) == originalStoreModifiedAt)
     }
 
+    @Test("save failure rolls back inserted recovery objects")
+    func saveFailureRollsBackInsertedRecoveryObjects() throws {
+        let backup = try makeBackupStore()
+        defer {
+            try? FileManager.default.removeItem(at: backup.directory)
+            try? FileManager.default.removeItem(at: backup.temporaryDirectory)
+        }
+
+        let target = try makeTargetContext()
+        let preview = try DataStoreRecoveryImportService.previewImport(
+            at: backup.directory,
+            temporaryDirectoryURL: backup.temporaryDirectory
+        )
+        let selected = try #require(preview.profileCandidates.first { $0.sourceName == "Import Me" })
+
+        do {
+            _ = try DataStoreRecoveryImportService.importSelectedCandidates(
+                from: backup.directory,
+                selectedCandidateIDs: [selected.id],
+                into: target.context,
+                temporaryDirectoryURL: backup.temporaryDirectory,
+                save: { _ in throw SyntheticSaveError.failure }
+            )
+            Issue.record("Expected import to fail when saving the target context fails")
+        } catch {
+            #expect(error.localizedDescription.contains("가져온 데이터를 저장할 수 없습니다"))
+        }
+
+        #expect(try target.context.fetch(FetchDescriptor<BlockProfile>()).isEmpty)
+        #expect(try target.context.fetch(FetchDescriptor<BlockedSite>()).isEmpty)
+        #expect(try target.context.fetch(FetchDescriptor<BlockedApp>()).isEmpty)
+        #expect(try target.context.fetch(FetchDescriptor<BlockSchedule>()).isEmpty)
+    }
+
     @Test("orphan legacy blocks import as a dedicated profile")
     func orphanLegacyBlocksImportAsDedicatedProfile() throws {
         let backup = try makeBackupStore()
@@ -245,6 +312,10 @@ struct DataStoreRecoveryImportServiceTests {
 
     private var fixedDate: Date {
         Date(timeIntervalSince1970: 1_704_164_645)
+    }
+
+    private enum SyntheticSaveError: Error {
+        case failure
     }
 
     private func makeTargetContext() throws -> (container: ModelContainer, context: ModelContext) {
