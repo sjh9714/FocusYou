@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.7] - 2026-05-05
+
 ### Changed
 - 설정 진단과 안전 모드의 데이터 도구 결과 표시를 정리하고, 최근 작업 상태/경로 복사/Finder 열기와 백업 가져오기 선택 안내를 보강.
 
