@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.5] - 2026-05-05
+
 ### Added
 - 로컬 진단 로그 번들 내보내기: 설정 진단 섹션과 시작 안전 모드 창에서 민감정보가 redaction된 manifest, 데이터 저장소/차단 상태 요약, 최근 unified log 요약을 폴더로 생성.
 - 데이터 백업 미리보기: 선택한 백업 store를 임시 복사본으로 열어 모델별 개수와 세션 날짜 범위를 확인할 수 있게 함.
