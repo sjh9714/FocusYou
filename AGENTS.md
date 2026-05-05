@@ -15,11 +15,12 @@ Recent baseline is already stabilized for:
 - crash/reboot recovery
 - helper-based hosts restore
 - data recovery/diagnostics tools
+- recovery import/preview temporary store cleanup
 - QA script automation and CI (`macOS Tests`)
 
 ## 2) Current Maintenance Scope
 
-Current baseline: `v2.3.8`
+Current baseline: `v2.3.11`
 
 In scope:
 - warning-free Swift 6 / XcodeGen builds

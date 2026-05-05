@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.11] - 2026-05-05
+
 ### Changed
 - 복구 Import/Preview의 임시 SwiftData store 수명과 cleanup 경계를 정리해 QA/test 로그의 sqlite 임시 파일 경고를 제거.
 
