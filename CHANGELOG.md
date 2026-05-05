@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.6] - 2026-05-05
+
 ### Changed
 - 백업 가져오기 흐름에 선택 후보 재검증, 저장 실패 rollback, 중복 실행 방지, 복구 문서 안내를 추가.
 
