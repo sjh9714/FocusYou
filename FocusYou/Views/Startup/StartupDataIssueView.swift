@@ -1,8 +1,10 @@
 import AppKit
 import SwiftUI
+import SwiftData
 
 struct StartupDataIssueView: View {
     let issue: StartupDataIssue
+    @Environment(\.modelContext) private var modelContext
 
     @State private var diagnostics: AppDataStoreDiagnosticsReport
     @State private var actionMessage: String?
@@ -77,6 +79,12 @@ struct StartupDataIssueView: View {
                     } label: {
                         Label("Application Support 열기", systemImage: "folder")
                     }
+
+                    Button {
+                        createSupportDiagnosticsBundle()
+                    } label: {
+                        Label("진단 로그 내보내기", systemImage: "waveform.path.ecg")
+                    }
                 }
 
                 HStack {
@@ -134,6 +142,37 @@ struct StartupDataIssueView: View {
         }
     }
 
+    private func createSupportDiagnosticsBundle() {
+        diagnostics = AppDataStoreDiagnostics.inspect(
+            supportDirectoryURL: issue.supportDirectoryURL
+        )
+
+        let panel = NSOpenPanel()
+        panel.title = "진단 로그 저장 위치 선택"
+        panel.prompt = "내보내기"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            return
+        }
+
+        do {
+            let result = try SupportDiagnosticsBundleService.createBundle(
+                destinationDirectoryURL: destinationURL,
+                dataStoreDiagnostics: diagnostics,
+                blockingSummary: .current(),
+                redactionCandidates: redactionCandidates()
+            )
+            actionMessage = "진단 로그 완료: \(result.bundleDirectoryURL.path)"
+            NSWorkspace.shared.activateFileViewerSelecting([result.bundleDirectoryURL])
+        } catch {
+            actionMessage = "진단 로그 실패: \(error.localizedDescription)"
+        }
+    }
+
     private func copyDiagnostics() {
         diagnostics = AppDataStoreDiagnostics.inspect(
             supportDirectoryURL: issue.supportDirectoryURL
@@ -153,5 +192,21 @@ struct StartupDataIssueView: View {
                 NSApp.terminate(nil)
             }
         }
+    }
+
+    private func redactionCandidates() -> [String] {
+        var candidates: [String] = []
+
+        if let profiles = try? modelContext.fetch(FetchDescriptor<BlockProfile>()) {
+            candidates.append(contentsOf: profiles.map(\.name))
+        }
+        if let sites = try? modelContext.fetch(FetchDescriptor<BlockedSite>()) {
+            candidates.append(contentsOf: sites.map(\.domain))
+        }
+        if let apps = try? modelContext.fetch(FetchDescriptor<BlockedApp>()) {
+            candidates.append(contentsOf: apps.flatMap { [$0.name, $0.bundleId] })
+        }
+
+        return candidates
     }
 }

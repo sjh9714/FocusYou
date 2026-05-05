@@ -21,6 +21,7 @@
 		0C931460D19EF4619274025C /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB7D984FBAE86A04F3EE948 /* SettingsViewModel.swift */; };
 		0D5634A394AD93E4F6CBF0DF /* AppStatePauseResumeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437575C0CD3CF7B18E0EB585 /* AppStatePauseResumeTests.swift */; };
 		0D69C2C262C1C6ACB776EF51 /* CalendarSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A327461ACB3D91BE24C18FE5 /* CalendarSyncService.swift */; };
+		0E31640023E353DEC282DA7A /* SupportDiagnosticsBundleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B319FF4F7AC658D21A1D292 /* SupportDiagnosticsBundleService.swift */; };
 		0E7735D36356283E151587D9 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F920638F8E8D4DF6164C4124 /* ThemeManager.swift */; };
 		0EC6987A0EC913898EB4BACC /* FocusSessionModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C780AB250862B2D8C98DD167 /* FocusSessionModelTests.swift */; };
 		0F63113E064387FB6FDCAA45 /* ProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75FCD3FE480A8EF349AC789 /* ProfileEditorView.swift */; };
@@ -43,6 +44,7 @@
 		26503B0BE034CA5950A5CAC4 /* DateExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5788AA731034E1B0B38FFCAC /* DateExtensionsTests.swift */; };
 		27BFA9B8D275A6800F0FD80A /* FocusYouFilterDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */; };
 		29C2453579DC1F0DB7FE7B55 /* CompletedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F59101E57B733BAA0785F26 /* CompletedContentView.swift */; };
+		2FC43824663A4FC1E022E02C /* SupportDiagnosticsBundleServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDBE45545769907B78A098B1 /* SupportDiagnosticsBundleServiceTests.swift */; };
 		301B8769C8E3D27AAB895186 /* AppState+SessionLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1563496E083D9E053188ADAD /* AppState+SessionLifecycle.swift */; };
 		30C0FF65BD1F205F44A5892A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1B83EE85B7DC9FF3FEBB1163 /* Localizable.strings */; };
 		32D098577DF7593ED6BF2A6D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD3B8E333EA7D156126F140 /* OnboardingView.swift */; };
@@ -347,6 +349,7 @@
 		464D82FC7EC91990E5AABB51 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		4993D70DDEC60E1E0906BDD0 /* WebsiteBlockerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBlockerFactory.swift; sourceTree = "<group>"; };
 		4A795FB2157439131239D909 /* StartFocusIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartFocusIntent.swift; sourceTree = "<group>"; };
+		4B319FF4F7AC658D21A1D292 /* SupportDiagnosticsBundleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportDiagnosticsBundleService.swift; sourceTree = "<group>"; };
 		4B8C657F6C77F74714DFB770 /* MonthlyTrendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyTrendView.swift; sourceTree = "<group>"; };
 		4BCB748BAF713CB958EE56F7 /* ProfileViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModelTests.swift; sourceTree = "<group>"; };
 		4F2CB15F782CE21EADE32A0B /* FocusYouError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouError.swift; sourceTree = "<group>"; };
@@ -452,6 +455,7 @@
 		C780AB250862B2D8C98DD167 /* FocusSessionModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSessionModelTests.swift; sourceTree = "<group>"; };
 		CAD7CACE9065D4B019EF5F81 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
 		CCCF53A306D96110BFA5BB8A /* BlockProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockProfile.swift; sourceTree = "<group>"; };
+		CDBE45545769907B78A098B1 /* SupportDiagnosticsBundleServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportDiagnosticsBundleServiceTests.swift; sourceTree = "<group>"; };
 		CDCD438172D072F4FC49FE43 /* ExportServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportServiceTests.swift; sourceTree = "<group>"; };
 		CEBFB979A2095AD7B207769A /* BlockListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockListViewModelTests.swift; sourceTree = "<group>"; };
 		D043734447E897EECAA90E0A /* View+Modifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Modifiers.swift"; sourceTree = "<group>"; };
@@ -529,6 +533,7 @@
 				19BC4BEF7BBF485D486F3AB9 /* Blocking */,
 				CBC8BC7FC0442BCC76A03EB7 /* Calendar */,
 				C8A4241A6EEDEC0B5FC8BF88 /* Data */,
+				77128A78648177AE99CB04E7 /* Diagnostics */,
 				2A6373CB8E4421994A5ED71D /* Intents */,
 				33F456FA4B2C7779683CBD53 /* Notification */,
 				D732453E86600ADEDE972B29 /* QA */,
@@ -827,12 +832,21 @@
 				24C1A612B440EA95CF85CFC3 /* StreakCalculatorTests.swift */,
 				7200073FB3501B7E98D6C17A /* StringExtensionsTests.swift */,
 				FC156CBB1A5D77A429DBD7D7 /* SubscriptionManagerTests.swift */,
+				CDBE45545769907B78A098B1 /* SupportDiagnosticsBundleServiceTests.swift */,
 				BCE568A09278F59FE68649E8 /* ThemeCategoryTests.swift */,
 				D619D1183C7B812AA42A1337 /* ThemeManagerTests.swift */,
 				F100A34A1240A3486B9F0AF3 /* TimerViewModelTests.swift */,
 				9F87A0B8D5D4CBF1C362DDC5 /* WebsiteBlockerFactoryTests.swift */,
 			);
 			path = FocusYouTests;
+			sourceTree = "<group>";
+		};
+		77128A78648177AE99CB04E7 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				4B319FF4F7AC658D21A1D292 /* SupportDiagnosticsBundleService.swift */,
+			);
+			path = Diagnostics;
 			sourceTree = "<group>";
 		};
 		7F23B90A85A7251054A73E04 /* Helpers */ = {
@@ -1303,6 +1317,7 @@
 				9A6ED158CE7BC2887429EA28 /* StreakCalculatorTests.swift in Sources */,
 				75702BCEE3D87EF47532D34D /* StringExtensionsTests.swift in Sources */,
 				6FA1F83B4CC851C44808F951 /* SubscriptionManagerTests.swift in Sources */,
+				2FC43824663A4FC1E022E02C /* SupportDiagnosticsBundleServiceTests.swift in Sources */,
 				F579C8650093BF13C6C37BCB /* ThemeCategoryTests.swift in Sources */,
 				408572736EEEA1740E4B2982 /* ThemeManagerTests.swift in Sources */,
 				1005C72E2A7CCC8F53BB8EDD /* TimerViewModelTests.swift in Sources */,
@@ -1445,6 +1460,7 @@
 				5B617E7022FAEB55D42E3F5D /* StreakCalculator.swift in Sources */,
 				00B0CDCEE36C2FBB035A5741 /* String+Extensions.swift in Sources */,
 				95E824B5AFE0E9EC05B69796 /* SubscriptionManager.swift in Sources */,
+				0E31640023E353DEC282DA7A /* SupportDiagnosticsBundleService.swift in Sources */,
 				5DFBCD7D9EA63D81DD5632B1 /* ThemeLivePreviewPanel.swift in Sources */,
 				0E7735D36356283E151587D9 /* ThemeManager.swift in Sources */,
 				A3E73C30EC933E3803D3588F /* TimePickerView.swift in Sources */,

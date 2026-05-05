@@ -164,6 +164,7 @@ struct FocusYouApp: App {
         Window("데이터 저장소 문제", id: "startup-data-issue") {
             if let startupDataIssue {
                 StartupDataIssueView(issue: startupDataIssue)
+                    .modelContainer(modelContainer)
                     .environment(themeManager)
                     .preferredColorScheme(settingsViewModel.preferredColorScheme)
             } else {

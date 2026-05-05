@@ -1,11 +1,13 @@
 import SwiftUI
 import AppKit
+import SwiftData
 import os
 
 // MARK: - 차단 상태 진단 (v1.3)
 
 struct HealthCheckView: View {
     @Environment(ThemeManager.self) private var themeManager
+    @Environment(\.modelContext) private var modelContext
 
     @State private var privateRelayStatus: PrivateRelayDetector.Status?
     @State private var hostsBlockingActive = false
@@ -13,6 +15,7 @@ struct HealthCheckView: View {
     @State private var isDiagnosing = false
     @State private var dnsFlushResult: String?
     @State private var dataStoreBackupResult: String?
+    @State private var supportDiagnosticsResult: String?
 
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
@@ -132,16 +135,32 @@ struct HealthCheckView: View {
                         .foregroundStyle(.secondary)
                         .textSelection(.enabled)
                 }
+
+                if let supportDiagnosticsResult {
+                    Text(supportDiagnosticsResult)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
             }
 
             Spacer()
 
-            Button("백업") {
-                createDataStoreBackup()
+            HStack(spacing: 8) {
+                Button("백업") {
+                    createDataStoreBackup()
+                }
+                .font(.caption)
+                .buttonStyle(.plain)
+                .foregroundStyle(themeManager.primary)
+
+                Button("진단 로그") {
+                    createSupportDiagnosticsBundle()
+                }
+                .font(.caption)
+                .buttonStyle(.plain)
+                .foregroundStyle(themeManager.primary)
             }
-            .font(.caption)
-            .buttonStyle(.plain)
-            .foregroundStyle(themeManager.primary)
         }
         .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
     }
@@ -230,6 +249,55 @@ struct HealthCheckView: View {
         } catch {
             dataStoreBackupResult = "백업 실패: \(error.localizedDescription)"
         }
+    }
+
+    private func createSupportDiagnosticsBundle() {
+        let diagnostics = AppDataStoreDiagnostics.inspect()
+        dataStoreDiagnostics = diagnostics
+
+        let panel = NSOpenPanel()
+        panel.title = "진단 로그 저장 위치 선택"
+        panel.prompt = "내보내기"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            return
+        }
+
+        do {
+            let result = try SupportDiagnosticsBundleService.createBundle(
+                destinationDirectoryURL: destinationURL,
+                dataStoreDiagnostics: diagnostics,
+                blockingSummary: SupportDiagnosticsBlockingSummary.current(
+                    hostsBlockingActive: hostsBlockingActive,
+                    privateRelayStatus: privateRelayStatus
+                ),
+                redactionCandidates: redactionCandidates()
+            )
+            supportDiagnosticsResult = "진단 로그 완료: \(result.bundleDirectoryURL.path)"
+            NSWorkspace.shared.activateFileViewerSelecting([result.bundleDirectoryURL])
+        } catch {
+            supportDiagnosticsResult = "진단 로그 실패: \(error.localizedDescription)"
+        }
+    }
+
+    private func redactionCandidates() -> [String] {
+        var candidates: [String] = []
+
+        if let profiles = try? modelContext.fetch(FetchDescriptor<BlockProfile>()) {
+            candidates.append(contentsOf: profiles.map(\.name))
+        }
+        if let sites = try? modelContext.fetch(FetchDescriptor<BlockedSite>()) {
+            candidates.append(contentsOf: sites.map(\.domain))
+        }
+        if let apps = try? modelContext.fetch(FetchDescriptor<BlockedApp>()) {
+            candidates.append(contentsOf: apps.flatMap { [$0.name, $0.bundleId] })
+        }
+
+        return candidates
     }
 
     private func diagnosticIcon(status: Bool) -> some View {
