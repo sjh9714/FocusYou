@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.9] - 2026-05-05
+
 ### Changed
 - v2.3.8 이후 운영 문서 기준선과 CI의 QA 스크립트 검증 단계를 정리.
 - 백업 가져오기에서 사용자가 명시적으로 선택한 경우 세션 기록과 배지를 새 항목으로 복구할 수 있게 보강.
