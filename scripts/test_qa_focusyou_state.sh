@@ -134,17 +134,31 @@ case "${1:-}" in
     key="${3:-}"
     value="${5:-}"
     if [[ "$key" == "qaAutomationCommand" ]]; then
-      python3 - "$value" "${QA_FAKE_COMMAND_OUTPUT_PATH:?}" > "$store_dir/qaAutomationResult" <<'PY'
+      python3 - "$value" > "$store_dir/qaAutomationResult" <<'PY'
 import json
+import os
 import sys
 
 command = json.loads(sys.argv[1])
+action = command["action"]
+output_path = os.environ.get("QA_FAKE_COMMAND_OUTPUT_PATH", "")
+if action == "create_data_backup":
+    output_path = os.environ.get("QA_FAKE_BACKUP_OUTPUT_PATH", output_path)
+elif action == "create_diagnostics_bundle":
+    output_path = os.environ.get("QA_FAKE_DIAGNOSTICS_OUTPUT_PATH", output_path)
+
+if not output_path:
+    raise SystemExit("missing fake command output path")
+
+if os.environ.get("QA_FAKE_ESCAPE_OUTPUT_SLASHES") == "1":
+    output_path = output_path.replace("/", "\\/")
+
 print(json.dumps({
     "id": command["id"],
     "status": "ok",
-    "message": f"fake_{command['action']}",
+    "message": f"fake_{action}",
     "handledAt": 1714867200,
-    "outputPath": sys.argv[2],
+    "outputPath": output_path,
 }))
 PY
     else
@@ -218,5 +232,25 @@ QA_FAKE_COMMAND_OUTPUT_PATH="$generated_diagnostics" \
 PATH="$fake_bin:$PATH" \
 run_success "qa create diagnostics bundle handles spaced output path" \
   "$QA_SCRIPT" qa-create-diagnostics-bundle "$TMP_DIR/QA Destination"
+
+escaped_backup="$TMP_DIR/Escaped Output/FocusYouBackup-20260505-050607"
+make_backup_fixture "$escaped_backup"
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_COMMAND_OUTPUT_PATH="$escaped_backup" \
+QA_FAKE_ESCAPE_OUTPUT_SLASHES=1 \
+PATH="$fake_bin:$PATH" \
+run_success "qa create data backup handles defaults escaped output path" \
+  "$QA_SCRIPT" qa-create-data-backup "$TMP_DIR/QA Destination"
+
+smoke_backup="$TMP_DIR/Generated Output/Smoke/FocusYouBackup-20260505-060708"
+smoke_diagnostics="$TMP_DIR/Generated Output/Smoke/FocusYouDiagnostics-20260505-060708"
+make_backup_fixture "$smoke_backup"
+make_diagnostics_fixture "$smoke_diagnostics"
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_BACKUP_OUTPUT_PATH="$smoke_backup" \
+QA_FAKE_DIAGNOSTICS_OUTPUT_PATH="$smoke_diagnostics" \
+PATH="$fake_bin:$PATH" \
+run_success "qa smoke data tools handles empty backup options" \
+  "$QA_SCRIPT" qa-smoke-data-tools "$TMP_DIR/QA Destination"
 
 echo "PASS: qa_focusyou_state data tool tests"

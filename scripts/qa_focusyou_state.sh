@@ -96,6 +96,7 @@ except json.JSONDecodeError:
 
 value = payload.get(sys.argv[1])
 if isinstance(value, str):
+    value = value.replace("\\/", "/")
     print(value)
 PY
 }
@@ -258,7 +259,11 @@ qa_create_data_backup() {
     return 1
   fi
 
-  assert_data_backup "$APP_COMMAND_OUTPUT_PATH" "${assert_args[@]}"
+  if [ "${#assert_args[@]}" -gt 0 ]; then
+    assert_data_backup "$APP_COMMAND_OUTPUT_PATH" "${assert_args[@]}"
+  else
+    assert_data_backup "$APP_COMMAND_OUTPUT_PATH"
+  fi
 }
 
 qa_create_diagnostics_bundle() {
