@@ -99,7 +99,7 @@ enum DataStoreRecoveryImportService {
             temporaryDirectoryURL: temporaryDirectoryURL,
             fileManager: fileManager
         ) { copiedStore in
-            let context = ModelContext(copiedStore.container)
+            let context = copiedStore.context
             let candidates = try sourceCandidates(in: context).map(\.candidate)
             return DataStoreRecoveryImportPreview(
                 inspectedAt: now,
@@ -157,7 +157,7 @@ enum DataStoreRecoveryImportService {
             temporaryDirectoryURL: temporaryDirectoryURL,
             fileManager: fileManager
         ) { copiedStore in
-            let sourceContext = ModelContext(copiedStore.container)
+            let sourceContext = copiedStore.context
             let allCandidates = try sourceCandidates(in: sourceContext)
             let selectedCandidates = allCandidates
                 .filter { selection.selectedCandidateIDs.contains($0.candidate.id) }

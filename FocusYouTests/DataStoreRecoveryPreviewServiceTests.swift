@@ -9,17 +9,23 @@ struct DataStoreRecoveryPreviewServiceTests {
     @Test("backup preview fails clearly when no store file exists")
     func previewFailsWhenStoreFileIsMissing() throws {
         let backupDirectory = try makeTemporaryDirectory()
-        defer { try? FileManager.default.removeItem(at: backupDirectory) }
+        let temporaryDirectory = try makeTemporaryDirectory()
+        defer {
+            try? FileManager.default.removeItem(at: backupDirectory)
+            try? FileManager.default.removeItem(at: temporaryDirectory)
+        }
 
         do {
             _ = try DataStoreRecoveryPreviewService.previewBackup(
                 at: backupDirectory,
-                temporaryDirectoryURL: try makeTemporaryDirectory()
+                temporaryDirectoryURL: temporaryDirectory
             )
             Issue.record("Expected preview to fail when the backup folder has no store file")
         } catch let error as DataStoreRecoveryPreviewError {
             #expect(error.errorDescription?.contains("백업 store 파일을 찾을 수 없습니다") == true)
         }
+
+        #expect(try recoveryStagingDirectories(in: temporaryDirectory).isEmpty)
     }
 
     @Test("valid backup preview reads model counts and session range from a temporary copy")
@@ -60,6 +66,7 @@ struct DataStoreRecoveryPreviewServiceTests {
 
         #expect(try Data(contentsOf: storeURL) == originalStoreData)
         #expect(try modificationDate(of: storeURL) == originalStoreModifiedAt)
+        #expect(try recoveryStagingDirectories(in: temporaryDirectory).isEmpty)
     }
 
     @Test("corrupt backup preview does not touch current support directory")
@@ -90,6 +97,7 @@ struct DataStoreRecoveryPreviewServiceTests {
         }
 
         #expect(try String(contentsOf: sentinelURL, encoding: .utf8) == "do-not-touch")
+        #expect(try recoveryStagingDirectories(in: temporaryDirectory).isEmpty)
     }
 
     @Test("FocusYou.store backup is accepted when default.store is absent")
@@ -113,6 +121,7 @@ struct DataStoreRecoveryPreviewServiceTests {
         #expect(preview.sourceStoreFileName == "FocusYou.store")
         #expect(preview.profileCount == 1)
         #expect(preview.focusSessionCount == 2)
+        #expect(try recoveryStagingDirectories(in: temporaryDirectory).isEmpty)
     }
 
     private var fixedDate: Date {
@@ -190,5 +199,13 @@ struct DataStoreRecoveryPreviewServiceTests {
     private func modificationDate(of url: URL) throws -> Date {
         let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
         return try #require(attributes[.modificationDate] as? Date)
+    }
+
+    private func recoveryStagingDirectories(in temporaryDirectory: URL) throws -> [URL] {
+        try FileManager.default.contentsOfDirectory(
+            at: temporaryDirectory,
+            includingPropertiesForKeys: nil
+        )
+        .filter { $0.lastPathComponent.hasPrefix("FocusYouRecoveryPreview-") }
     }
 }

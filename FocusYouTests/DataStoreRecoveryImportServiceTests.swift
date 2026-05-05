@@ -33,6 +33,7 @@ struct DataStoreRecoveryImportServiceTests {
 
         let profiles = try target.context.fetch(FetchDescriptor<BlockProfile>())
         #expect(profiles.map(\.name) == ["Existing"])
+        #expect(try recoveryStagingDirectories(in: temporaryDirectory).isEmpty)
     }
 
     @Test("corrupt store import fails without inserting into current context")
@@ -62,6 +63,7 @@ struct DataStoreRecoveryImportServiceTests {
         }
 
         #expect(try target.context.fetch(FetchDescriptor<BlockProfile>()).isEmpty)
+        #expect(try recoveryStagingDirectories(in: temporaryDirectory).isEmpty)
     }
 
     @Test("stale selected candidate ids fail before mutating current context")
@@ -95,6 +97,7 @@ struct DataStoreRecoveryImportServiceTests {
         #expect(try target.context.fetch(FetchDescriptor<BlockedSite>()).isEmpty)
         #expect(try target.context.fetch(FetchDescriptor<BlockedApp>()).isEmpty)
         #expect(try target.context.fetch(FetchDescriptor<BlockSchedule>()).isEmpty)
+        #expect(try recoveryStagingDirectories(in: backup.temporaryDirectory).isEmpty)
     }
 
     @Test("empty selection fails before importing settings, sessions, or badges")
@@ -160,6 +163,7 @@ struct DataStoreRecoveryImportServiceTests {
         #expect(orphan.siteCount == 1)
         #expect(orphan.appCount == 1)
         #expect(orphan.scheduleCount == 1)
+        #expect(try recoveryStagingDirectories(in: backup.temporaryDirectory).isEmpty)
     }
 
     @Test("selected profile import preserves settings, resolves name conflict, and skips history")
@@ -246,6 +250,7 @@ struct DataStoreRecoveryImportServiceTests {
         #expect(try target.context.fetch(FetchDescriptor<Badge>()).isEmpty)
         #expect(try Data(contentsOf: backup.storeURL) == originalStoreData)
         #expect(try modificationDate(of: backup.storeURL) == originalStoreModifiedAt)
+        #expect(try recoveryStagingDirectories(in: backup.temporaryDirectory).isEmpty)
     }
 
     @Test("focus session import preserves history fields and clears calendar event id")
@@ -671,5 +676,13 @@ struct DataStoreRecoveryImportServiceTests {
     private func modificationDate(of url: URL) throws -> Date {
         let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
         return try #require(attributes[.modificationDate] as? Date)
+    }
+
+    private func recoveryStagingDirectories(in temporaryDirectory: URL) throws -> [URL] {
+        try FileManager.default.contentsOfDirectory(
+            at: temporaryDirectory,
+            includingPropertiesForKeys: nil
+        )
+        .filter { $0.lastPathComponent.hasPrefix("FocusYouRecoveryPreview-") }
     }
 }

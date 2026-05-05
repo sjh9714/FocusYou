@@ -78,7 +78,7 @@ enum DataStoreRecoveryPreviewError: Error, Equatable, LocalizedError {
 
 @MainActor
 struct DataStoreRecoveryCopiedStore {
-    let container: ModelContainer
+    let context: ModelContext
     let sourceDirectoryURL: URL
     let sourceStoreFileName: String
     let copiedStoreFiles: [String]
@@ -90,6 +90,9 @@ enum DataStoreRecoveryStoreReader {
         "default.store",
         "FocusYou.store",
     ]
+    private static let stagingDirectoryPrefix = "FocusYouRecoveryPreview-"
+    private static let deferredCleanupDirectoryPrefix = "FocusYouRecoveryDeferredCleanup-"
+    private static let deferredCleanupGraceInterval: TimeInterval = 3_600
 
     static func withCopiedStore<Result>(
         at backupDirectoryURL: URL,
@@ -97,6 +100,7 @@ enum DataStoreRecoveryStoreReader {
         fileManager: FileManager = .default,
         body: (DataStoreRecoveryCopiedStore) throws -> Result
     ) throws -> Result {
+        purgeDeferredCleanupDirectories(fileManager: fileManager)
         try validateDirectory(backupDirectoryURL, fileManager: fileManager)
 
         let sourceStoreURL = try sourceStoreFileURL(
@@ -109,7 +113,7 @@ enum DataStoreRecoveryStoreReader {
         )
 
         let stagingDirectoryURL = temporaryDirectoryURL
-            .appendingPathComponent("FocusYouRecoveryPreview-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("\(stagingDirectoryPrefix)\(UUID().uuidString)", isDirectory: true)
         do {
             try fileManager.createDirectory(
                 at: stagingDirectoryURL,
@@ -140,13 +144,13 @@ enum DataStoreRecoveryStoreReader {
                 copiedStoreFiles: sourceStoreFiles.map(\.lastPathComponent),
                 body: body
             )
-            try? fileManager.removeItem(at: stagingDirectoryURL)
+            deferStagingDirectoryCleanup(stagingDirectoryURL, fileManager: fileManager)
             return result
         } catch let error as DataStoreRecoveryPreviewError {
-            try? fileManager.removeItem(at: stagingDirectoryURL)
+            deferStagingDirectoryCleanup(stagingDirectoryURL, fileManager: fileManager)
             throw error
         } catch {
-            try? fileManager.removeItem(at: stagingDirectoryURL)
+            deferStagingDirectoryCleanup(stagingDirectoryURL, fileManager: fileManager)
             throw DataStoreRecoveryPreviewError.failedToReadBackup(error.localizedDescription)
         }
     }
@@ -219,23 +223,64 @@ enum DataStoreRecoveryStoreReader {
         copiedStoreFiles: [String],
         body: (DataStoreRecoveryCopiedStore) throws -> Result
     ) throws -> Result {
-        let container = try ModelContainer(
-            for: BlockProfile.self,
-            BlockedSite.self,
-            BlockedApp.self,
-            FocusSession.self,
-            BlockSchedule.self,
-            Badge.self,
-            configurations: ModelConfiguration(url: stagedStoreURL)
-        )
-        return try body(
-            DataStoreRecoveryCopiedStore(
-                container: container,
-                sourceDirectoryURL: sourceDirectoryURL,
-                sourceStoreFileName: sourceStoreFileName,
-                copiedStoreFiles: copiedStoreFiles
+        try autoreleasepool {
+            let container = try ModelContainer(
+                for: BlockProfile.self,
+                BlockedSite.self,
+                BlockedApp.self,
+                FocusSession.self,
+                BlockSchedule.self,
+                Badge.self,
+                configurations: ModelConfiguration(url: stagedStoreURL)
             )
-        )
+            let context = ModelContext(container)
+            return try body(
+                DataStoreRecoveryCopiedStore(
+                    context: context,
+                    sourceDirectoryURL: sourceDirectoryURL,
+                    sourceStoreFileName: sourceStoreFileName,
+                    copiedStoreFiles: copiedStoreFiles
+                )
+            )
+        }
+    }
+
+    private static func deferStagingDirectoryCleanup(
+        _ stagingDirectoryURL: URL,
+        fileManager: FileManager
+    ) {
+        let deferredURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(
+                "\(deferredCleanupDirectoryPrefix)\(UUID().uuidString)",
+                isDirectory: true
+            )
+
+        do {
+            try fileManager.moveItem(at: stagingDirectoryURL, to: deferredURL)
+        } catch {
+            try? fileManager.removeItem(at: stagingDirectoryURL)
+        }
+    }
+
+    private static func purgeDeferredCleanupDirectories(fileManager: FileManager) {
+        let rootURL = FileManager.default.temporaryDirectory
+        guard let candidates = try? fileManager.contentsOfDirectory(
+            at: rootURL,
+            includingPropertiesForKeys: [.contentModificationDateKey]
+        ) else {
+            return
+        }
+
+        let cutoff = Date().addingTimeInterval(-deferredCleanupGraceInterval)
+        for candidate in candidates
+            where candidate.lastPathComponent.hasPrefix(deferredCleanupDirectoryPrefix) {
+            let modifiedAt = (
+                try? candidate.resourceValues(forKeys: [.contentModificationDateKey])
+            )?.contentModificationDate ?? .distantPast
+
+            guard modifiedAt < cutoff else { continue }
+            try? fileManager.removeItem(at: candidate)
+        }
     }
 }
 
@@ -260,7 +305,7 @@ enum DataStoreRecoveryPreviewService {
         _ copiedStore: DataStoreRecoveryCopiedStore,
         now: Date
     ) throws -> DataStoreRecoveryPreview {
-        let context = ModelContext(copiedStore.container)
+        let context = copiedStore.context
 
         let sessions = try context.fetch(
             FetchDescriptor<FocusSession>(
