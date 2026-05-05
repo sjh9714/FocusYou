@@ -16,6 +16,7 @@ QA_AUTOMATION_ENABLED_KEY="qaAutomationEnabled"
 QA_AUTOMATION_COMMAND_KEY="qaAutomationCommand"
 QA_AUTOMATION_RESULT_KEY="qaAutomationResult"
 QA_COMMAND_TIMEOUT_SECONDS=20
+APP_COMMAND_OUTPUT_PATH=""
 
 print_header() {
   echo "=== FocusYou QA Snapshot ($(date '+%Y-%m-%d %H:%M:%S')) ==="
@@ -83,7 +84,48 @@ app_process_state() {
 json_extract_string() {
   local json="$1"
   local key="$2"
-  printf '%s' "$json" | sed -n "s/.*\"$key\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" | head -n 1
+  JSON_INPUT="$json" python3 - "$key" <<'PY' 2>/dev/null
+import json
+import os
+import sys
+
+try:
+    payload = json.loads(os.environ.get("JSON_INPUT", ""))
+except json.JSONDecodeError:
+    sys.exit(0)
+
+value = payload.get(sys.argv[1])
+if isinstance(value, str):
+    print(value)
+PY
+}
+
+build_app_command_json() {
+  local command_id="$1"
+  local action="$2"
+  local duration_seconds="${3:-}"
+  local domain="${4:-}"
+  local destination_path="${5:-}"
+
+  python3 - "$command_id" "$action" "$duration_seconds" "$domain" "$destination_path" <<'PY'
+import json
+import sys
+
+command_id, action, duration_seconds, domain, destination_path = sys.argv[1:6]
+payload = {
+    "id": command_id,
+    "action": action,
+}
+
+if duration_seconds:
+    payload["durationSeconds"] = float(duration_seconds)
+if domain:
+    payload["domain"] = domain
+if destination_path:
+    payload["destinationPath"] = destination_path
+
+print(json.dumps(payload, separators=(",", ":")))
+PY
 }
 
 ensure_app_running() {
@@ -98,6 +140,7 @@ send_app_command() {
   local action="$1"
   local duration_seconds="${2:-}"
   local domain="${3:-}"
+  local destination_path="${4:-}"
   local command_id
   local command_json
   local max_loops
@@ -105,17 +148,21 @@ send_app_command() {
   local result_id
   local result_status
   local result_message
+  local result_output_path
   local i
 
   command_id="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+  APP_COMMAND_OUTPUT_PATH=""
 
   case "$action" in
     start_session)
-      command_json="$(printf '{"id":"%s","action":"start_session","durationSeconds":%s,"domain":"%s"}' \
-        "$command_id" "$duration_seconds" "$domain")"
+      command_json="$(build_app_command_json "$command_id" "$action" "$duration_seconds" "$domain")"
       ;;
     stop_session|reset_to_idle)
-      command_json="$(printf '{"id":"%s","action":"%s"}' "$command_id" "$action")"
+      command_json="$(build_app_command_json "$command_id" "$action")"
+      ;;
+    create_data_backup|create_diagnostics_bundle)
+      command_json="$(build_app_command_json "$command_id" "$action" "" "" "$destination_path")"
       ;;
     *)
       echo "FAIL: unknown app command action ($action)"
@@ -135,7 +182,9 @@ send_app_command() {
       if [ "$result_id" = "$command_id" ]; then
         result_status="$(json_extract_string "$result_json" "status")"
         result_message="$(json_extract_string "$result_json" "message")"
+        result_output_path="$(json_extract_string "$result_json" "outputPath")"
         if [ "$result_status" = "ok" ]; then
+          APP_COMMAND_OUTPUT_PATH="$result_output_path"
           echo "PASS: app command '$action' succeeded ($result_message)"
           return 0
         fi
@@ -176,6 +225,71 @@ qa_smoke_start_stop() {
   assert_blocked || return 1
   qa_stop_session || return 1
   assert_clean
+}
+
+qa_create_data_backup() {
+  local destination_dir="${1:-}"
+  local assert_args=()
+
+  if [ -z "$destination_dir" ]; then
+    echo "FAIL: destination directory path required"
+    return 1
+  fi
+  shift || true
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --require-store)
+        assert_args+=("--require-store")
+        shift
+        ;;
+      *)
+        echo "FAIL: unknown qa-create-data-backup option ($1)"
+        return 1
+        ;;
+    esac
+  done
+
+  ensure_app_running || return 1
+  send_app_command "create_data_backup" "" "" "$destination_dir" || return 1
+
+  if [ -z "$APP_COMMAND_OUTPUT_PATH" ]; then
+    echo "FAIL: app command did not return outputPath"
+    return 1
+  fi
+
+  assert_data_backup "$APP_COMMAND_OUTPUT_PATH" "${assert_args[@]}"
+}
+
+qa_create_diagnostics_bundle() {
+  local destination_dir="${1:-}"
+
+  if [ -z "$destination_dir" ]; then
+    echo "FAIL: destination directory path required"
+    return 1
+  fi
+
+  ensure_app_running || return 1
+  send_app_command "create_diagnostics_bundle" "" "" "$destination_dir" || return 1
+
+  if [ -z "$APP_COMMAND_OUTPUT_PATH" ]; then
+    echo "FAIL: app command did not return outputPath"
+    return 1
+  fi
+
+  assert_diagnostics_bundle "$APP_COMMAND_OUTPUT_PATH"
+}
+
+qa_smoke_data_tools() {
+  local destination_dir="${1:-}"
+
+  if [ -z "$destination_dir" ]; then
+    echo "FAIL: destination directory path required"
+    return 1
+  fi
+
+  qa_create_data_backup "$destination_dir" || return 1
+  qa_create_diagnostics_bundle "$destination_dir"
 }
 
 json_file_is_valid() {
@@ -491,6 +605,9 @@ Usage:
   $(basename "$0") qa-stop-session
   $(basename "$0") qa-reset-to-idle
   $(basename "$0") qa-smoke-start-stop [duration_seconds] [domain]
+  $(basename "$0") qa-create-data-backup <destination-dir> [--require-store]
+  $(basename "$0") qa-create-diagnostics-bundle <destination-dir>
+  $(basename "$0") qa-smoke-data-tools <destination-dir>
   $(basename "$0") watch [interval_seconds]
 EOF
 }
@@ -537,6 +654,17 @@ case "$cmd" in
     ;;
   qa-smoke-start-stop)
     qa_smoke_start_stop "${2:-120}" "${3:-example.com}"
+    ;;
+  qa-create-data-backup)
+    shift
+    qa_create_data_backup "$@"
+    ;;
+  qa-create-diagnostics-bundle)
+    shift
+    qa_create_diagnostics_bundle "$@"
+    ;;
+  qa-smoke-data-tools)
+    qa_smoke_data_tools "${2:-}"
     ;;
   watch)
     interval="${2:-2}"

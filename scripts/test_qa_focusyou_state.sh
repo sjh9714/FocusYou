@@ -105,6 +105,72 @@ JSON
   fi
 }
 
+make_fake_app_command_environment() {
+  local fake_bin="$1"
+  local fake_defaults_dir="$2"
+
+  mkdir -p "$fake_bin" "$fake_defaults_dir"
+
+  cat > "$fake_bin/pgrep" <<'SH'
+#!/usr/bin/env bash
+echo "123 Focus You"
+exit 0
+SH
+
+  cat > "$fake_bin/uuidgen" <<'SH'
+#!/usr/bin/env bash
+echo "11111111-2222-3333-4444-555555555555"
+SH
+
+  cat > "$fake_bin/defaults" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+store_dir="${QA_FAKE_DEFAULTS_DIR:?}"
+mkdir -p "$store_dir"
+
+case "${1:-}" in
+  write)
+    key="${3:-}"
+    value="${5:-}"
+    if [[ "$key" == "qaAutomationCommand" ]]; then
+      python3 - "$value" "${QA_FAKE_COMMAND_OUTPUT_PATH:?}" > "$store_dir/qaAutomationResult" <<'PY'
+import json
+import sys
+
+command = json.loads(sys.argv[1])
+print(json.dumps({
+    "id": command["id"],
+    "status": "ok",
+    "message": f"fake_{command['action']}",
+    "handledAt": 1714867200,
+    "outputPath": sys.argv[2],
+}))
+PY
+    else
+      printf '%s\n' "$value" > "$store_dir/$key"
+    fi
+    ;;
+  read)
+    key="${3:-}"
+    if [[ -f "$store_dir/$key" ]]; then
+      cat "$store_dir/$key"
+    else
+      exit 1
+    fi
+    ;;
+  delete)
+    rm -f "$store_dir/${3:-}"
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+SH
+
+  chmod +x "$fake_bin/pgrep" "$fake_bin/uuidgen" "$fake_bin/defaults"
+}
+
 valid_backup="$TMP_DIR/FocusYouBackup-20260505-010203"
 make_backup_fixture "$valid_backup"
 run_success "valid backup bundle" "$QA_SCRIPT" assert-data-backup "$valid_backup" --require-store
@@ -132,5 +198,25 @@ run_failure "diagnostics missing policy" "redaction-policy.txt missing" "$QA_SCR
 home_leak="$TMP_DIR/FocusYouDiagnostics-20260505-030405"
 make_diagnostics_fixture "$home_leak" home-leak yes
 run_failure "diagnostics home path leak" "home directory path appears" "$QA_SCRIPT" assert-diagnostics-bundle "$home_leak"
+
+fake_bin="$TMP_DIR/fake bin"
+fake_defaults_dir="$TMP_DIR/fake defaults"
+make_fake_app_command_environment "$fake_bin" "$fake_defaults_dir"
+
+generated_backup="$TMP_DIR/Generated Output/FocusYouBackup-20260505-050607"
+make_backup_fixture "$generated_backup"
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_COMMAND_OUTPUT_PATH="$generated_backup" \
+PATH="$fake_bin:$PATH" \
+run_success "qa create data backup handles spaced output path" \
+  "$QA_SCRIPT" qa-create-data-backup "$TMP_DIR/QA Destination" --require-store
+
+generated_diagnostics="$TMP_DIR/Generated Output/FocusYouDiagnostics-20260505-050607"
+make_diagnostics_fixture "$generated_diagnostics"
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_COMMAND_OUTPUT_PATH="$generated_diagnostics" \
+PATH="$fake_bin:$PATH" \
+run_success "qa create diagnostics bundle handles spaced output path" \
+  "$QA_SCRIPT" qa-create-diagnostics-bundle "$TMP_DIR/QA Destination"
 
 echo "PASS: qa_focusyou_state data tool tests"

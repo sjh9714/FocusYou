@@ -15,6 +15,7 @@
 		0390240A5FA1220F9DB83610 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D63E3E47628ED4086CD21A /* AppIntents.framework */; };
 		05E19AE2DDA201D8D1619554 /* StatsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A460493D1AB8BDD76CF6FBE /* StatsViewModel.swift */; };
 		067B53F305A6FBB0D379E68A /* SharedDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B73E45F668260BB9B96443 /* SharedDataProvider.swift */; };
+		08817427EC261A86D8A79ED8 /* QAAutomationDataToolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B436E4F9DCF199AEB555AE29 /* QAAutomationDataToolTests.swift */; };
 		0975E061C0C01A6593ED6A64 /* games.json in Resources */ = {isa = PBXBuildFile; fileRef = D5694D96C1975D74CDAE10E0 /* games.json */; };
 		09B21DC7AFA1496E66C315C3 /* View+Modifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D043734447E897EECAA90E0A /* View+Modifiers.swift */; };
 		0AF1881BDAAC19F696018036 /* PaywallContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2258DF5CCC00A09BFAB1627 /* PaywallContentView.swift */; };
@@ -450,6 +451,7 @@
 		B136AD747CA62E7A56099F9C /* HostsFileBlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsFileBlocker.swift; sourceTree = "<group>"; };
 		B139C9C3012E75D03FDC5C8B /* GrowthBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthBadgeView.swift; sourceTree = "<group>"; };
 		B14EBD49CA44F30BB0A336F0 /* FocusYouShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouShortcuts.swift; sourceTree = "<group>"; };
+		B436E4F9DCF199AEB555AE29 /* QAAutomationDataToolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAAutomationDataToolTests.swift; sourceTree = "<group>"; };
 		B809334BD79336E1364C666A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		B8246BD1232F7FAEB20567A0 /* DataToolActionPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataToolActionPresentationTests.swift; sourceTree = "<group>"; };
 		B87999382957A62F387E43D2 /* FocusYou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusYou.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -848,6 +850,7 @@
 				E66B58CA2A059CB001A51D0F /* PrivilegedHelperTests.swift */,
 				7547322B6D120557BCC560EB /* ProfileBootstrapperTests.swift */,
 				4BCB748BAF713CB958EE56F7 /* ProfileViewModelTests.swift */,
+				B436E4F9DCF199AEB555AE29 /* QAAutomationDataToolTests.swift */,
 				16D049A67CC800AC7454780E /* ScheduleManagerTests.swift */,
 				1FEA1FEA1605FCF9B4D7299A /* SettingsViewModelTests.swift */,
 				1056375386CF1CAE9832263A /* SharedBlockingDataTests.swift */,
@@ -1340,6 +1343,7 @@
 				17290B7E45E3A4F0889B99F5 /* PrivilegedHelperTests.swift in Sources */,
 				85BEA563AC8A2AC80B9DBFD1 /* ProfileBootstrapperTests.swift in Sources */,
 				853E5EF5EB2C6C259A093FF5 /* ProfileViewModelTests.swift in Sources */,
+				08817427EC261A86D8A79ED8 /* QAAutomationDataToolTests.swift in Sources */,
 				F22285F56A06D103AEEB7D27 /* ScheduleManagerTests.swift in Sources */,
 				1C56B083C74E3A29B471059D /* SettingsViewModelTests.swift in Sources */,
 				93AEFF603114D4AD8495CC83 /* SharedBlockingDataTests.swift in Sources */,

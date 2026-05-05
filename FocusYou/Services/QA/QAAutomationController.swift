@@ -3,42 +3,185 @@ import Foundation
 import SwiftData
 import os
 
+struct QAAutomationCommand: Decodable, Equatable {
+    enum Action: String, Decodable {
+        case startSession = "start_session"
+        case stopSession = "stop_session"
+        case resetToIdle = "reset_to_idle"
+        case createDataBackup = "create_data_backup"
+        case createDiagnosticsBundle = "create_diagnostics_bundle"
+    }
+
+    let id: String
+    let action: Action
+    let durationSeconds: TimeInterval?
+    let domain: String?
+    let destinationPath: String?
+}
+
+struct QAAutomationCommandResult: Encodable, Equatable {
+    let id: String
+    let status: String
+    let message: String
+    let handledAt: TimeInterval
+    let outputPath: String?
+
+    init(
+        id: String,
+        status: String,
+        message: String,
+        handledAt: TimeInterval,
+        outputPath: String? = nil
+    ) {
+        self.id = id
+        self.status = status
+        self.message = message
+        self.handledAt = handledAt
+        self.outputPath = outputPath
+    }
+}
+
+struct QAAutomationDataToolServices: @unchecked Sendable {
+    let createBackup: (URL) throws -> URL
+    let createDiagnosticsBundle: (URL) throws -> URL
+
+    static let live = QAAutomationDataToolServices(
+        createBackup: { destinationURL in
+            try DataStoreBackupService.createBackup(
+                destinationDirectoryURL: destinationURL
+            ).backupDirectoryURL
+        },
+        createDiagnosticsBundle: { destinationURL in
+            try SupportDiagnosticsBundleService.createBundle(
+                destinationDirectoryURL: destinationURL
+            ).bundleDirectoryURL
+        }
+    )
+
+    static let noop = QAAutomationDataToolServices(
+        createBackup: { _ in throw QAAutomationDataToolServiceError.unexpectedCall },
+        createDiagnosticsBundle: { _ in throw QAAutomationDataToolServiceError.unexpectedCall }
+    )
+}
+
+private enum QAAutomationDataToolServiceError: Error {
+    case unexpectedCall
+}
+
+enum QAAutomationDataToolExecutor {
+    static func execute(
+        command: QAAutomationCommand,
+        services: QAAutomationDataToolServices = .live,
+        fileManager: FileManager = .default,
+        now: Date = Date()
+    ) -> QAAutomationCommandResult? {
+        switch command.action {
+        case .createDataBackup:
+            guard let destinationURL = destinationURL(
+                from: command.destinationPath,
+                fileManager: fileManager
+            ) else {
+                return invalidDestinationResult(command: command, now: now)
+            }
+
+            do {
+                let outputURL = try services.createBackup(destinationURL)
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "ok",
+                    message: "created_data_backup",
+                    handledAt: now.timeIntervalSince1970,
+                    outputPath: outputURL.path
+                )
+            } catch {
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "error",
+                    message: "failed_to_create_data_backup",
+                    handledAt: now.timeIntervalSince1970
+                )
+            }
+
+        case .createDiagnosticsBundle:
+            guard let destinationURL = destinationURL(
+                from: command.destinationPath,
+                fileManager: fileManager
+            ) else {
+                return invalidDestinationResult(command: command, now: now)
+            }
+
+            do {
+                let outputURL = try services.createDiagnosticsBundle(destinationURL)
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "ok",
+                    message: "created_diagnostics_bundle",
+                    handledAt: now.timeIntervalSince1970,
+                    outputPath: outputURL.path
+                )
+            } catch {
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "error",
+                    message: "failed_to_create_diagnostics_bundle",
+                    handledAt: now.timeIntervalSince1970
+                )
+            }
+
+        case .startSession, .stopSession, .resetToIdle:
+            return nil
+        }
+    }
+
+    private static func invalidDestinationResult(
+        command: QAAutomationCommand,
+        now: Date
+    ) -> QAAutomationCommandResult {
+        QAAutomationCommandResult(
+            id: command.id,
+            status: "error",
+            message: "invalid_destination",
+            handledAt: now.timeIntervalSince1970
+        )
+    }
+
+    private static func destinationURL(
+        from destinationPath: String?,
+        fileManager: FileManager
+    ) -> URL? {
+        guard let destinationPath else { return nil }
+        let trimmedPath = destinationPath.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else { return nil }
+
+        let url = URL(fileURLWithPath: trimmedPath, isDirectory: true)
+        var isDirectory: ObjCBool = false
+        if fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory),
+           !isDirectory.boolValue {
+            return nil
+        }
+        return url
+    }
+}
+
 @MainActor
 final class QAAutomationController {
     static let shared = QAAutomationController()
-
-    private struct Command: Decodable {
-        enum Action: String, Decodable {
-            case startSession = "start_session"
-            case stopSession = "stop_session"
-            case resetToIdle = "reset_to_idle"
-        }
-
-        let id: String
-        let action: Action
-        let durationSeconds: TimeInterval?
-        let domain: String?
-    }
-
-    private struct CommandResult: Encodable {
-        let id: String
-        let status: String
-        let message: String
-        let handledAt: TimeInterval
-    }
 
     private let defaults = UserDefaults.standard
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
         category: "QAAutomation"
     )
+    private let dataToolServices: QAAutomationDataToolServices
 
     private weak var appState: AppState?
     private var modelContext: ModelContext?
     private var pollTimer: Timer?
     private var isProcessingCommand = false
 
-    private init() {}
+    private init(dataToolServices: QAAutomationDataToolServices = .live) {
+        self.dataToolServices = dataToolServices
+    }
 
     func startIfNeeded(appState: AppState, modelContext: ModelContext) {
         self.appState = appState
@@ -69,11 +212,11 @@ final class QAAutomationController {
         }
 
         guard let commandData = rawCommand.data(using: .utf8),
-              let command = try? JSONDecoder().decode(Command.self, from: commandData) else {
+              let command = try? JSONDecoder().decode(QAAutomationCommand.self, from: commandData) else {
             logger.error("QA 명령 파싱 실패")
             defaults.removeObject(forKey: Constants.Settings.qaAutomationCommandKey)
             publishResult(
-                CommandResult(
+                QAAutomationCommandResult(
                     id: "unknown",
                     status: "error",
                     message: "invalid_command_payload",
@@ -98,14 +241,21 @@ final class QAAutomationController {
     }
 
     private func execute(
-        command: Command,
+        command: QAAutomationCommand,
         appState: AppState,
         modelContext: ModelContext
-    ) async -> CommandResult {
+    ) async -> QAAutomationCommandResult {
+        if let dataToolResult = QAAutomationDataToolExecutor.execute(
+            command: command,
+            services: dataToolServices
+        ) {
+            return dataToolResult
+        }
+
         switch command.action {
         case .startSession:
             if appState.focusState != .idle {
-                return CommandResult(
+                return QAAutomationCommandResult(
                     id: command.id,
                     status: "error",
                     message: "session_already_running",
@@ -120,7 +270,7 @@ final class QAAutomationController {
             let domain = (command.domain ?? "example.com").normalizedDomain
 
             guard !domain.isEmpty else {
-                return CommandResult(
+                return QAAutomationCommandResult(
                     id: command.id,
                     status: "error",
                     message: "invalid_domain",
@@ -138,7 +288,7 @@ final class QAAutomationController {
 
             guard appState.focusState == .focusing else {
                 let failureMessage = appState.errorMessage ?? "failed_to_start"
-                return CommandResult(
+                return QAAutomationCommandResult(
                     id: command.id,
                     status: "error",
                     message: failureMessage,
@@ -146,7 +296,7 @@ final class QAAutomationController {
                 )
             }
 
-            return CommandResult(
+            return QAAutomationCommandResult(
                 id: command.id,
                 status: "ok",
                 message: "started:\(Int(duration))s:\(domain)",
@@ -155,7 +305,7 @@ final class QAAutomationController {
 
         case .stopSession:
             if appState.focusState == .idle {
-                return CommandResult(
+                return QAAutomationCommandResult(
                     id: command.id,
                     status: "ok",
                     message: "already_idle",
@@ -169,7 +319,7 @@ final class QAAutomationController {
                 ? "stopped"
                 : (appState.errorMessage ?? "failed_to_stop")
 
-            return CommandResult(
+            return QAAutomationCommandResult(
                 id: command.id,
                 status: status,
                 message: message,
@@ -178,16 +328,24 @@ final class QAAutomationController {
 
         case .resetToIdle:
             appState.resetToIdle()
-            return CommandResult(
+            return QAAutomationCommandResult(
                 id: command.id,
                 status: "ok",
                 message: "reset_to_idle",
                 handledAt: Date().timeIntervalSince1970
             )
+
+        case .createDataBackup, .createDiagnosticsBundle:
+            return QAAutomationCommandResult(
+                id: command.id,
+                status: "error",
+                message: "unsupported_data_tool_action",
+                handledAt: Date().timeIntervalSince1970
+            )
         }
     }
 
-    private func publishResult(_ result: CommandResult) {
+    private func publishResult(_ result: QAAutomationCommandResult) {
         guard let data = try? JSONEncoder().encode(result),
               let payload = String(data: data, encoding: .utf8) else {
             logger.error("QA 명령 결과 직렬화 실패")

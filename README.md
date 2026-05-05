@@ -170,6 +170,14 @@ FocusYou/
 ./scripts/qa_focusyou_state.sh assert-diagnostics-bundle /path/to/FocusYouDiagnostics-yyyyMMdd-HHmmss
 ```
 
+DEBUG 앱이 실행 중이면 생성과 검증을 한 번에 수행할 수 있습니다:
+
+```bash
+./scripts/qa_focusyou_state.sh qa-create-data-backup /path/to/output --require-store
+./scripts/qa_focusyou_state.sh qa-create-diagnostics-bundle /path/to/output
+./scripts/qa_focusyou_state.sh qa-smoke-data-tools /path/to/output
+```
+
 상세 체크리스트는 `docs/manual-qa-checklist.md` 참고.
 
 ## 라이선스

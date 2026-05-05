@@ -191,6 +191,24 @@ Expected:
 - Diagnostics validation fails if `manifest.json` or `redaction-policy.txt` is missing, or if the manifest/policy contains the raw home directory path.
 - Safe mode window still offers backup, preview, diagnostics export, and Application Support actions, but does not offer Import.
 
+DEBUG 앱이 실행 중이면 생성과 검증을 터미널에서 함께 실행할 수 있습니다:
+
+```bash
+mkdir -p /tmp/focusyou-data-tools-qa
+./scripts/qa_focusyou_state.sh qa-create-data-backup /tmp/focusyou-data-tools-qa --require-store
+./scripts/qa_focusyou_state.sh qa-create-diagnostics-bundle /tmp/focusyou-data-tools-qa
+```
+
+원샷으로는:
+
+```bash
+./scripts/qa_focusyou_state.sh qa-smoke-data-tools /tmp/focusyou-data-tools-qa
+```
+
+참고:
+- 이 생성 훅은 DEBUG 전용입니다. Release 빌드에서는 동작하지 않습니다.
+- 명령은 지정한 destination 아래에 새 백업/진단 폴더를 만들고, 반환된 경로를 곧바로 검증합니다.
+
 ## Optional Live Monitor
 
 Use this during manual actions:
