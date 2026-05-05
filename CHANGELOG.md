@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.8] - 2026-05-05
+
 ### Added
 - 데이터 백업/진단 번들 산출물을 터미널에서 검증하는 QA 스크립트 명령과 수동 QA 체크리스트를 보강.
 - DEBUG 앱에 데이터 백업/진단 번들 생성을 요청하고 생성된 산출물까지 검증하는 QA 자동화 명령을 추가.
