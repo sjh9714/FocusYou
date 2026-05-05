@@ -20,7 +20,7 @@ Recent baseline is already stabilized for:
 
 ## 2) Current Maintenance Scope
 
-Current baseline: `v2.3.12`
+Current baseline: `v2.3.13`
 
 In scope:
 - warning-free Swift 6 / XcodeGen builds

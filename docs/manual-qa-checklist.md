@@ -59,6 +59,12 @@ Expected:
 - Completion notification is shown.
 - Deactivation notification follows only when blocking was active and setting allows it.
 
+DEBUG 빌드에서 앱 실행 중이면 동일한 cleanup 경로를 짧은 smoke로 확인할 수 있습니다:
+
+```bash
+./scripts/qa_focusyou_state.sh qa-smoke-completion-cleanup example.com
+```
+
 ## Scenario 3: Force Quit During Active Blocking
 
 1. Start a focus session and confirm blocked state + safety net armed:
@@ -245,6 +251,7 @@ DEBUG 빌드에서 앱 실행 중이면 아래 명령으로 시작/중지를 반
 
 ```bash
 ./scripts/qa_focusyou_state.sh qa-smoke-start-stop 120 example.com
+./scripts/qa_focusyou_state.sh qa-smoke-completion-cleanup example.com
 ```
 
 참고:

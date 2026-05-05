@@ -101,7 +101,7 @@ private let logger = Logger(subsystem: "com.sungjh.focusyou", category: "Timer")
 
 ## 프로젝트 구조
 
-> v2.3.12 기준 실제 파일 구조. Swift 소스 146파일, 테스트 53파일.
+> v2.3.13 기준 실제 파일 구조. Swift 소스 146파일, 테스트 53파일.
 
 ```
 FocusYou/
@@ -335,7 +335,7 @@ v0.3.x  뽀모도로 + 파이차트                   ✅
 v0.5.x  테마 + 프로필 + 통계                  ✅
 v1.x    Flowmodoro + 스트릭 + 온보딩/연동     ✅
 v2.0    Pro 구독 + Network Extension 인프라   ✅
-v2.3.12 복구 Import 중복 미리보기 정확도 개선 현재 main
+v2.3.13 QA 자동화/전체 검증 마감 현재 main
 v3.0.0  AI 인사이트 + iOS                     예정
 ```
 

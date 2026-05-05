@@ -5,12 +5,12 @@ set -u
 BEGIN_MARKER="# === Focus You BEGIN ==="
 END_MARKER="# === Focus You END ==="
 
-STATE_DIR="$HOME/Library/Application Support/FocusYou"
+STATE_DIR="${FOCUSYOU_QA_STATE_DIR:-$HOME/Library/Application Support/FocusYou}"
 INDICATOR_PATH="$STATE_DIR/blocking.active"
 BACKUP_PATH="$STATE_DIR/hosts.backup"
-LAUNCH_AGENT_PATH="$HOME/Library/LaunchAgents/com.sungjh.focusyou.cleanup.plist"
-HELPER_PATH="/usr/local/bin/focusyou-helper"
-HOSTS_PATH="/etc/hosts"
+LAUNCH_AGENT_PATH="${FOCUSYOU_QA_LAUNCH_AGENT_PATH:-$HOME/Library/LaunchAgents/com.sungjh.focusyou.cleanup.plist}"
+HELPER_PATH="${FOCUSYOU_QA_HELPER_PATH:-/usr/local/bin/focusyou-helper}"
+HOSTS_PATH="${FOCUSYOU_QA_HOSTS_PATH:-/etc/hosts}"
 APP_BUNDLE_ID="com.sungjh.focusyou"
 QA_AUTOMATION_ENABLED_KEY="qaAutomationEnabled"
 QA_AUTOMATION_COMMAND_KEY="qaAutomationCommand"
@@ -73,10 +73,25 @@ helper_nopasswd_ok() {
   [ -x "$HELPER_PATH" ] && sudo -n -l "$HELPER_PATH" >/dev/null 2>&1
 }
 
+app_process_matches() {
+  pgrep -ifl "Focus You|FocusYou" 2>/dev/null | awk '
+    {
+      command = $0
+      sub(/^[0-9]+[[:space:]]+/, "", command)
+      if (command == "Focus You" ||
+          command ~ /(^|\/)Focus You\.app\/Contents\/MacOS\/Focus You([[:space:]]|$)/) {
+        print
+      }
+    }
+  '
+}
+
 app_process_state() {
-  if pgrep -ifl "Focus You|FocusYou" >/dev/null 2>&1; then
+  local matches
+  matches="$(app_process_matches)"
+  if [ -n "$matches" ]; then
     echo "app process:"
-    pgrep -ifl "Focus You|FocusYou"
+    printf '%s\n' "$matches"
   else
     echo "app process: not running"
   fi
@@ -172,7 +187,7 @@ PY
 }
 
 ensure_app_running() {
-  if pgrep -ifl "Focus You.app/Contents/MacOS/Focus You|Focus You" >/dev/null 2>&1; then
+  if [ -n "$(app_process_matches)" ]; then
     return 0
   fi
   echo "FAIL: Focus You app process not found (run app from Xcode first)"
@@ -202,7 +217,7 @@ send_app_command() {
     start_session)
       command_json="$(build_app_command_json "$command_id" "$action" "$duration_seconds" "$domain")"
       ;;
-    stop_session|reset_to_idle)
+    stop_session|reset_to_idle|complete_session)
       command_json="$(build_app_command_json "$command_id" "$action")"
       ;;
     create_data_backup|create_diagnostics_bundle|create_recovery_import_fixture_backup)
@@ -263,6 +278,11 @@ qa_stop_session() {
   send_app_command "stop_session"
 }
 
+qa_complete_session() {
+  ensure_app_running || return 1
+  send_app_command "complete_session"
+}
+
 qa_reset_to_idle() {
   ensure_app_running || return 1
   send_app_command "reset_to_idle"
@@ -275,6 +295,17 @@ qa_smoke_start_stop() {
   qa_start_session "$duration_seconds" "$domain" || return 1
   assert_blocked || return 1
   qa_stop_session || return 1
+  assert_clean
+}
+
+qa_smoke_completion_cleanup() {
+  local domain="${1:-qa-completion.focusyou.example}"
+
+  qa_start_session 60 "$domain" || return 1
+  assert_safetynet_armed || return 1
+  qa_complete_session || return 1
+  assert_clean || return 1
+  qa_reset_to_idle || return 1
   assert_clean
 }
 
@@ -785,8 +816,10 @@ Usage:
   $(basename "$0") assert-diagnostics-bundle <FocusYouDiagnostics-* dir>
   $(basename "$0") qa-start-session [duration_seconds] [domain]
   $(basename "$0") qa-stop-session
+  $(basename "$0") qa-complete-session
   $(basename "$0") qa-reset-to-idle
   $(basename "$0") qa-smoke-start-stop [duration_seconds] [domain]
+  $(basename "$0") qa-smoke-completion-cleanup [domain]
   $(basename "$0") qa-create-data-backup <destination-dir> [--require-store]
   $(basename "$0") qa-create-diagnostics-bundle <destination-dir>
   $(basename "$0") qa-create-recovery-import-fixture <destination-dir>
@@ -835,11 +868,17 @@ case "$cmd" in
   qa-stop-session)
     qa_stop_session
     ;;
+  qa-complete-session)
+    qa_complete_session
+    ;;
   qa-reset-to-idle)
     qa_reset_to_idle
     ;;
   qa-smoke-start-stop)
     qa_smoke_start_stop "${2:-120}" "${3:-example.com}"
+    ;;
+  qa-smoke-completion-cleanup)
+    qa_smoke_completion_cleanup "${2:-qa-completion.focusyou.example}"
     ;;
   qa-create-data-backup)
     shift

@@ -113,7 +113,11 @@ make_fake_app_command_environment() {
 
   cat > "$fake_bin/pgrep" <<'SH'
 #!/usr/bin/env bash
-echo "123 Focus You"
+if [[ -n "${QA_FAKE_PGREP_OUTPUT:-}" ]]; then
+  printf '%s\n' "$QA_FAKE_PGREP_OUTPUT"
+else
+  echo "123 Focus You"
+fi
 exit 0
 SH
 
@@ -149,6 +153,46 @@ if command_log:
     with open(command_log, "a", encoding="utf-8") as handle:
         handle.write(json.dumps(command, sort_keys=True) + "\n")
 
+def arm_blocking_state():
+    hosts_path = os.environ.get("FOCUSYOU_QA_HOSTS_PATH")
+    state_dir = os.environ.get("FOCUSYOU_QA_STATE_DIR")
+    launch_agent_path = os.environ.get("FOCUSYOU_QA_LAUNCH_AGENT_PATH")
+    domain = command.get("domain", "qa.example")
+    if hosts_path:
+        with open(hosts_path, "w", encoding="utf-8") as handle:
+            handle.write("# fixture hosts\n")
+            handle.write("# === Focus You BEGIN ===\n")
+            handle.write(f"0.0.0.0\t{domain}\n")
+            handle.write("# === Focus You END ===\n")
+    if state_dir:
+        os.makedirs(state_dir, exist_ok=True)
+        for name in ("blocking.active", "hosts.backup"):
+            with open(os.path.join(state_dir, name), "w", encoding="utf-8") as handle:
+                handle.write("fixture\n")
+    if launch_agent_path:
+        os.makedirs(os.path.dirname(launch_agent_path), exist_ok=True)
+        with open(launch_agent_path, "w", encoding="utf-8") as handle:
+            handle.write("fixture\n")
+
+def clear_blocking_state():
+    hosts_path = os.environ.get("FOCUSYOU_QA_HOSTS_PATH")
+    state_dir = os.environ.get("FOCUSYOU_QA_STATE_DIR")
+    launch_agent_path = os.environ.get("FOCUSYOU_QA_LAUNCH_AGENT_PATH")
+    if hosts_path:
+        with open(hosts_path, "w", encoding="utf-8") as handle:
+            handle.write("# fixture hosts\n")
+    if state_dir:
+        for name in ("blocking.active", "hosts.backup"):
+            try:
+                os.remove(os.path.join(state_dir, name))
+            except FileNotFoundError:
+                pass
+    if launch_agent_path:
+        try:
+            os.remove(launch_agent_path)
+        except FileNotFoundError:
+            pass
+
 if action == "create_data_backup":
     output_path = os.environ.get("QA_FAKE_BACKUP_OUTPUT_PATH", output_path)
 elif action == "create_diagnostics_bundle":
@@ -158,6 +202,12 @@ elif action == "create_recovery_import_fixture_backup":
 elif action in ("preview_data_import", "validate_data_import"):
     output_path = ""
     details = json.loads(os.environ.get("QA_FAKE_IMPORT_DETAILS", "{}"))
+elif action == "start_session":
+    message = "started"
+    arm_blocking_state()
+elif action == "complete_session":
+    message = "completed"
+    clear_blocking_state()
 
 if action in (
     "create_data_backup",
@@ -235,6 +285,22 @@ run_failure "diagnostics home path leak" "home directory path appears" "$QA_SCRI
 fake_bin="$TMP_DIR/fake bin"
 fake_defaults_dir="$TMP_DIR/fake defaults"
 make_fake_app_command_environment "$fake_bin" "$fake_defaults_dir"
+
+snapshot_noise_output=$(
+  QA_FAKE_PGREP_OUTPUT=$'401 tee /tmp/focusyou-v2312-fullqa/final-checks.txt\n402 /bin/zsh -c rg FocusYou scripts\n403 /Applications/Focus You.app/Contents/MacOS/Focus You' \
+  PATH="$fake_bin:$PATH" \
+  "$QA_SCRIPT" snapshot
+)
+if grep -F "tee /tmp/focusyou-v2312-fullqa" <<<"$snapshot_noise_output" >/dev/null ||
+   grep -F "/bin/zsh -c rg FocusYou" <<<"$snapshot_noise_output" >/dev/null; then
+  printf '%s\n' "$snapshot_noise_output"
+  fail "snapshot app process should ignore command/path-only FocusYou noise"
+fi
+if ! grep -F "/Applications/Focus You.app/Contents/MacOS/Focus You" <<<"$snapshot_noise_output" >/dev/null; then
+  printf '%s\n' "$snapshot_noise_output"
+  fail "snapshot app process should include real Focus You executable"
+fi
+echo "PASS: snapshot app process ignores FocusYou path-only noise"
 
 generated_backup="$TMP_DIR/Generated Output/FocusYouBackup-20260505-050607"
 make_backup_fixture "$generated_backup"
@@ -320,6 +386,28 @@ fi
 if ! grep -F '"includeBadges": true' "$recovery_command_log" >/dev/null ||
    ! grep -F '"includeFocusSessions": true' "$recovery_command_log" >/dev/null; then
   fail "qa smoke recovery import should run history dry-run with sessions and badges"
+fi
+
+completion_command_log="$TMP_DIR/completion command log.jsonl"
+completion_hosts="$TMP_DIR/completion-hosts"
+completion_state_dir="$TMP_DIR/completion-state"
+completion_launch_agent="$TMP_DIR/completion-launch-agent.plist"
+QA_FAKE_DEFAULTS_DIR="$fake_defaults_dir" \
+QA_FAKE_COMMAND_LOG="$completion_command_log" \
+FOCUSYOU_QA_HOSTS_PATH="$completion_hosts" \
+FOCUSYOU_QA_STATE_DIR="$completion_state_dir" \
+FOCUSYOU_QA_LAUNCH_AGENT_PATH="$completion_launch_agent" \
+PATH="$fake_bin:$PATH" \
+run_success "qa smoke completion cleanup sends start and complete commands" \
+  "$QA_SCRIPT" qa-smoke-completion-cleanup qa-complete.example
+
+if ! grep -F '"action": "start_session"' "$completion_command_log" >/dev/null ||
+   ! grep -F '"action": "complete_session"' "$completion_command_log" >/dev/null; then
+  fail "qa smoke completion cleanup should start and complete a session"
+fi
+
+if grep -F '"action": "stop_session"' "$completion_command_log" >/dev/null; then
+  fail "qa smoke completion cleanup should not use manual stop"
 fi
 
 echo "PASS: qa_focusyou_state data tool tests"

@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.13] - 2026-05-06
+
+### Changed
+- QA snapshot의 Focus You 앱 프로세스 탐지를 실제 앱 실행 파일 기준으로 좁혀 로그 경로나 shell 명령이 앱으로 표시되는 노이즈를 제거.
+- DEBUG QA 자동화에 active blocking 세션을 완료 처리한 뒤 cleanup까지 확인하는 `qa-smoke-completion-cleanup` 명령을 추가.
+- v2.3.13 전체 QA 리포트와 release/disruptive 검증 결과를 문서화.
+
 ## [2.3.12] - 2026-05-06
 
 ### Changed

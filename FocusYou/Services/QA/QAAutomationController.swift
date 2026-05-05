@@ -7,6 +7,7 @@ struct QAAutomationCommand: Decodable, Equatable {
     enum Action: String, Decodable {
         case startSession = "start_session"
         case stopSession = "stop_session"
+        case completeSession = "complete_session"
         case resetToIdle = "reset_to_idle"
         case createDataBackup = "create_data_backup"
         case createDiagnosticsBundle = "create_diagnostics_bundle"
@@ -515,7 +516,7 @@ enum QAAutomationDataToolExecutor {
                 )
             }
 
-        case .startSession, .stopSession, .resetToIdle:
+        case .startSession, .stopSession, .completeSession, .resetToIdle:
             return nil
         }
     }
@@ -786,6 +787,30 @@ final class QAAutomationController {
             let message = status == "ok"
                 ? "stopped"
                 : (appState.errorMessage ?? "failed_to_stop")
+
+            return QAAutomationCommandResult(
+                id: command.id,
+                status: status,
+                message: message,
+                handledAt: Date().timeIntervalSince1970
+            )
+
+        case .completeSession:
+            guard appState.focusState == .focusing || appState.focusState == .paused else {
+                return QAAutomationCommandResult(
+                    id: command.id,
+                    status: "error",
+                    message: "no_active_session",
+                    handledAt: Date().timeIntervalSince1970
+                )
+            }
+
+            appState.timer.stop()
+            await appState.handleTimerComplete()
+            let status = appState.focusState == .completed ? "ok" : "error"
+            let message = status == "ok"
+                ? "completed"
+                : (appState.errorMessage ?? "failed_to_complete")
 
             return QAAutomationCommandResult(
                 id: command.id,

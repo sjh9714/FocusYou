@@ -123,6 +123,18 @@ struct QAAutomationDataToolTests {
         #expect(result.outputPath == output.path)
     }
 
+    @Test("complete_session command decodes as QA automation action")
+    func completeSessionCommandDecodes() throws {
+        let data = Data(
+            #"{"id":"complete-command","action":"complete_session"}"#.utf8
+        )
+
+        let command = try JSONDecoder().decode(QAAutomationCommand.self, from: data)
+
+        #expect(command.id == "complete-command")
+        #expect(command.action == .completeSession)
+    }
+
     @Test("missing or blank destination returns invalid destination")
     func missingOrBlankDestinationReturnsInvalidDestination() throws {
         let services = QAAutomationDataToolServices.noop
