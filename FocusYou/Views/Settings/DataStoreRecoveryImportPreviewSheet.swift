@@ -70,7 +70,7 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("세션 기록 가져오기")
                             .font(.callout.weight(.medium))
-                        Text("백업의 세션 \(preview.skippedFocusSessionCount)개를 새 기록으로 추가합니다. 중복 세션은 저장 시 건너뜁니다.")
+                        Text(summary.focusSessionOptionText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -82,7 +82,7 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("배지 가져오기")
                             .font(.callout.weight(.medium))
-                        Text("백업의 배지 \(preview.skippedBadgeCount)개 중 현재 없는 배지만 추가합니다.")
+                        Text(summary.badgeOptionText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

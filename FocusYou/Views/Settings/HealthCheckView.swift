@@ -341,7 +341,10 @@ struct HealthCheckView: View {
         }
 
         do {
-            let preview = try DataStoreRecoveryImportService.previewImport(at: backupURL)
+            let preview = try DataStoreRecoveryImportService.previewImport(
+                at: backupURL,
+                into: modelContext
+            )
             guard !preview.profileCandidates.isEmpty else {
                 dataToolState.fail(.importSettings, message: "가져올 설정 데이터가 없습니다.")
                 return

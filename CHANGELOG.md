@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- 백업 가져오기 미리보기에서 현재 데이터와 중복될 세션/배지 수와 실제 새로 추가될 수를 더 정확히 표시.
+
 ## [2.3.11] - 2026-05-05
 
 ### Changed

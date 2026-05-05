@@ -13,6 +13,14 @@ struct DataStoreRecoveryImportSelectionSummary: Equatable {
     let importedBadgeCount: Int
     let skippedFocusSessionCount: Int
     let skippedBadgeCount: Int
+    let focusSessionCandidateCount: Int
+    let badgeCandidateCount: Int
+    let importableFocusSessionCandidateCount: Int
+    let importableBadgeCandidateCount: Int
+    let duplicateFocusSessionCount: Int
+    let duplicateBadgeCount: Int
+    let includesFocusSessions: Bool
+    let includesBadges: Bool
 
     var totalImportItemCount: Int {
         profileCount + siteCount + appCount + scheduleCount
@@ -61,19 +69,21 @@ struct DataStoreRecoveryImportSelectionSummary: Equatable {
     }
 
     var skippedSummaryText: String {
-        if importedFocusSessionCount > 0, importedBadgeCount > 0 {
-            return String(localized: "세션 기록과 배지도 새 항목으로 가져옵니다. 중복 항목은 저장 시 건너뜁니다.")
-        }
-
-        if importedFocusSessionCount > 0 {
+        if includesFocusSessions, includesBadges {
             return String(
-                localized: "세션 기록도 새 항목으로 가져옵니다. 중복 세션은 저장 시 건너뛰고, 배지 \(skippedBadgeCount)개는 가져오지 않습니다."
+                localized: "세션 새 항목 \(importableFocusSessionCandidateCount)개와 배지 새 항목 \(importableBadgeCandidateCount)개를 가져옵니다. \(combinedDuplicateText)"
             )
         }
 
-        if importedBadgeCount > 0 {
+        if includesFocusSessions {
             return String(
-                localized: "배지도 새 항목으로 가져옵니다. 기존 배지와 중복 배지는 저장 시 건너뛰고, 세션 \(skippedFocusSessionCount)개는 가져오지 않습니다."
+                localized: "세션 새 항목 \(importableFocusSessionCandidateCount)개를 가져옵니다. \(focusSessionDuplicateText) 배지 \(badgeCandidateCount)개는 가져오지 않습니다."
+            )
+        }
+
+        if includesBadges {
+            return String(
+                localized: "배지 새 항목 \(importableBadgeCandidateCount)개를 가져옵니다. \(badgeDuplicateText) 세션 \(focusSessionCandidateCount)개는 가져오지 않습니다."
             )
         }
 
@@ -82,18 +92,76 @@ struct DataStoreRecoveryImportSelectionSummary: Equatable {
         )
     }
 
+    var focusSessionOptionText: String {
+        String(
+            localized: "새 세션 \(importableFocusSessionCandidateCount)개를 추가합니다. \(focusSessionDuplicateText)"
+        )
+    }
+
+    var badgeOptionText: String {
+        String(
+            localized: "새 배지 \(importableBadgeCandidateCount)개를 추가합니다. \(badgeDuplicateText)"
+        )
+    }
+
     var confirmationMessageText: String {
         let base = String(
             localized: "기존 데이터는 변경하지 않고 선택 항목을 새 항목으로 추가합니다."
         )
 
-        if importedFocusSessionCount > 0 || importedBadgeCount > 0 {
+        if includesFocusSessions, includesBadges {
             return base + " " + String(
-                localized: "세션 기록 또는 배지는 중복으로 판단되면 자동으로 건너뜁니다."
+                localized: "세션 새 항목 \(importedFocusSessionCount)개와 배지 새 항목 \(importedBadgeCount)개를 추가합니다. \(combinedDuplicateText)"
+            )
+        }
+
+        if includesFocusSessions {
+            return base + " " + String(
+                localized: "세션 새 항목 \(importedFocusSessionCount)개를 추가합니다. \(focusSessionDuplicateText)"
+            )
+        }
+
+        if includesBadges {
+            return base + " " + String(
+                localized: "배지 새 항목 \(importedBadgeCount)개를 추가합니다. \(badgeDuplicateText)"
             )
         }
 
         return base + " " + String(localized: "세션 기록과 배지는 가져오지 않습니다.")
+    }
+
+    private var combinedDuplicateText: String {
+        if duplicateFocusSessionCount > 0, duplicateBadgeCount > 0 {
+            return String(
+                localized: "중복 세션 \(duplicateFocusSessionCount)개와 중복 배지 \(duplicateBadgeCount)개는 건너뜁니다."
+            )
+        }
+
+        if duplicateFocusSessionCount > 0 {
+            return String(localized: "중복 세션 \(duplicateFocusSessionCount)개는 건너뜁니다.")
+        }
+
+        if duplicateBadgeCount > 0 {
+            return String(localized: "중복 배지 \(duplicateBadgeCount)개는 건너뜁니다.")
+        }
+
+        return String(localized: "중복 항목은 없습니다.")
+    }
+
+    private var focusSessionDuplicateText: String {
+        guard duplicateFocusSessionCount > 0 else {
+            return String(localized: "중복 항목은 없습니다.")
+        }
+
+        return String(localized: "중복 세션 \(duplicateFocusSessionCount)개는 건너뜁니다.")
+    }
+
+    private var badgeDuplicateText: String {
+        guard duplicateBadgeCount > 0 else {
+            return String(localized: "중복 항목은 없습니다.")
+        }
+
+        return String(localized: "중복 배지 \(duplicateBadgeCount)개는 건너뜁니다.")
     }
 }
 
@@ -123,10 +191,18 @@ extension DataStoreRecoveryImportPreview {
             siteCount: selectedCandidates.reduce(0) { $0 + $1.siteCount },
             appCount: selectedCandidates.reduce(0) { $0 + $1.appCount },
             scheduleCount: selectedCandidates.reduce(0) { $0 + $1.scheduleCount },
-            importedFocusSessionCount: selection.includeFocusSessions ? skippedFocusSessionCount : 0,
-            importedBadgeCount: selection.includeBadges ? skippedBadgeCount : 0,
-            skippedFocusSessionCount: selection.includeFocusSessions ? 0 : skippedFocusSessionCount,
-            skippedBadgeCount: selection.includeBadges ? 0 : skippedBadgeCount
+            importedFocusSessionCount: selection.includeFocusSessions ? importableFocusSessionCount : 0,
+            importedBadgeCount: selection.includeBadges ? importableBadgeCount : 0,
+            skippedFocusSessionCount: selection.includeFocusSessions ? duplicateFocusSessionCount : skippedFocusSessionCount,
+            skippedBadgeCount: selection.includeBadges ? duplicateBadgeCount : skippedBadgeCount,
+            focusSessionCandidateCount: skippedFocusSessionCount,
+            badgeCandidateCount: skippedBadgeCount,
+            importableFocusSessionCandidateCount: importableFocusSessionCount,
+            importableBadgeCandidateCount: importableBadgeCount,
+            duplicateFocusSessionCount: duplicateFocusSessionCount,
+            duplicateBadgeCount: duplicateBadgeCount,
+            includesFocusSessions: selection.includeFocusSessions,
+            includesBadges: selection.includeBadges
         )
     }
 }

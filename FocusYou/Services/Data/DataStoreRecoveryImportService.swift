@@ -25,10 +25,42 @@ struct DataStoreRecoveryImportPreview: Equatable {
     let profileCandidates: [DataStoreRecoveryImportProfileCandidate]
     let skippedFocusSessionCount: Int
     let skippedBadgeCount: Int
+    let duplicateFocusSessionCount: Int
+    let duplicateBadgeCount: Int
+
+    init(
+        inspectedAt: Date,
+        sourceDirectoryURL: URL,
+        sourceStoreFileName: String,
+        copiedStoreFiles: [String],
+        profileCandidates: [DataStoreRecoveryImportProfileCandidate],
+        skippedFocusSessionCount: Int,
+        skippedBadgeCount: Int,
+        duplicateFocusSessionCount: Int = 0,
+        duplicateBadgeCount: Int = 0
+    ) {
+        self.inspectedAt = inspectedAt
+        self.sourceDirectoryURL = sourceDirectoryURL
+        self.sourceStoreFileName = sourceStoreFileName
+        self.copiedStoreFiles = copiedStoreFiles
+        self.profileCandidates = profileCandidates
+        self.skippedFocusSessionCount = skippedFocusSessionCount
+        self.skippedBadgeCount = skippedBadgeCount
+        self.duplicateFocusSessionCount = duplicateFocusSessionCount
+        self.duplicateBadgeCount = duplicateBadgeCount
+    }
+
+    var importableFocusSessionCount: Int {
+        max(0, skippedFocusSessionCount - duplicateFocusSessionCount)
+    }
+
+    var importableBadgeCount: Int {
+        max(0, skippedBadgeCount - duplicateBadgeCount)
+    }
 
     var statusSummary: String {
         String(
-            localized: "가져오기 미리보기: 프로필 후보 \(profileCandidates.count)개, 세션 기록 \(skippedFocusSessionCount)개와 배지 \(skippedBadgeCount)개는 건너뜀"
+            localized: "가져오기 미리보기: 프로필 후보 \(profileCandidates.count)개, 세션 새 항목 \(importableFocusSessionCount)개/중복 \(duplicateFocusSessionCount)개, 배지 새 항목 \(importableBadgeCount)개/중복 \(duplicateBadgeCount)개"
         )
     }
 }
@@ -101,14 +133,52 @@ enum DataStoreRecoveryImportService {
         ) { copiedStore in
             let context = copiedStore.context
             let candidates = try sourceCandidates(in: context).map(\.candidate)
+            let sourceFocusSessions = try sourceFocusSessions(in: context)
+            let sourceBadges = try sourceBadges(in: context)
             return DataStoreRecoveryImportPreview(
                 inspectedAt: now,
                 sourceDirectoryURL: copiedStore.sourceDirectoryURL,
                 sourceStoreFileName: copiedStore.sourceStoreFileName,
                 copiedStoreFiles: copiedStore.copiedStoreFiles,
                 profileCandidates: candidates,
-                skippedFocusSessionCount: try context.fetch(FetchDescriptor<FocusSession>()).count,
-                skippedBadgeCount: try context.fetch(FetchDescriptor<Badge>()).count
+                skippedFocusSessionCount: sourceFocusSessions.count,
+                skippedBadgeCount: sourceBadges.count
+            )
+        }
+    }
+
+    static func previewImport(
+        at backupDirectoryURL: URL,
+        into targetContext: ModelContext,
+        temporaryDirectoryURL: URL = FileManager.default.temporaryDirectory,
+        fileManager: FileManager = .default,
+        now: Date = Date()
+    ) throws -> DataStoreRecoveryImportPreview {
+        try DataStoreRecoveryStoreReader.withCopiedStore(
+            at: backupDirectoryURL,
+            temporaryDirectoryURL: temporaryDirectoryURL,
+            fileManager: fileManager
+        ) { copiedStore in
+            let context = copiedStore.context
+            let candidates = try sourceCandidates(in: context).map(\.candidate)
+            let sourceFocusSessions = try sourceFocusSessions(in: context)
+            let sourceBadges = try sourceBadges(in: context)
+            return DataStoreRecoveryImportPreview(
+                inspectedAt: now,
+                sourceDirectoryURL: copiedStore.sourceDirectoryURL,
+                sourceStoreFileName: copiedStore.sourceStoreFileName,
+                copiedStoreFiles: copiedStore.copiedStoreFiles,
+                profileCandidates: candidates,
+                skippedFocusSessionCount: sourceFocusSessions.count,
+                skippedBadgeCount: sourceBadges.count,
+                duplicateFocusSessionCount: try duplicateFocusSessionCount(
+                    sourceFocusSessions,
+                    in: targetContext
+                ),
+                duplicateBadgeCount: try duplicateBadgeCount(
+                    sourceBadges,
+                    in: targetContext
+                )
             )
         }
     }
@@ -589,5 +659,48 @@ enum DataStoreRecoveryImportService {
                 ]
             )
         )
+    }
+
+    private static func duplicateFocusSessionCount(
+        _ sourceSessions: [FocusSession],
+        in targetContext: ModelContext
+    ) throws -> Int {
+        var existingKeys = Set(
+            try targetContext.fetch(FetchDescriptor<FocusSession>())
+                .map(FocusSessionImportKey.init)
+        )
+        var duplicateCount = 0
+
+        for sourceSession in sourceSessions {
+            let key = FocusSessionImportKey(session: sourceSession)
+            guard !existingKeys.contains(key) else {
+                duplicateCount += 1
+                continue
+            }
+            existingKeys.insert(key)
+        }
+
+        return duplicateCount
+    }
+
+    private static func duplicateBadgeCount(
+        _ sourceBadges: [Badge],
+        in targetContext: ModelContext
+    ) throws -> Int {
+        var existingMilestoneIDs = Set(
+            try targetContext.fetch(FetchDescriptor<Badge>())
+                .map(\.milestoneID)
+        )
+        var duplicateCount = 0
+
+        for sourceBadge in sourceBadges {
+            guard !existingMilestoneIDs.contains(sourceBadge.milestoneID) else {
+                duplicateCount += 1
+                continue
+            }
+            existingMilestoneIDs.insert(sourceBadge.milestoneID)
+        }
+
+        return duplicateCount
     }
 }

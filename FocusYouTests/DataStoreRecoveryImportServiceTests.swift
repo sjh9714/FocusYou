@@ -166,6 +166,67 @@ struct DataStoreRecoveryImportServiceTests {
         #expect(try recoveryStagingDirectories(in: backup.temporaryDirectory).isEmpty)
     }
 
+    @Test("target-aware preview counts duplicate sessions and badges before import")
+    func targetAwarePreviewCountsDuplicateSessionsAndBadgesBeforeImport() throws {
+        let backup = try makeBackupStore(includeDuplicateBadge: true)
+        defer {
+            try? FileManager.default.removeItem(at: backup.directory)
+            try? FileManager.default.removeItem(at: backup.temporaryDirectory)
+        }
+
+        let target = try makeTargetContext()
+        let duplicateSession = FocusSession(timerMode: "free", plannedDuration: 600)
+        duplicateSession.startedAt = backup.sessionStartedAt
+        duplicateSession.endedAt = backup.sessionEndedAt
+        duplicateSession.actualDuration = 600
+        duplicateSession.overflowDuration = 30
+        duplicateSession.sessionType = "focus"
+        duplicateSession.wasCompleted = true
+        target.context.insert(duplicateSession)
+
+        let existingBadge = Badge(
+            milestoneID: "streak_7",
+            title: "7 Day Streak",
+            emoji: "7",
+            desc: "Existing badge"
+        )
+        existingBadge.achievedAt = Date(timeIntervalSince1970: 1_704_200_000)
+        target.context.insert(existingBadge)
+        try target.context.save()
+
+        let preview = try DataStoreRecoveryImportService.previewImport(
+            at: backup.directory,
+            into: target.context,
+            temporaryDirectoryURL: backup.temporaryDirectory,
+            now: fixedDate
+        )
+
+        #expect(preview.skippedFocusSessionCount == 1)
+        #expect(preview.duplicateFocusSessionCount == 1)
+        #expect(preview.importableFocusSessionCount == 0)
+        #expect(preview.skippedBadgeCount == 3)
+        #expect(preview.duplicateBadgeCount == 2)
+        #expect(preview.importableBadgeCount == 1)
+
+        let selected = try #require(preview.profileCandidates.first { $0.sourceName == "Import Me" })
+        let result = try DataStoreRecoveryImportService.importSelectedCandidates(
+            from: backup.directory,
+            selection: DataStoreRecoveryImportSelection(
+                selectedCandidateIDs: [selected.id],
+                includeFocusSessions: true,
+                includeBadges: true
+            ),
+            into: target.context,
+            temporaryDirectoryURL: backup.temporaryDirectory
+        )
+
+        #expect(result.importedFocusSessionCount == preview.importableFocusSessionCount)
+        #expect(result.skippedFocusSessionCount == preview.duplicateFocusSessionCount)
+        #expect(result.importedBadgeCount == preview.importableBadgeCount)
+        #expect(result.skippedBadgeCount == preview.duplicateBadgeCount)
+        #expect(try recoveryStagingDirectories(in: backup.temporaryDirectory).isEmpty)
+    }
+
     @Test("selected profile import preserves settings, resolves name conflict, and skips history")
     func selectedProfileImportPreservesSettingsAndSkipsHistory() throws {
         let backup = try makeBackupStore()
