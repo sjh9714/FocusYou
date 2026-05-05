@@ -47,22 +47,51 @@ struct DataStoreRecoveryImportPresentationTests {
         #expect(summary.importSummaryText.contains("총 7개"))
     }
 
-    @Test("import execution gate blocks duplicate begin until finish")
-    func importExecutionGateBlocksDuplicateBeginUntilFinish() {
-        var gate = DataStoreRecoveryImportExecutionGate()
+    @Test("selection summary describes empty partial and full selections")
+    func selectionSummaryDescribesEmptyPartialAndFullSelections() {
+        let profile = DataStoreRecoveryImportProfileCandidate(
+            id: "profile",
+            displayName: "Deep Work",
+            sourceName: "Deep Work",
+            isOrphanLegacyBlocks: false,
+            siteCount: 2,
+            appCount: 3,
+            scheduleCount: 1
+        )
+        let orphan = DataStoreRecoveryImportProfileCandidate(
+            id: "orphan",
+            displayName: "Imported Legacy Blocks",
+            sourceName: nil,
+            isOrphanLegacyBlocks: true,
+            siteCount: 1,
+            appCount: 0,
+            scheduleCount: 2
+        )
+        let preview = DataStoreRecoveryImportPreview(
+            inspectedAt: .distantPast,
+            sourceDirectoryURL: URL(fileURLWithPath: "/tmp/FocusYouBackup-20260505"),
+            sourceStoreFileName: "default.store",
+            copiedStoreFiles: ["default.store", "default.store-wal"],
+            profileCandidates: [profile, orphan],
+            skippedFocusSessionCount: 4,
+            skippedBadgeCount: 5
+        )
 
-        let firstBegin = gate.begin()
-        #expect(firstBegin)
-        #expect(gate.isImportInProgress)
+        let empty = preview.selectionSummary(selectedCandidateIDs: [])
+        let partial = preview.selectionSummary(selectedCandidateIDs: ["profile"])
+        let full = preview.selectionSummary(selectedCandidateIDs: ["profile", "orphan"])
 
-        let duplicateBegin = gate.begin()
-        #expect(!duplicateBegin)
+        #expect(empty.selectedCandidateCount == 0)
+        #expect(empty.totalCandidateCount == 2)
+        #expect(!empty.canImport)
+        #expect(empty.selectionSummaryText == "선택된 항목이 없습니다.")
 
-        gate.finish()
+        #expect(partial.selectedCandidateCount == 1)
+        #expect(partial.canImport)
+        #expect(partial.selectionSummaryText == "프로필 2개 중 1개 선택")
 
-        #expect(!gate.isImportInProgress)
-
-        let secondBegin = gate.begin()
-        #expect(secondBegin)
+        #expect(full.selectedCandidateCount == 2)
+        #expect(full.totalImportItemCount == 11)
+        #expect(full.selectionSummaryText == "프로필 2개 모두 선택")
     }
 }

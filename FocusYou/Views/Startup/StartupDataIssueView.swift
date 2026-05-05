@@ -7,7 +7,7 @@ struct StartupDataIssueView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var diagnostics: AppDataStoreDiagnosticsReport
-    @State private var actionMessage: String?
+    @State private var dataToolState = DataToolActionPresentationState()
 
     init(issue: StartupDataIssue) {
         self.issue = issue
@@ -50,11 +50,15 @@ struct StartupDataIssueView: View {
                     .font(.caption)
                     .foregroundStyle(diagnostics.isHealthy ? Color.secondary : Color.red)
 
-                if let actionMessage {
-                    Text(actionMessage)
-                        .font(.caption)
+                if let status = dataToolState.status {
+                    Divider()
+                        .padding(.vertical, 4)
+
+                    Text("최근 작업")
+                        .font(.caption.bold())
                         .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
+
+                    DataToolActionStatusView(status: status)
                 }
             }
 
@@ -80,6 +84,7 @@ struct StartupDataIssueView: View {
                         Label("진단 정보 복사", systemImage: "doc.on.doc")
                     }
                 }
+                .disabled(dataToolState.isRunning)
 
                 HStack {
                     Button {
@@ -94,6 +99,7 @@ struct StartupDataIssueView: View {
                         Label("진단 로그 내보내기", systemImage: "waveform.path.ecg")
                     }
                 }
+                .disabled(dataToolState.isRunning)
 
                 HStack {
                     Spacer()
@@ -122,6 +128,10 @@ struct StartupDataIssueView: View {
     }
 
     private func createBackup() {
+        guard dataToolState.begin(.backup) else {
+            return
+        }
+
         diagnostics = AppDataStoreDiagnostics.inspect(
             supportDirectoryURL: issue.supportDirectoryURL
         )
@@ -135,6 +145,7 @@ struct StartupDataIssueView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
@@ -143,14 +154,22 @@ struct StartupDataIssueView: View {
                 destinationDirectoryURL: destinationURL,
                 diagnostics: diagnostics
             )
-            actionMessage = "백업 완료: \(result.backupDirectoryURL.path)"
+            dataToolState.succeed(
+                .backup,
+                message: "백업 완료: \(result.backupDirectoryURL.path)",
+                destinationURL: result.backupDirectoryURL
+            )
             NSWorkspace.shared.activateFileViewerSelecting([result.backupDirectoryURL])
         } catch {
-            actionMessage = "백업 실패: \(error.localizedDescription)"
+            dataToolState.fail(.backup, message: "백업 실패: \(error.localizedDescription)")
         }
     }
 
     private func createSupportDiagnosticsBundle() {
+        guard dataToolState.begin(.supportDiagnostics) else {
+            return
+        }
+
         diagnostics = AppDataStoreDiagnostics.inspect(
             supportDirectoryURL: issue.supportDirectoryURL
         )
@@ -164,6 +183,7 @@ struct StartupDataIssueView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
@@ -174,14 +194,22 @@ struct StartupDataIssueView: View {
                 blockingSummary: .current(),
                 redactionCandidates: redactionCandidates()
             )
-            actionMessage = "진단 로그 완료: \(result.bundleDirectoryURL.path)"
+            dataToolState.succeed(
+                .supportDiagnostics,
+                message: "진단 로그 완료: \(result.bundleDirectoryURL.path)",
+                destinationURL: result.bundleDirectoryURL
+            )
             NSWorkspace.shared.activateFileViewerSelecting([result.bundleDirectoryURL])
         } catch {
-            actionMessage = "진단 로그 실패: \(error.localizedDescription)"
+            dataToolState.fail(.supportDiagnostics, message: "진단 로그 실패: \(error.localizedDescription)")
         }
     }
 
     private func previewDataStoreBackup() {
+        guard dataToolState.begin(.preview) else {
+            return
+        }
+
         let panel = NSOpenPanel()
         panel.title = "백업 폴더 선택"
         panel.prompt = "미리보기"
@@ -191,24 +219,36 @@ struct StartupDataIssueView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let backupURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
         do {
             let preview = try DataStoreRecoveryPreviewService.previewBackup(at: backupURL)
-            actionMessage = preview.statusSummary
+            dataToolState.succeed(
+                .preview,
+                message: preview.statusSummary,
+                destinationURL: backupURL
+            )
         } catch {
-            actionMessage = "백업 미리보기 실패: \(error.localizedDescription)"
+            dataToolState.fail(.preview, message: "백업 미리보기 실패: \(error.localizedDescription)")
         }
     }
 
     private func copyDiagnostics() {
+        guard dataToolState.begin(.copyDiagnostics) else {
+            return
+        }
+
         diagnostics = AppDataStoreDiagnostics.inspect(
             supportDirectoryURL: issue.supportDirectoryURL
         )
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(diagnostics.textSummary, forType: .string)
-        actionMessage = "진단 정보를 클립보드에 복사했습니다."
+        dataToolState.succeed(
+            .copyDiagnostics,
+            message: "진단 정보를 클립보드에 복사했습니다."
+        )
     }
 
     private func restartApp() {

@@ -21,6 +21,10 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                     .font(.callout.weight(.medium))
                     .textSelection(.enabled)
 
+                Text(summary.selectionSummaryText)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(summary.canImport ? Color.secondary : Color.red)
+
                 Text(summary.importSummaryText)
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -29,6 +33,30 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            HStack(spacing: 12) {
+                Button {
+                    selectedCandidateIDs = Set(preview.profileCandidates.map(\.id))
+                } label: {
+                    Label("전체 선택", systemImage: "checklist.checked")
+                }
+                .disabled(isImporting || selectedCandidateIDs.count == preview.profileCandidates.count)
+
+                Button {
+                    selectedCandidateIDs.removeAll()
+                } label: {
+                    Label("전체 해제", systemImage: "xmark.circle")
+                }
+                .disabled(isImporting || selectedCandidateIDs.isEmpty)
+
+                Spacer()
+
+                if isImporting {
+                    ProgressView()
+                        .controlSize(.small)
+                }
+            }
+            .font(.caption)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
@@ -43,6 +71,7 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                             }
                         }
                         .toggleStyle(.checkbox)
+                        .disabled(isImporting)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
                         .background(Color.secondary.opacity(0.08))
@@ -68,7 +97,7 @@ struct DataStoreRecoveryImportPreviewSheet: View {
                     isImportConfirmationPresented = true
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(selectedCandidateIDs.isEmpty || isImporting)
+                .disabled(!summary.canImport || isImporting)
             }
         }
         .confirmationDialog(

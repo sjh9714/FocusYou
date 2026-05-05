@@ -14,15 +14,11 @@ struct HealthCheckView: View {
     @State private var dataStoreDiagnostics: AppDataStoreDiagnosticsReport?
     @State private var isDiagnosing = false
     @State private var dnsFlushResult: String?
-    @State private var dataStoreBackupResult: String?
-    @State private var dataStoreRecoveryPreviewResult: String?
-    @State private var dataStoreImportResult: String?
-    @State private var supportDiagnosticsResult: String?
+    @State private var dataToolState = DataToolActionPresentationState()
     @State private var selectedImportBackupURL: URL?
     @State private var dataStoreImportPreview: DataStoreRecoveryImportPreview?
     @State private var selectedImportCandidateIDs: Set<String> = []
     @State private var isImportPreviewPresented = false
-    @State private var importExecutionGate = DataStoreRecoveryImportExecutionGate()
 
     private let logger = Logger(
         subsystem: Constants.App.subsystem,
@@ -55,7 +51,7 @@ struct HealthCheckView: View {
                 DataStoreRecoveryImportPreviewSheet(
                     preview: dataStoreImportPreview,
                     selectedCandidateIDs: $selectedImportCandidateIDs,
-                    isImporting: importExecutionGate.isImportInProgress,
+                    isImporting: dataToolState.status?.action == .importSettings && dataToolState.isRunning,
                     onCancel: clearImportPreview,
                     onImport: importSelectedBackupCandidates
                 )
@@ -147,32 +143,15 @@ struct HealthCheckView: View {
                     .font(.caption)
                     .foregroundStyle(dataStoreDiagnostics?.isHealthy == false ? themeManager.stopButton : Color.secondary)
 
-                if let dataStoreBackupResult {
-                    Text(dataStoreBackupResult)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                }
+                if let status = dataToolState.status {
+                    Divider()
+                        .padding(.vertical, 4)
 
-                if let dataStoreRecoveryPreviewResult {
-                    Text(dataStoreRecoveryPreviewResult)
-                        .font(.caption)
+                    Text("최근 작업")
+                        .font(.caption.bold())
                         .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                }
 
-                if let dataStoreImportResult {
-                    Text(dataStoreImportResult)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                }
-
-                if let supportDiagnosticsResult {
-                    Text(supportDiagnosticsResult)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
+                    DataToolActionStatusView(status: status)
                 }
             }
 
@@ -196,7 +175,6 @@ struct HealthCheckView: View {
                 } label: {
                     Label("백업 가져오기", systemImage: "tray.and.arrow.down")
                 }
-                .disabled(importExecutionGate.isImportInProgress)
 
                 Divider()
 
@@ -208,6 +186,7 @@ struct HealthCheckView: View {
             } label: {
                 Label("데이터 도구", systemImage: "externaldrive")
             }
+            .disabled(dataToolState.isRunning)
             .font(.caption)
             .foregroundStyle(themeManager.primary)
         }
@@ -273,6 +252,10 @@ struct HealthCheckView: View {
     }
 
     private func createDataStoreBackup() {
+        guard dataToolState.begin(.backup) else {
+            return
+        }
+
         let diagnostics = AppDataStoreDiagnostics.inspect()
         dataStoreDiagnostics = diagnostics
 
@@ -285,6 +268,7 @@ struct HealthCheckView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
@@ -293,14 +277,22 @@ struct HealthCheckView: View {
                 destinationDirectoryURL: destinationURL,
                 diagnostics: diagnostics
             )
-            dataStoreBackupResult = "백업 완료: \(result.backupDirectoryURL.path)"
+            dataToolState.succeed(
+                .backup,
+                message: "백업 완료: \(result.backupDirectoryURL.path)",
+                destinationURL: result.backupDirectoryURL
+            )
             NSWorkspace.shared.activateFileViewerSelecting([result.backupDirectoryURL])
         } catch {
-            dataStoreBackupResult = "백업 실패: \(error.localizedDescription)"
+            dataToolState.fail(.backup, message: "백업 실패: \(error.localizedDescription)")
         }
     }
 
     private func previewDataStoreBackup() {
+        guard dataToolState.begin(.preview) else {
+            return
+        }
+
         let panel = NSOpenPanel()
         panel.title = "백업 폴더 선택"
         panel.prompt = "미리보기"
@@ -310,18 +302,27 @@ struct HealthCheckView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let backupURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
         do {
             let preview = try DataStoreRecoveryPreviewService.previewBackup(at: backupURL)
-            dataStoreRecoveryPreviewResult = preview.statusSummary
+            dataToolState.succeed(
+                .preview,
+                message: preview.statusSummary,
+                destinationURL: backupURL
+            )
         } catch {
-            dataStoreRecoveryPreviewResult = "백업 미리보기 실패: \(error.localizedDescription)"
+            dataToolState.fail(.preview, message: "백업 미리보기 실패: \(error.localizedDescription)")
         }
     }
 
     private func chooseBackupForImport() {
+        guard dataToolState.begin(.importSettings) else {
+            return
+        }
+
         let panel = NSOpenPanel()
         panel.title = "가져올 백업 폴더 선택"
         panel.prompt = "미리보기"
@@ -331,36 +332,34 @@ struct HealthCheckView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let backupURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
         do {
             let preview = try DataStoreRecoveryImportService.previewImport(at: backupURL)
             guard !preview.profileCandidates.isEmpty else {
-                dataStoreImportResult = "가져올 설정 데이터가 없습니다."
+                dataToolState.fail(.importSettings, message: "가져올 설정 데이터가 없습니다.")
                 return
             }
 
             selectedImportBackupURL = backupURL
             dataStoreImportPreview = preview
             selectedImportCandidateIDs = Set(preview.profileCandidates.map { $0.id })
+            dataToolState.cancel()
             isImportPreviewPresented = true
         } catch {
-            dataStoreImportResult = "백업 가져오기 실패: \(error.localizedDescription)"
+            dataToolState.fail(.importSettings, message: "백업 가져오기 실패: \(error.localizedDescription)")
         }
     }
 
     private func importSelectedBackupCandidates() {
-        guard importExecutionGate.begin() else {
-            dataStoreImportResult = "이미 백업 가져오기를 진행 중입니다."
+        guard dataToolState.begin(.importSettings) else {
             return
-        }
-        defer {
-            importExecutionGate.finish()
         }
 
         guard let selectedImportBackupURL else {
-            dataStoreImportResult = "백업 가져오기 실패: 백업 폴더를 찾을 수 없습니다."
+            dataToolState.fail(.importSettings, message: "백업 가져오기 실패: 백업 폴더를 찾을 수 없습니다.")
             clearImportPreview()
             return
         }
@@ -371,10 +370,14 @@ struct HealthCheckView: View {
                 selectedCandidateIDs: selectedImportCandidateIDs,
                 into: modelContext
             )
-            dataStoreImportResult = result.statusSummary
+            dataToolState.succeed(
+                .importSettings,
+                message: result.statusSummary,
+                destinationURL: selectedImportBackupURL
+            )
             dataStoreDiagnostics = AppDataStoreDiagnostics.inspect()
         } catch {
-            dataStoreImportResult = "백업 가져오기 실패: \(error.localizedDescription)"
+            dataToolState.fail(.importSettings, message: "백업 가져오기 실패: \(error.localizedDescription)")
         }
 
         clearImportPreview()
@@ -388,6 +391,10 @@ struct HealthCheckView: View {
     }
 
     private func createSupportDiagnosticsBundle() {
+        guard dataToolState.begin(.supportDiagnostics) else {
+            return
+        }
+
         let diagnostics = AppDataStoreDiagnostics.inspect()
         dataStoreDiagnostics = diagnostics
 
@@ -400,6 +407,7 @@ struct HealthCheckView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let destinationURL = panel.url else {
+            dataToolState.cancel()
             return
         }
 
@@ -413,10 +421,14 @@ struct HealthCheckView: View {
                 ),
                 redactionCandidates: redactionCandidates()
             )
-            supportDiagnosticsResult = "진단 로그 완료: \(result.bundleDirectoryURL.path)"
+            dataToolState.succeed(
+                .supportDiagnostics,
+                message: "진단 로그 완료: \(result.bundleDirectoryURL.path)",
+                destinationURL: result.bundleDirectoryURL
+            )
             NSWorkspace.shared.activateFileViewerSelecting([result.bundleDirectoryURL])
         } catch {
-            supportDiagnosticsResult = "진단 로그 실패: \(error.localizedDescription)"
+            dataToolState.fail(.supportDiagnostics, message: "진단 로그 실패: \(error.localizedDescription)")
         }
     }
 

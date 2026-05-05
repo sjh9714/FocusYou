@@ -3,6 +3,8 @@ import Foundation
 struct DataStoreRecoveryImportSelectionSummary: Equatable {
     let sourceDirectoryName: String
     let sourceStoreFileName: String
+    let selectedCandidateCount: Int
+    let totalCandidateCount: Int
     let profileCount: Int
     let siteCount: Int
     let appCount: Int
@@ -14,8 +16,24 @@ struct DataStoreRecoveryImportSelectionSummary: Equatable {
         profileCount + siteCount + appCount + scheduleCount
     }
 
+    var canImport: Bool {
+        selectedCandidateCount > 0
+    }
+
     var sourceSummary: String {
         "\(sourceDirectoryName)/\(sourceStoreFileName)"
+    }
+
+    var selectionSummaryText: String {
+        guard selectedCandidateCount > 0 else {
+            return String(localized: "선택된 항목이 없습니다.")
+        }
+
+        if selectedCandidateCount == totalCandidateCount {
+            return String(localized: "프로필 \(totalCandidateCount)개 모두 선택")
+        }
+
+        return String(localized: "프로필 \(totalCandidateCount)개 중 \(selectedCandidateCount)개 선택")
     }
 
     var importSummaryText: String {
@@ -41,6 +59,8 @@ extension DataStoreRecoveryImportPreview {
         return DataStoreRecoveryImportSelectionSummary(
             sourceDirectoryName: sourceDirectoryURL.lastPathComponent,
             sourceStoreFileName: sourceStoreFileName,
+            selectedCandidateCount: selectedCandidates.count,
+            totalCandidateCount: profileCandidates.count,
             profileCount: selectedCandidates.count,
             siteCount: selectedCandidates.reduce(0) { $0 + $1.siteCount },
             appCount: selectedCandidates.reduce(0) { $0 + $1.appCount },
@@ -48,22 +68,5 @@ extension DataStoreRecoveryImportPreview {
             skippedFocusSessionCount: skippedFocusSessionCount,
             skippedBadgeCount: skippedBadgeCount
         )
-    }
-}
-
-struct DataStoreRecoveryImportExecutionGate: Equatable {
-    private(set) var isImportInProgress = false
-
-    mutating func begin() -> Bool {
-        guard !isImportInProgress else {
-            return false
-        }
-
-        isImportInProgress = true
-        return true
-    }
-
-    mutating func finish() {
-        isImportInProgress = false
     }
 }
