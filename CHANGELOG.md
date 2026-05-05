@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [2.3.10] - 2026-05-05
+
 ### Changed
 - DEBUG QA 자동화에 백업 Import 미리보기와 in-memory dry-run 검증 명령을 추가해 복구 Import 흐름을 터미널에서 재현 가능하게 확인.
 - 복구 Import QA smoke가 현재 개발 store에 의존하지 않도록 DEBUG 전용 합성 fixture 백업 생성 명령을 추가.
