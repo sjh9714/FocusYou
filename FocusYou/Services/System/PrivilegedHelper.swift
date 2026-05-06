@@ -1,6 +1,34 @@
 import Foundation
 import os
 
+#if APPSTORE
+actor PrivilegedHelper {
+    static let shared = PrivilegedHelper()
+
+    func executeAsAdmin(script: String) async throws -> String {
+        throw FocusYouError.authorizationFailed
+    }
+
+    func writeFileAsRootAndFlushDNS(content: String, to path: String) async throws {
+        throw FocusYouError.hostsFileWriteFailed
+    }
+
+    func ensureHelperInstalled() async throws {
+        throw FocusYouError.authorizationFailed
+    }
+
+    func writeHostsViaHelper(content: String) async throws {
+        throw FocusYouError.hostsFileWriteFailed
+    }
+
+    func shellEscapeForDoubleQuotes(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "`", with: "\\`")
+            .replacingOccurrences(of: "$", with: "\\$")
+    }
+}
+#else
+
 // MARK: - 관리자 권한 헬퍼
 // osascript를 사용하여 macOS 기본 비밀번호 다이얼로그를 통해 관리자 권한 획득
 
@@ -293,3 +321,4 @@ actor PrivilegedHelper {
         return tempPath
     }
 }
+#endif

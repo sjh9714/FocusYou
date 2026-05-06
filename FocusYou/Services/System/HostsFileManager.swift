@@ -1,6 +1,49 @@
 import Foundation
 import os
 
+#if APPSTORE
+actor HostsFileManager {
+    static let shared = HostsFileManager()
+
+    init(
+        hostsPath: String = Constants.Blocking.hostsFilePath,
+        backupPath: String = Constants.Blocking.hostsBackupPath,
+        beginMarker: String = Constants.Blocking.beginMarker,
+        endMarker: String = Constants.Blocking.endMarker,
+        redirectIP: String = Constants.Blocking.redirectIP
+    ) {}
+
+    func readHostsFile() throws -> String {
+        throw FocusYouError.hostsFileReadFailed
+    }
+
+    func hasActiveBlocking() -> Bool {
+        false
+    }
+
+    func backupHostsFile() throws {}
+
+    func buildBlockedContent(domains: [String]) throws -> String {
+        throw FocusYouError.hostsFileWriteFailed
+    }
+
+    func buildCleanContent() throws -> String {
+        ""
+    }
+
+    nonisolated func expandKeywordPattern(_ keyword: String) -> [String] {
+        let tlds = ["com", "net", "org", "io", "co"]
+        let normalized = keyword.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty else { return [] }
+        return tlds.map { "\(normalized).\($0)" }
+    }
+
+    func buildAllowlistContent(allowedDomains: [String], bundle: Bundle = .main) throws -> String {
+        throw FocusYouError.hostsFileWriteFailed
+    }
+}
+#else
+
 // MARK: - hosts 파일 관리자
 // /etc/hosts 파일의 마커 구간을 관리하여 웹사이트 차단 수행
 // NOTE: 파일 I/O는 의도적으로 동기식 — /etc/hosts는 <1KB이며 sub-millisecond 완료.
@@ -196,3 +239,4 @@ actor HostsFileManager {
         return result.joined(separator: "\n") + "\n"
     }
 }
+#endif

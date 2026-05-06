@@ -29,6 +29,34 @@ struct SettingsAdvancedTabView: View {
 
     private var blockingStrategySection: some View {
         Section("차단 방식") {
+            if Constants.Distribution.isAppStoreBuild {
+                appStoreBlockingStrategyContent
+            } else {
+                directDistributionBlockingStrategyContent
+            }
+        }
+    }
+
+    private var appStoreBlockingStrategyContent: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
+            Label(
+                String(localized: "settings_blocking_ne"),
+                systemImage: "network.badge.shield.half.filled"
+            )
+            .font(.callout.weight(.medium))
+
+            Text(String(localized: "settings_blocking_appstore_ne_locked"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text(String(localized: "settings_blocking_ne_active_hint"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var directDistributionBlockingStrategyContent: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
             Picker(
                 String(localized: "settings_blocking_strategy"),
                 selection: Binding(

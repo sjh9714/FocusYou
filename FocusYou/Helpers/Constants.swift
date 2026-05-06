@@ -4,6 +4,13 @@ import CoreGraphics
 // MARK: - 앱 전체에서 사용되는 상수 정의
 
 enum Constants {
+    enum Distribution {
+        #if APPSTORE
+        static let isAppStoreBuild = true
+        #else
+        static let isAppStoreBuild = false
+        #endif
+    }
 
     // MARK: - 타이머
 
@@ -50,7 +57,11 @@ enum Constants {
 
     enum Blocking {
         /// hosts 파일 경로
+        #if APPSTORE
+        static let hostsFilePath = ""
+        #else
         static let hostsFilePath = "/etc/hosts"
+        #endif
         /// 앱 내부 상태 파일 디렉터리
         private static var appStateDirectory: String {
             let home = FileManager.default.homeDirectoryForCurrentUser.path
@@ -75,9 +86,17 @@ enum Constants {
             "\(appStateDirectory)/blocking.active"
         }
         /// 영구 헬퍼 스크립트 (비밀번호 없는 hosts 변경용)
+        #if APPSTORE
+        static let helperPath = ""
+        #else
         static let helperPath = "/usr/local/bin/focusyou-helper"
+        #endif
         /// sudoers 엔트리 (헬퍼 NOPASSWD 허용)
+        #if APPSTORE
+        static let sudoersPath = ""
+        #else
         static let sudoersPath = "/etc/sudoers.d/focusyou"
+        #endif
     }
 
     // MARK: - 앱 정보
@@ -89,11 +108,19 @@ enum Constants {
         /// 앱 종료 시 차단 정리 대기 시간 (초)
         static let terminationCleanupTimeoutSeconds: TimeInterval = 3
         /// LaunchAgent 라벨
+        #if APPSTORE
+        static let launchAgentLabel = "com.sungjh.focusyou.appstore.disabled"
+        #else
         static let launchAgentLabel = "com.sungjh.focusyou.cleanup"
+        #endif
         /// LaunchAgent plist 경로
         static var launchAgentPath: String {
             let home = FileManager.default.homeDirectoryForCurrentUser.path
+            #if APPSTORE
+            return "\(home)/Library/Application Support/FocusYou/appstore-launch-agent-disabled.plist"
+            #else
             return "\(home)/Library/LaunchAgents/\(launchAgentLabel).plist"
+            #endif
         }
     }
 
@@ -194,7 +221,9 @@ enum Constants {
 
         // 차단 전략 (v2.0)
         static let blockingStrategyKey = "blockingStrategy"
-        static let blockingStrategyDefault = "hosts"  // "hosts" | "networkExtension"
+        static let blockingStrategyDefault = Distribution.isAppStoreBuild
+            ? "networkExtension"
+            : "hosts"  // "hosts" | "networkExtension"
     }
 
     // MARK: - 취소 강도 (v1.3)

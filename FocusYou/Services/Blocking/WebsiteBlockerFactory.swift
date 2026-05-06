@@ -17,19 +17,27 @@ enum WebsiteBlockerFactory {
 
     /// 현재 설정에 맞는 WebsiteBlocker 생성
     static func create(strategy: BlockingStrategy = currentStrategy()) -> any WebsiteBlocker {
+        #if APPSTORE
+        return NetworkExtensionBlocker()
+        #else
         switch strategy {
         case .hosts:
             HostsFileBlocker()
         case .networkExtension:
             NetworkExtensionBlocker()
         }
+        #endif
     }
 
     /// UserDefaults에서 현재 차단 전략 읽기
     static func currentStrategy() -> BlockingStrategy {
+        #if APPSTORE
+        return .networkExtension
+        #else
         let raw = UserDefaults.standard.string(
             forKey: Constants.Settings.blockingStrategyKey
         )
         return BlockingStrategy(rawValue: raw ?? Constants.Settings.blockingStrategyDefault) ?? .hosts
+        #endif
     }
 }

@@ -630,6 +630,7 @@
 "settings_blocking_ne" = "Network Extension (no admin needed)";
 "settings_blocking_hosts_description" = "Blocks websites by modifying the /etc/hosts file. Requires administrator password.";
 "settings_blocking_ne_description" = "Blocks websites via macOS Network Extension. Requires approval in System Settings on first install.";
+"settings_blocking_appstore_ne_locked" = "App Store builds use Network Extension blocking only. System Settings approval is required the first time it is enabled.";
 "settings_blocking_ne_active_hint" = "Changes during a focus session take effect after the session ends.";
 
 // ============================================================

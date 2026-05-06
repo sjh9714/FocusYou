@@ -175,6 +175,16 @@ final class SettingsViewModel {
     /// 차단 전략 (v2.0): "hosts" | "networkExtension"
     var blockingStrategy: String {
         didSet {
+            if Constants.Distribution.isAppStoreBuild,
+               blockingStrategy != BlockingStrategy.networkExtension.rawValue {
+                blockingStrategy = BlockingStrategy.networkExtension.rawValue
+                defaults.set(
+                    BlockingStrategy.networkExtension.rawValue,
+                    forKey: Constants.Settings.blockingStrategyKey
+                )
+                return
+            }
+
             defaults.set(
                 blockingStrategy,
                 forKey: Constants.Settings.blockingStrategyKey
@@ -327,11 +337,20 @@ final class SettingsViewModel {
             defaults: defaults,
             defaultValue: Constants.Settings.showMotivationQuotesDefault
         )
-        blockingStrategy = Self.stringValue(
-            forKey: Constants.Settings.blockingStrategyKey,
-            defaults: defaults,
-            defaultValue: Constants.Settings.blockingStrategyDefault
-        )
+        let initialBlockingStrategy = Constants.Distribution.isAppStoreBuild
+            ? BlockingStrategy.networkExtension.rawValue
+            : Self.stringValue(
+                forKey: Constants.Settings.blockingStrategyKey,
+                defaults: defaults,
+                defaultValue: Constants.Settings.blockingStrategyDefault
+            )
+        blockingStrategy = initialBlockingStrategy
+        if Constants.Distribution.isAppStoreBuild {
+            defaults.set(
+                initialBlockingStrategy,
+                forKey: Constants.Settings.blockingStrategyKey
+            )
+        }
         enableBurnoutWarnings = Self.boolValue(
             forKey: Constants.Settings.enableBurnoutWarningsKey,
             defaults: defaults,

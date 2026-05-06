@@ -7,6 +7,11 @@ options:
   createIntermediateGroups: true
   defaultConfig: Debug
 
+configs:
+  Debug: debug
+  Release: release
+  AppStore: release
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -43,6 +48,12 @@ targets:
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "완료된 집중 세션을 Apple Calendar에 기록합니다."
+      configs:
+        AppStore:
+          ENABLE_APP_SANDBOX: YES
+          CODE_SIGN_ENTITLEMENTS: FocusYou/FocusYouAppStore.entitlements
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) APPSTORE"
     dependencies:
       - sdk: AppIntents.framework
       - target: FocusYouWidget
@@ -70,6 +81,11 @@ targets:
         CODE_SIGN_STYLE: Automatic
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
+      configs:
+        AppStore:
+          ENABLE_APP_SANDBOX: YES
+          CODE_SIGN_ENTITLEMENTS: FocusYouNetworkExtension/FocusYouNetworkExtensionAppStore.entitlements
+          CODE_SIGN_IDENTITY: "Apple Distribution"
     dependencies:
       - sdk: AppIntents.framework
       - sdk: NetworkExtension.framework
@@ -91,6 +107,11 @@ targets:
         ENABLE_APP_SANDBOX: NO
         CODE_SIGN_ENTITLEMENTS: FocusYouWidget/FocusYouWidget.entitlements
         INFOPLIST_KEY_LSUIElement: ""
+      configs:
+        AppStore:
+          ENABLE_APP_SANDBOX: YES
+          CODE_SIGN_ENTITLEMENTS: FocusYouWidget/FocusYouWidgetAppStore.entitlements
+          CODE_SIGN_IDENTITY: "Apple Distribution"
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework

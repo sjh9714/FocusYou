@@ -314,6 +314,7 @@
 		17EF1530A9E5E293E37F683F /* DashboardRecentSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardRecentSessionsView.swift; sourceTree = "<group>"; };
 		180C8A945AD4A277828C840E /* PomodoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroEngine.swift; sourceTree = "<group>"; };
 		19662B67B9D0D34CC63F035C /* AppBlockerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockerTests.swift; sourceTree = "<group>"; };
+		1977FE164F916B07EB54C8C8 /* FocusYouAppStore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYouAppStore.entitlements; sourceTree = "<group>"; };
 		1A68A5E9FE9D32B8A8CB5289 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		1BAD2FEEFD93DF6F2BA42339 /* ThemeLivePreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeLivePreviewPanel.swift; sourceTree = "<group>"; };
 		1D0A920447BB7B9570357643 /* ProBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProBadge.swift; sourceTree = "<group>"; };
@@ -354,6 +355,7 @@
 		3D2F7E4CE48CD5175520A45A /* SettingsAdvancedTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAdvancedTabView.swift; sourceTree = "<group>"; };
 		3E300A7CAC9E82C9B0611BC2 /* ThemeCatalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ThemeCatalog.json; sourceTree = "<group>"; };
 		3ED328A26A0F4A52077A5791 /* FreeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeTimer.swift; sourceTree = "<group>"; };
+		41257B1164852B6DCFAA5CF1 /* FocusYouWidgetAppStore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYouWidgetAppStore.entitlements; sourceTree = "<group>"; };
 		4158EE2F545858A72688CFE9 /* video.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = video.json; sourceTree = "<group>"; };
 		437575C0CD3CF7B18E0EB585 /* AppStatePauseResumeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStatePauseResumeTests.swift; sourceTree = "<group>"; };
 		445FEA587FB6FACC22488B2C /* SessionProgressEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionProgressEvaluator.swift; sourceTree = "<group>"; };
@@ -452,6 +454,7 @@
 		B139C9C3012E75D03FDC5C8B /* GrowthBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthBadgeView.swift; sourceTree = "<group>"; };
 		B14EBD49CA44F30BB0A336F0 /* FocusYouShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusYouShortcuts.swift; sourceTree = "<group>"; };
 		B436E4F9DCF199AEB555AE29 /* QAAutomationDataToolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAAutomationDataToolTests.swift; sourceTree = "<group>"; };
+		B75CEC0A2CFC05E6F174D483 /* FocusYouNetworkExtensionAppStore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FocusYouNetworkExtensionAppStore.entitlements; sourceTree = "<group>"; };
 		B809334BD79336E1364C666A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		B8246BD1232F7FAEB20567A0 /* DataToolActionPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataToolActionPresentationTests.swift; sourceTree = "<group>"; };
 		B87999382957A62F387E43D2 /* FocusYou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusYou.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -785,6 +788,7 @@
 			children = (
 				92F2B71E73DC0D4DEC70D9BB /* FocusYouFilterDataProvider.swift */,
 				AB76D53C51DD585CD177589B /* FocusYouNetworkExtension.entitlements */,
+				B75CEC0A2CFC05E6F174D483 /* FocusYouNetworkExtensionAppStore.entitlements */,
 				7FD1C942E57F8659BFB5E664 /* FocusYouNetworkExtensionRelease.entitlements */,
 				C34697CBEA3DA3B61268C6EC /* Info.plist */,
 				B809334BD79336E1364C666A /* main.swift */,
@@ -932,6 +936,7 @@
 			children = (
 				3AA379C0CC921A7E05C9277D /* FocusStatusWidget.swift */,
 				0CE4E866E69609429CD95A66 /* FocusYouWidget.entitlements */,
+				41257B1164852B6DCFAA5CF1 /* FocusYouWidgetAppStore.entitlements */,
 				B0FE2AD6DA0B2F955173B52B /* FocusYouWidgetBundle.swift */,
 				EB3F3CA340FDF4DC545044AE /* StreakWidget.swift */,
 				C186E7AE353A56A67555FC6A /* Resources */,
@@ -1059,6 +1064,7 @@
 				9CAB90BC89992273FD36466F /* FocusYou.entitlements */,
 				8BEC784CCCAF57AEECBF97ED /* FocusYou.storekit */,
 				03355D227440BC47048DC646 /* FocusYouApp.swift */,
+				1977FE164F916B07EB54C8C8 /* FocusYouAppStore.entitlements */,
 				19EFD7C4D56E6CE75BDABEED /* Extensions */,
 				7F23B90A85A7251054A73E04 /* Helpers */,
 				477BF9AAE0D0976C17354933 /* Models */,
@@ -1621,6 +1627,27 @@
 			};
 			name = Release;
 		};
+		344367EB651465DC34256CBE /* AppStore */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FocusYou/FocusYouAppStore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "완료된 집중 세션을 Apple Calendar에 기록합니다.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_NAME = "Focus You";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) APPSTORE";
+			};
+			name = AppStore;
+		};
 		39450AEEFD600AC51A9195B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1660,6 +1687,21 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
+		};
+		4C1DEECFF21EC26DFA47F01B /* AppStore */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Focus You.app/Contents/MacOS/Focus You";
+			};
+			name = AppStore;
 		};
 		51CC6E711F0EC4431753A2B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1847,6 +1889,30 @@
 			};
 			name = Release;
 		};
+		9A5F2D6B215C1B68D95F4DD0 /* AppStore */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGNING_REQUIRED = YES;
+				CODE_SIGN_ENTITLEMENTS = FocusYouNetworkExtension/FocusYouNetworkExtensionAppStore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 9VRNY5PMG3;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FocusYouNetworkExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sungjh.focusyou.network-extension";
+				PRODUCT_NAME = FocusYouFilter;
+				SDKROOT = macosx;
+			};
+			name = AppStore;
+		};
 		ABEE1BE6C51505BFE993DB0D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1862,12 +1928,107 @@
 			};
 			name = Release;
 		};
+		AD6498F7B5CC6982899C86B9 /* AppStore */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusYouWidget/FocusYouWidgetAppStore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Focus You Widget";
+				INFOPLIST_KEY_LSUIElement = "";
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sungjh.focusyou.widget;
+				PRODUCT_NAME = FocusYouWidget;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = AppStore;
+		};
+		BE68554BF50D0D181C861438 /* AppStore */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGNING_REQUIRED = YES;
+				CODE_SIGN_ENTITLEMENTS = FocusYou/FocusYou.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 35;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_LANGUAGE = ko;
+				DEVELOPMENT_TEAM = 9VRNY5PMG3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Focus You";
+				INFOPLIST_KEY_LSUIElement = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 2.3.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sungjh.focusyou;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = AppStore;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
 		06CF28C3543A6183CB0F7D57 /* Build configuration list for PBXProject "FocusYou" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
+				BE68554BF50D0D181C861438 /* AppStore */,
 				51CC6E711F0EC4431753A2B2 /* Debug */,
 				8AB5D25AD185A0878A169E1A /* Release */,
 			);
@@ -1877,6 +2038,7 @@
 		20A8D6BCC619499ABE01BC7E /* Build configuration list for PBXNativeTarget "FocusYouWidget" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
+				AD6498F7B5CC6982899C86B9 /* AppStore */,
 				76B72287AA77EEB95F4BC833 /* Debug */,
 				3AADC440DEF5BABDE522BB7D /* Release */,
 			);
@@ -1886,6 +2048,7 @@
 		5956D527ED9BB60002093308 /* Build configuration list for PBXNativeTarget "FocusYouTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
+				4C1DEECFF21EC26DFA47F01B /* AppStore */,
 				60A7F95FE30294F1290786E4 /* Debug */,
 				ABEE1BE6C51505BFE993DB0D /* Release */,
 			);
@@ -1895,6 +2058,7 @@
 		AF42FD635F45D4263026DCF6 /* Build configuration list for PBXNativeTarget "FocusYouNetworkExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
+				9A5F2D6B215C1B68D95F4DD0 /* AppStore */,
 				075BD42ABADD3F5BA3F511B0 /* Debug */,
 				22E916E113C28711509703E8 /* Release */,
 			);
@@ -1904,6 +2068,7 @@
 		ECB8B042A595C30C678AFCEC /* Build configuration list for PBXNativeTarget "FocusYou" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
+				344367EB651465DC34256CBE /* AppStore */,
 				39450AEEFD600AC51A9195B6 /* Debug */,
 				07F4D6E56B84B3439CF3849C /* Release */,
 			);

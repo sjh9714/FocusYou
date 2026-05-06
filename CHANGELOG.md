@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Mac App Store 제출 준비를 위해 sandboxed `AppStore` build configuration, App Store 전용 entitlements, App Store archive/export 스크립트와 심사 준비 문서를 추가.
+
+### Changed
+- App Store 빌드에서는 웹 차단 방식을 Network Extension 전용으로 고정하고 hosts/helper 관련 설정 및 진단 UI를 직접 배포판 전용으로 분리.
+- CI에서 `AppStore` configuration unsigned build를 함께 실행해 sandbox/entitlement 전용 빌드 경로를 검증.
+
 ## [2.3.13] - 2026-05-06
 
 ### Changed

@@ -11,6 +11,7 @@ struct HealthCheckView: View {
 
     @State private var privateRelayStatus: PrivateRelayDetector.Status?
     @State private var hostsBlockingActive = false
+    @State private var networkExtensionActive = false
     @State private var dataStoreDiagnostics: AppDataStoreDiagnosticsReport?
     @State private var isDiagnosing = false
     @State private var dnsFlushResult: String?
@@ -33,10 +34,16 @@ struct HealthCheckView: View {
                 .font(.headline)
 
             VStack(spacing: Constants.Design.spacingMD) {
-                privateRelayRow
-                hostsBlockingRow
+                if Constants.Distribution.isAppStoreBuild {
+                    networkExtensionRow
+                } else {
+                    privateRelayRow
+                    hostsBlockingRow
+                }
                 dataStoreRow
-                dnsFlushRow
+                if !Constants.Distribution.isAppStoreBuild {
+                    dnsFlushRow
+                }
             }
 
             if isDiagnosing {
@@ -61,6 +68,30 @@ struct HealthCheckView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Network Extension 차단
+
+    private var networkExtensionRow: some View {
+        HStack(spacing: Constants.Design.spacingMD) {
+            diagnosticIcon(status: true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Network Extension 차단")
+                    .font(.callout.weight(.medium))
+
+                Text(LocalizedStringKey(networkExtensionActive ? "활성 차단 중" : "비활성 (정상 대기)"))
+                    .font(.caption)
+                    .foregroundStyle(networkExtensionActive ? themeManager.primary : .secondary)
+
+                Text(String(localized: "settings_blocking_appstore_ne_locked"))
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            Spacer()
+        }
+        .frostedCard(cornerRadius: Constants.Design.cornerMD, padding: Constants.Design.spacingMD)
     }
 
     // MARK: - Safari Private Relay
@@ -239,8 +270,15 @@ struct HealthCheckView: View {
     private func runDiagnostics() async {
         isDiagnosing = true
 
-        privateRelayStatus = PrivateRelayDetector.detect()
-        hostsBlockingActive = await HostsFileManager.shared.hasActiveBlocking()
+        if Constants.Distribution.isAppStoreBuild {
+            networkExtensionActive = await NetworkExtensionBlocker().isActive()
+            privateRelayStatus = nil
+            hostsBlockingActive = false
+        } else {
+            privateRelayStatus = PrivateRelayDetector.detect()
+            hostsBlockingActive = await HostsFileManager.shared.hasActiveBlocking()
+            networkExtensionActive = false
+        }
         dataStoreDiagnostics = AppDataStoreDiagnostics.inspect()
 
         isDiagnosing = false
@@ -431,8 +469,12 @@ struct HealthCheckView: View {
                 destinationDirectoryURL: destinationURL,
                 dataStoreDiagnostics: diagnostics,
                 blockingSummary: SupportDiagnosticsBlockingSummary.current(
-                    hostsBlockingActive: hostsBlockingActive,
-                    privateRelayStatus: privateRelayStatus
+                    hostsBlockingActive: Constants.Distribution.isAppStoreBuild
+                        ? nil
+                        : hostsBlockingActive,
+                    privateRelayStatus: Constants.Distribution.isAppStoreBuild
+                        ? nil
+                        : privateRelayStatus
                 ),
                 redactionCandidates: redactionCandidates()
             )

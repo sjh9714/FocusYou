@@ -1,6 +1,20 @@
 import Foundation
 import os
 
+#if APPSTORE
+actor HostsFileBlocker: WebsiteBlocker {
+    func activate(domains: [String]) async throws {
+        throw FocusYouError.networkExtensionActivationFailed
+    }
+
+    func deactivate() async throws {}
+
+    func isActive() async -> Bool {
+        false
+    }
+}
+#else
+
 // MARK: - hosts 파일 기반 웹사이트 차단기
 // /etc/hosts에 리다이렉트 추가로 웹사이트 차단
 // 영구 헬퍼 스크립트를 통해 비밀번호 없이 동작
@@ -73,3 +87,4 @@ actor HostsFileBlocker: WebsiteBlocker {
         await hostsFileManager.hasActiveBlocking()
     }
 }
+#endif

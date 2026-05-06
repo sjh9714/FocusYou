@@ -24,6 +24,21 @@ Expected:
 - `~/Library/Application Support/FocusYou/blocking.active` is missing
 - `~/Library/Application Support/FocusYou/hosts.backup` is missing
 
+## App Store Configuration Smoke
+
+App Store 제출 후보는 직접 배포판과 별도로 확인합니다. 이 경로는 sandbox를 켜고 Network Extension 차단만 사용합니다.
+
+```bash
+xcodegen generate
+xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration AppStore -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
+```
+
+Manual checks:
+- `설정 > 고급 > 차단 방식`에서 hosts/helper 선택지가 보이지 않고 Network Extension 전용 안내만 표시됨.
+- `설정 > 진단`에서 hosts/Private Relay/DNS flush 행 대신 Network Extension 상태와 데이터 도구가 표시됨.
+- 최초 차단 시 macOS Network Extension/System Extension 승인 안내에서 사용자가 다음 행동을 이해할 수 있음.
+- 백업/진단/미리보기/가져오기는 user-selected folder 안에서 동작하고 자동 업로드를 하지 않음.
+
 ## Scenario 1: Start -> Stop
 
 1. Start a focus session.

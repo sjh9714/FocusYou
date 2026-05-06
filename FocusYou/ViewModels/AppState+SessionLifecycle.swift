@@ -50,7 +50,8 @@ extension AppState {
             sessionBlockedAppBundleIds = targets.appBundleIds
             sessionBlocklistMode = targets.blocklistMode
 
-            if isBlockingActive && !targets.domains.isEmpty
+            if !Constants.Distribution.isAppStoreBuild,
+               isBlockingActive && !targets.domains.isEmpty
                && !privateRelayWarningDismissedThisSession {
                 if PrivateRelayDetector.detect() == .enabled {
                     showPrivateRelayWarning = true

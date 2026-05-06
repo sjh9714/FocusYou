@@ -12,7 +12,7 @@
 - **Flowmodoro** — 자유 집중 → 1/5 비례 자동 휴식
 
 **차단**
-- **웹사이트 차단** — hosts 파일 기반, IPv4+IPv6 동시 차단
+- **웹사이트 차단** — 직접 배포판은 hosts/Network Extension, App Store 빌드는 Network Extension 전용
 - **앱 차단** — 설치된 앱 목록에서 선택, 실행 시 자동 종료
 - **카테고리 프리셋** — SNS, 뉴스, 동영상, 게임 한 번에 추가/제거
 - **안전장치 3중** — 앱 종료/크래시/재부팅 시 차단 자동 해제
@@ -81,6 +81,17 @@ xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -de
 ./scripts/release.sh --skip-sign --skip-notarize
 ```
 
+### Mac App Store 준비 빌드
+
+App Store 제출 경로는 직접 배포 DMG와 분리되어 있습니다. `AppStore` configuration은 sandbox를 켜고 웹 차단을 Network Extension 전용으로 고정합니다.
+
+```bash
+xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration AppStore -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
+./scripts/release_appstore.sh --skip-export --allow-provisioning-updates
+```
+
+제출 준비 체크리스트와 App Review notes 템플릿은 [docs/app-store-submission.md](docs/app-store-submission.md)를 참고하세요.
+
 ## CI
 
 GitHub Actions에서 macOS 테스트를 자동 실행합니다:
@@ -111,9 +122,9 @@ defaults delete com.sungjh.focusyou debugSecondsPerMinute
 |------|------|
 | UI | SwiftUI + MenuBarExtra |
 | 데이터 | SwiftData |
-| 차단 (웹) | /etc/hosts 파일 수정 |
+| 차단 (웹) | Direct DMG: /etc/hosts 또는 Network Extension / App Store: Network Extension |
 | 차단 (앱) | NSWorkspace 알림 기반 감시 |
-| 권한 | osascript + 영구 헬퍼 스크립트 |
+| 권한 | Direct DMG: osascript + 영구 헬퍼 스크립트 / App Store: App Sandbox + App Group |
 | 아키텍처 | MVVM + Service Layer, actor 기반 동시성 |
 
 ## 버전 로드맵

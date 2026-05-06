@@ -48,6 +48,16 @@ jobs:
       - name: Generate Project
         run: xcodegen generate
 
+      - name: Build App Store Configuration
+        run: |
+          xcodebuild \
+            -project FocusYou.xcodeproj \
+            -scheme FocusYou \
+            -configuration AppStore \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
       - name: Run Unit Tests
         run: |
           xcodebuild \

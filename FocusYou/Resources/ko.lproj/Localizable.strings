@@ -192,6 +192,7 @@
 "settings_blocking_ne" = "Network Extension (권한 불필요)";
 "settings_blocking_hosts_description" = "/etc/hosts 파일을 수정하여 웹사이트를 차단합니다. 관리자 비밀번호가 필요합니다.";
 "settings_blocking_ne_description" = "macOS Network Extension을 통해 웹사이트를 차단합니다. 최초 설치 시 시스템 설정에서 승인이 필요합니다.";
+"settings_blocking_appstore_ne_locked" = "App Store 빌드에서는 Network Extension 차단만 사용합니다. 최초 사용 시 시스템 설정 승인이 필요합니다.";
 "settings_blocking_ne_active_hint" = "집중 세션 중 변경 시 다음 세션부터 적용됩니다.";
 
 // ============================================================

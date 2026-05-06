@@ -239,6 +239,9 @@ actor BlockingCoordinator {
 
     /// hosts 모드 긴급 정리
     private func emergencyCleanupHosts() async {
+        #if APPSTORE
+        return
+        #else
         let indicatorExists = FileManager.default.fileExists(atPath: Constants.Blocking.activeIndicatorPath)
         let hasActiveBlocking = await HostsFileManager.shared.hasActiveBlocking()
         let backupExists = FileManager.default.fileExists(atPath: Constants.Blocking.hostsBackupPath)
@@ -313,12 +316,17 @@ actor BlockingCoordinator {
         isWebsiteBlockingActive = false
         isAppBlockingActive = false
         state = .idle
+        #endif
     }
 
     // MARK: - 안전장치 (LaunchAgent)
 
     /// 앱 크래시 시 자동 정리를 위한 LaunchAgent 설치
     private func installSafetyNet() {
+        #if APPSTORE
+        logger.debug("App Store 빌드에서는 hosts 안전장치를 설치하지 않음")
+        return
+        #else
         logger.debug("안전장치 설치")
 
         // 상태 파일 디렉터리 생성
@@ -376,14 +384,19 @@ actor BlockingCoordinator {
             atomically: true,
             encoding: .utf8
         )
+        #endif
     }
 
     /// 안전장치 제거
     private func removeSafetyNet() {
+        #if APPSTORE
+        return
+        #else
         logger.debug("안전장치 제거")
         try? FileManager.default.removeItem(atPath: Constants.Blocking.activeIndicatorPath)
         try? FileManager.default.removeItem(atPath: Constants.App.launchAgentPath)
         try? FileManager.default.removeItem(atPath: Constants.Blocking.hostsBackupPath)
+        #endif
     }
 
     /// 번들에서 top-sites.json 로드 (화이트리스트 모드)
