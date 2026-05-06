@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 - App Store 빌드에서는 웹 차단 방식을 Network Extension 전용으로 고정하고 hosts/helper 관련 설정 및 진단 UI를 직접 배포판 전용으로 분리.
 - CI에서 `AppStore` configuration unsigned build를 함께 실행해 sandbox/entitlement 전용 빌드 경로를 검증.
 - App Store Connect 업로드 검증에 맞춰 System Extension 번들명을 bundle id 기반으로 정리하고 Widget extension point metadata를 명시.
+- App Store Connect에서 빌드 선택이 막히지 않도록 generated Info.plist에 비면제 암호화 미사용 선언을 추가.
 
 ## [2.3.13] - 2026-05-06
 
