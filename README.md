@@ -1,203 +1,93 @@
 # Focus You
 
-> Block Distractions & Focus Timer — macOS 메뉴바 집중력 앱
+Focus You는 집중 세션을 시작하는 동안 방해 웹사이트와 앱을 막고, 끝나면 차단을 해제하는 macOS 메뉴바 앱입니다. 단순한 타이머가 아니라 차단, 회고, 통계, 스케줄, 위젯을 한 흐름으로 묶어 “집중을 시작하고 마무리하는 루틴”을 만들도록 설계했습니다.
 
-타이머를 시작하면 방해 사이트와 앱이 자동으로 차단되고, 타이머가 끝나면 자동으로 해제됩니다.
+## 문제 의식
+
+집중 앱은 타이머만 제공하면 실제 방해 요소를 막지 못하고, 차단 앱은 사용자가 왜 집중하려 했는지 기록하기 어렵습니다. Focus You는 세션 시작 전에 의도를 남기고, 세션 중에는 웹사이트와 앱을 차단하며, 종료 후에는 회고와 통계를 통해 다음 세션을 조정할 수 있게 합니다.
 
 ## 주요 기능
 
-**타이머**
-- **자유 타이머** — 1~240분, 프리셋 또는 슬라이더로 설정 (무료 120분)
-- **뽀모도로** — 집중/휴식 사이클, Overflow 모드, 파이차트 UI
-- **Flowmodoro** — 자유 집중 → 1/5 비례 자동 휴식
+- 자유 타이머, Pomodoro, Flowmodoro 기반 집중 세션
+- 웹사이트 차단: 직접 배포 빌드는 hosts 또는 Network Extension, App Store 빌드는 Network Extension 경로 사용
+- 앱 차단: 선택한 앱이 실행되면 감지 후 종료
+- SNS, 뉴스, 동영상, 게임 등 카테고리 프리셋 관리
+- 세션 의도 입력, 종료 회고, 스트릭, 마일스톤 배지, 성장 단계
+- 일/주/월/연 단위 통계, 히트맵, CSV/JSON 내보내기
+- Apple Calendar 기록, Shortcuts/App Intents, WidgetKit 위젯, macOS Focus Mode 연동
+- 설정 백업, 가져오기 미리보기, 진단 로그 번들 생성
 
-**차단**
-- **웹사이트 차단** — 직접 배포판은 hosts/Network Extension, App Store 빌드는 Network Extension 전용
-- **앱 차단** — 설치된 앱 목록에서 선택, 실행 시 자동 종료
-- **카테고리 프리셋** — SNS, 뉴스, 동영상, 게임 한 번에 추가/제거
-- **안전장치 3중** — 앱 종료/크래시/재부팅 시 차단 자동 해제
+## 기술 스택
 
-**생산성**
-- **의도 입력** — 세션 시작 전 집중 목표 기록
-- **3단계 회고** — 이모지 / 별점 / 방해요소 태그
-- **스트릭** — 일일 완료 추적, 연속 기록
-- **성장 시스템** — 🌱→🏞️ 5단계 누적 집중 시간 성장
-- **마일스톤 배지** — 10개 달성 배지 + 명언
+| 영역 | 사용 기술 |
+| --- | --- |
+| 앱 | Swift 6, SwiftUI, MenuBarExtra |
+| 데이터 | SwiftData |
+| 차단 | NetworkExtension, hosts 파일 경로, NSWorkspace 앱 감시 |
+| 시스템 연동 | App Intents, WidgetKit, EventKit, UserNotifications |
+| 상태 관리 | MVVM, `@Observable`, actor 기반 서비스 |
+| 프로젝트 생성 | XcodeGen |
+| 테스트 | XCTest |
 
-**분석**
-- **통계 대시보드** — 일별/주별/월별/연간 집중 시간 차트
-- **히트맵** — GitHub 스타일 집중 강도 시각화
-- **데이터 내보내기** — CSV/JSON
+## 프로젝트 구조
 
-**복구/지원**
-- **데이터 도구** — 설정 진단 섹션에서 [백업 만들기, 백업 미리보기, 설정/세션/배지 선택 가져오기](docs/data-recovery.md)
-- **진단 로그 내보내기** — 민감정보를 제외한 로컬 진단 번들을 사용자가 직접 공유
+```text
+FocusYou/
+├── FocusYou/                  # macOS 앱 본체
+│   ├── Models/                # SwiftData 모델
+│   ├── ViewModels/            # 앱 상태와 화면 상태
+│   ├── Views/                 # SwiftUI 화면
+│   ├── Services/              # 차단, 타이머, 통계, 캘린더, 진단 등
+│   └── Resources/             # 테마, 프리셋, 로컬라이즈 리소스
+├── FocusYouNetworkExtension/  # Network Extension 차단 경로
+├── FocusYouWidget/            # macOS 위젯
+├── FocusYouTests/             # XCTest 기반 단위 테스트
+├── docs/                      # QA, App Store, 개인정보 문서
+├── scripts/                   # 릴리스와 QA 자동화
+└── project.yml                # XcodeGen 설정
+```
 
-**연동**
-- **70+ 테마** — 6개 카테고리
-- **Shortcuts/Siri** — 음성으로 세션 제어
-- **데스크톱 위젯** — 집중 상태/스트릭 표시
-- **macOS Focus Mode** — 시스템 집중 모드 연동
-- **Apple Calendar** — 세션 자동 기록
-- **스케줄** — 요일별 자동 세션
-- **번아웃 방지** — 일일 한계, 균형 점수, 스트레칭 알림
-
-## 설치
-
-### DMG 다운로드 (권장)
-
-1. [최신 Release](https://github.com/jinhyuk9714/FocusYou/releases/latest)에서 배포된 `FocusYou-x.x.x.dmg` 다운로드
-2. DMG를 열고 `Focus You.app`을 `Applications` 폴더로 드래그
-3. Developer ID 서명 및 Apple notarization을 거친 DMG이므로 일반 앱처럼 실행
-
-### 소스에서 빌드
+## 로컬 빌드
 
 요구 사항:
-- macOS 14.0 (Sonoma) 이상
-- Xcode 26.2+ (CI 기준)
-- [xcodegen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+
+- macOS 14.0 이상
+- Xcode 26.2 기준 프로젝트 설정
+- XcodeGen
 
 ```bash
-# Xcode CLI 설정 (최초 1회)
-sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-
-# 프로젝트 생성 + 빌드
+brew install xcodegen
 xcodegen generate
 xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
-또는 Xcode에서 `FocusYou.xcodeproj`를 열고 Run (Cmd+R).
+Xcode에서 실행하려면 `xcodegen generate` 후 생성된 `FocusYou.xcodeproj`를 열고 `FocusYou` scheme을 실행합니다.
 
-### 릴리즈 빌드 (DMG 생성)
-
-```bash
-./scripts/release.sh
-# 결과: build/FocusYou-{version}.dmg
-```
-
-서명/공증 없이 배포 흐름만 확인할 때는 테스트용으로만 실행하세요:
+## 검증
 
 ```bash
-./scripts/release.sh --skip-sign --skip-notarize
+xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO test
 ```
 
-### Mac App Store 준비 빌드
-
-App Store 제출 경로는 직접 배포 DMG와 분리되어 있습니다. `AppStore` configuration은 sandbox를 켜고 웹 차단을 Network Extension 전용으로 고정합니다.
-
-```bash
-xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration AppStore -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
-./scripts/release_appstore.sh --skip-export --allow-provisioning-updates
-```
-
-제출 준비 체크리스트와 App Review notes 템플릿은 [docs/app-store-submission.md](docs/app-store-submission.md)를 참고하세요.
-
-개인정보 처리방침은 [docs/privacy-policy.md](docs/privacy-policy.md)에 공개되어 있습니다.
-
-## CI
-
-GitHub Actions에서 macOS 테스트를 자동 실행합니다:
-
-- workflow: `.github/workflows/macos-tests.yml`
-- trigger: `push`, `pull_request` (`main`)
-- command: `xcodegen generate` + `xcodebuild ... test`
-
-## Debug Fast Timer (개발용)
-
-`Debug` 빌드에서만 시간 축소를 켤 수 있습니다.
-
-앱에서 바로 설정하려면 `설정 > 개발자 > Fast Timer (디버그)`를 사용하세요.
-
-```bash
-# ON: 1분을 5초로 축소
-defaults write com.sungjh.focusyou debugFastTimerEnabled -bool true
-defaults write com.sungjh.focusyou debugSecondsPerMinute -float 5
-
-# OFF
-defaults delete com.sungjh.focusyou debugFastTimerEnabled
-defaults delete com.sungjh.focusyou debugSecondsPerMinute
-```
-
-## 기술 스택
-
-| 영역 | 기술 |
-|------|------|
-| UI | SwiftUI + MenuBarExtra |
-| 데이터 | SwiftData |
-| 차단 (웹) | Direct DMG: /etc/hosts 또는 Network Extension / App Store: Network Extension |
-| 차단 (앱) | NSWorkspace 알림 기반 감시 |
-| 권한 | Direct DMG: osascript + 영구 헬퍼 스크립트 / App Store: App Sandbox + App Group |
-| 아키텍처 | MVVM + Service Layer, actor 기반 동시성 |
-
-## 버전 로드맵
-
-| 버전 | 기능 | 상태 |
-|------|------|------|
-| **v0.1** | 메뉴바 + 자유 타이머 + 차단 | ✅ |
-| **v0.3** | 뽀모도로 + 파이차트 타이머 | ✅ |
-| **v0.5** | 테마 70+ + 프로필 + 통계 | ✅ |
-| **v1.0** | Flowmodoro + 스트릭 + 온보딩 | ✅ |
-| **v1.4** | Shortcuts + Widget + Focus Mode | ✅ |
-| **v1.5** | 성장 시스템 + 번아웃 방지 + 내보내기 | ✅ |
-| **v2.0** | Pro 구독 + Network Extension 인프라 | ✅ |
-| **v2.3** | 뷰 리팩토링 + 테스트 304개 | ✅ |
-| v3.0 | AI 인사이트 + iOS | 예정 |
-
-변경 내역은 `CHANGELOG.md`를 참고하세요.
-
-## 프로젝트 구조
-
-```
-FocusYou/
-├── Models/          # SwiftData 모델
-├── ViewModels/      # @Observable 상태 관리
-├── Views/           # SwiftUI 화면
-├── Services/        # 차단, 타이머, 시스템, 알림
-├── Extensions/      # 유틸리티 확장
-├── Helpers/         # 상수, 에러 타입
-└── Resources/       # 에셋, 카테고리 프리셋 JSON
-```
-
-## 수동 QA
-
-안정성 시나리오(시작/중지, 완료, 강제종료, 재부팅 복구) 점검:
+수동 QA 보조 스크립트는 실행 중인 디버그 앱의 차단 상태, 백업, 진단 번들을 확인하는 용도입니다.
 
 ```bash
 ./scripts/qa_focusyou_state.sh snapshot
-```
-
-핵심 상태 검증 명령:
-
-```bash
 ./scripts/qa_focusyou_state.sh assert-blocked
 ./scripts/qa_focusyou_state.sh assert-safetynet-armed
-./scripts/qa_focusyou_state.sh assert-helper-ready
-./scripts/qa_focusyou_state.sh assert-recovery-pending
-./scripts/qa_focusyou_state.sh assert-recovered
 ```
 
-데이터 도구 산출물 검증:
+## 배포 메모
+
+직접 배포용 DMG와 App Store 제출용 설정이 분리되어 있습니다. `AppStore` configuration은 sandbox와 App Group을 사용하고, 웹 차단은 Network Extension 경로를 사용하도록 구성되어 있습니다.
 
 ```bash
-./scripts/qa_focusyou_state.sh assert-data-backup /path/to/FocusYouBackup-yyyyMMdd-HHmmss --require-store
-./scripts/qa_focusyou_state.sh assert-diagnostics-bundle /path/to/FocusYouDiagnostics-yyyyMMdd-HHmmss
+./scripts/release.sh
+./scripts/release.sh --skip-sign --skip-notarize
+./scripts/release_appstore.sh --skip-export --allow-provisioning-updates
 ```
 
-DEBUG 앱이 실행 중이면 생성과 검증을 한 번에 수행할 수 있습니다:
-
-```bash
-./scripts/qa_focusyou_state.sh qa-smoke-start-stop 120 example.com
-./scripts/qa_focusyou_state.sh qa-smoke-completion-cleanup example.com
-./scripts/qa_focusyou_state.sh qa-create-data-backup /path/to/output --require-store
-./scripts/qa_focusyou_state.sh qa-create-diagnostics-bundle /path/to/output
-./scripts/qa_focusyou_state.sh qa-smoke-data-tools /path/to/output
-./scripts/qa_focusyou_state.sh qa-create-recovery-import-fixture /path/to/output
-./scripts/qa_focusyou_state.sh qa-preview-data-import /path/to/FocusYouBackup-yyyyMMdd-HHmmss
-./scripts/qa_focusyou_state.sh qa-validate-data-import /path/to/FocusYouBackup-yyyyMMdd-HHmmss --include-sessions --include-badges
-./scripts/qa_focusyou_state.sh qa-smoke-recovery-import /path/to/output
-```
-
-상세 체크리스트는 `docs/manual-qa-checklist.md` 참고.
+개인정보 처리방침과 App Store 제출 메모는 `docs/` 아래 문서에 정리되어 있습니다.
 
 ## 라이선스
 
