@@ -78,6 +78,12 @@ This path requires Apple Distribution signing plus App Store provisioning profil
 Before selecting a build for review, keep the App Store Connect macOS version
 aligned with `MARKETING_VERSION` from `project.yml`.
 
+Use the published privacy policy URL in App Store Connect:
+
+```text
+https://github.com/jinhyuk9714/FocusYou/blob/main/docs/privacy-policy.md
+```
+
 ## App Review Notes Template
 
 Use this as the starting point for App Review notes:

@@ -92,6 +92,8 @@ xcodebuild -project FocusYou.xcodeproj -scheme FocusYou -configuration AppStore 
 
 제출 준비 체크리스트와 App Review notes 템플릿은 [docs/app-store-submission.md](docs/app-store-submission.md)를 참고하세요.
 
+개인정보 처리방침은 [docs/privacy-policy.md](docs/privacy-policy.md)에 공개되어 있습니다.
+
 ## CI
 
 GitHub Actions에서 macOS 테스트를 자동 실행합니다:
