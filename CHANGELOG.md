@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file.
 - CI에서 `AppStore` configuration unsigned build를 함께 실행해 sandbox/entitlement 전용 빌드 경로를 검증.
 - App Store Connect 업로드 검증에 맞춰 System Extension 번들명을 bundle id 기반으로 정리하고 Widget extension point metadata를 명시.
 - App Store Connect에서 빌드 선택이 막히지 않도록 generated Info.plist에 비면제 암호화 미사용 선언을 추가.
+- App Store 심사 후속 제출을 위해 `2.3.13` App Store build number를 `37`로 갱신.
 
 ## [2.3.13] - 2026-05-06
 
