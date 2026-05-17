@@ -149,7 +149,10 @@ extension AppState {
     }
 
     func applyBlockingForPomodoroPhase(_ phaseType: PomodoroEngine.PhaseType) async throws {
-        let hasBlockingTargets = !sessionBlockedDomains.isEmpty || !sessionBlockedAppBundleIds.isEmpty
+        let hasBlockingTargets = PersistedBlocklistMode(storedValue: sessionBlocklistMode).hasBlockingTargets(
+            domains: sessionBlockedDomains,
+            appBundleIds: sessionBlockedAppBundleIds
+        )
 
         guard hasBlockingTargets else {
             isBlockingActive = false

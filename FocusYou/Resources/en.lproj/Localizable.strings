@@ -692,7 +692,7 @@
 "settings_blocking_ne_description" = "Blocks websites via macOS Network Extension. Requires approval in System Settings on first install.";
 "settings_blocking_appstore_ne_locked" = "App Store builds use Network Extension blocking only. System Settings approval is required the first time it is enabled.";
 "settings_blocking_ne_active_hint" = "Changes during a focus session take effect after the session ends.";
-"settings_blocking_timer_only_hint" = "Timer-only sessions work immediately; blocking starts only when a session has selected sites or apps.";
+"settings_blocking_timer_only_hint" = "Timer-only sessions work immediately. In allowlist mode, an empty allowlist can still block known distracting sites.";
 
 // ============================================================
 // MARK: - Settings status copy

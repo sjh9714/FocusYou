@@ -81,6 +81,47 @@ final class AppStateLifecycleTests: XCTestCase {
         XCTAssertEqual(latest.blocklistMode, "allowlist")
     }
 
+    func testEmptyAllowlistPomodoroDeactivatesBlockingForBreakPhase() async throws {
+        let blockingCoordinator = MockBlockingCoordinator()
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+
+        await appState.startFocusSession(
+            duration: 120,
+            sites: [],
+            apps: [],
+            modelContext: modelContext,
+            mode: .pomodoro,
+            pomodoroConfiguration: PomodoroConfiguration(
+                focusMinutes: 1,
+                shortBreakMinutes: 1,
+                longBreakMinutes: 1,
+                cycles: 1
+            ),
+            blocklistMode: "allowlist"
+        )
+
+        XCTAssertTrue(appState.isBlockingActive)
+        let startedBlocking = await blockingCoordinator.isBlocking()
+        XCTAssertTrue(startedBlocking)
+
+        await appState.handlePomodoroPhaseCompletion()
+
+        XCTAssertFalse(appState.isBlockingActive)
+        XCTAssertEqual(appState.currentPomodoroPhase?.type, .longBreak)
+        let breakBlockingIdle = await blockingCoordinator.isIdle()
+        XCTAssertTrue(breakBlockingIdle)
+
+        let counts = await blockingCoordinator.callCounts()
+        XCTAssertEqual(counts.activate, 1)
+        XCTAssertEqual(counts.deactivate, 1)
+    }
+
     func testTerminationCleanupWaitsForBlockingAndFocusCleanupBeforeReturning() async {
         let events = CleanupEvents()
 
@@ -479,6 +520,20 @@ actor MockBlockingCoordinator: BlockingCoordinating {
             deactivate: deactivateCallCount,
             cleanup: emergencyCleanupCallCount
         )
+    }
+
+    func isBlocking() -> Bool {
+        if case .blocking = state {
+            return true
+        }
+        return false
+    }
+
+    func isIdle() -> Bool {
+        if case .idle = state {
+            return true
+        }
+        return false
     }
 
     func latestActivateArguments() -> (domains: [String], appBundleIds: [String], blocklistMode: String)? {
