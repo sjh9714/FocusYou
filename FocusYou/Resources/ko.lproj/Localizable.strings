@@ -227,7 +227,7 @@
 "settings_blocking_ne_description" = "macOS Network Extension을 통해 웹사이트를 차단합니다. 최초 설치 시 시스템 설정에서 승인이 필요합니다.";
 "settings_blocking_appstore_ne_locked" = "App Store 빌드에서는 Network Extension 차단만 사용합니다. 최초 사용 시 시스템 설정 승인이 필요합니다.";
 "settings_blocking_ne_active_hint" = "집중 세션 중 변경 시 다음 세션부터 적용됩니다.";
-"settings_blocking_timer_only_hint" = "타이머만 세션은 바로 사용할 수 있고, 선택한 사이트나 앱이 있는 세션에서만 차단이 시작됩니다.";
+"settings_blocking_timer_only_hint" = "타이머만 세션은 바로 사용할 수 있습니다. 허용 목록 모드에서는 비어 있는 허용 목록도 알려진 방해 사이트를 차단할 수 있습니다.";
 
 // ============================================================
 // MARK: - 설정 상태 문구

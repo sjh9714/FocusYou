@@ -20,6 +20,7 @@ All notable changes to this project are documented in this file.
 - StoreKit 상품 로딩을 단일 in-flight 요청으로 coalesce해 launch 직후 paywall의 구매 버튼 dead-end를 방지.
 - 구독 플랜 카드에 상품명, 가격, 기간, 갱신/평생 구매 문구를 명확히 표시하고 StoreKit에서 반환되지 않은 lifetime 상품은 표시하지 않도록 정리.
 - 종료 시 차단 cleanup과 Focus/DND cleanup을 함께 기다리도록 정리하고, 빈 allowlist도 차단 정책으로 일관되게 처리.
+- 빈 allowlist 뽀모도로 세션이 휴식 단계로 전환될 때 실제 차단도 함께 해제되도록 phase blocking 판정을 보정.
 - SwiftData 저장 문자열은 유지하면서 타이머/차단 모드 raw value 접근을 typed wrapper로 보강.
 
 ## [2.3.13] - 2026-05-06
