@@ -48,12 +48,12 @@ Focus You의 답: **타이머 시작 → 차단 자동 활성, 타이머 종료 
 ### 현재 프로젝트 현황 (스냅샷)
 
 ```
-버전: v2.3.3 (build 25)
-Swift 소스: 123 파일 | 테스트: 43 파일, 304 XCTest + 123 Swift Testing
-테마: 72개 (6 카테고리 × 12) | 로컬라이제이션: 한국어 + 영어
-위젯: 2개 (FocusStatus, Streak) | Shortcuts: 6개 인텐트
-Pro/Free 분리: LicenseManager + PaywallView + StoreKit 2 결제 완료
-빌드: xcodegen (project.yml) | Swift 6.0, macOS 14+
+기준: v2.3.13 maintenance baseline
+제품 방향: macOS 메뉴바 집중 루틴 앱. 시작 버튼 하나로 타이머, 웹/앱 차단, 세션 기록을 연결한다.
+브랜드 방향: 조용한 macOS 프리미엄 톤, crimson action color, deep green/blue support palette.
+차단 방향: 직접 배포는 hosts/helper 복구 경로를 유지하고, Mac App Store는 sandbox + Network Extension 경로로 분리한다.
+지원 방향: backup/import preview, diagnostics bundle, recovery wording으로 사용자가 데이터와 차단 상태를 직접 확인할 수 있게 한다.
+검증 방향: XcodeGen 프로젝트, XCTest 회귀 테스트, release preflight, 수동 QA 체크리스트를 함께 운용한다.
 ```
 
 ---

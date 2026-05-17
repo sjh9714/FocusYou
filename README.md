@@ -2,9 +2,15 @@
 
 Focus You는 집중 세션을 시작하는 동안 방해 웹사이트와 앱을 막고, 끝나면 차단을 해제하는 macOS 메뉴바 앱입니다. 단순한 타이머가 아니라 차단, 회고, 통계, 스케줄, 위젯을 한 흐름으로 묶어 “집중을 시작하고 마무리하는 루틴”을 만들도록 설계했습니다.
 
+![Focus You app icon](docs/media/app-icon-brand-preview.png)
+
 ## 문제 의식
 
 집중 앱은 타이머만 제공하면 실제 방해 요소를 막지 못하고, 차단 앱은 사용자가 왜 집중하려 했는지 기록하기 어렵습니다. Focus You는 세션 시작 전에 의도를 남기고, 세션 중에는 웹사이트와 앱을 차단하며, 종료 후에는 회고와 통계를 통해 다음 세션을 조정할 수 있게 합니다.
+
+## 포지셔닝
+
+Focus You는 “타이머를 누르면 차단도 같이 켜지고, 끝나면 자동으로 원복되는” 흐름에 집중합니다. 직접 배포 빌드는 고급 차단/복구 경로를 유지하고, Mac App Store 빌드는 sandbox와 Network Extension 경로에 맞춘 안전한 배포 모드로 준비합니다.
 
 ## 주요 기능
 
@@ -16,6 +22,18 @@ Focus You는 집중 세션을 시작하는 동안 방해 웹사이트와 앱을 
 - 일/주/월/연 단위 통계, 히트맵, CSV/JSON 내보내기
 - Apple Calendar 기록, Shortcuts/App Intents, WidgetKit 위젯, macOS Focus Mode 연동
 - 설정 백업, 가져오기 미리보기, 진단 로그 번들 생성
+
+## 미디어 준비
+
+현재 README에는 App Store 승인이나 출시 상태를 주장하지 않습니다. 제출용 스크린샷은 signed App Store 빌드에서 캡처한 뒤 아래 슬롯에 추가합니다.
+
+| 슬롯 | 캡처 대상 | 상태 |
+| --- | --- | --- |
+| App icon | `docs/media/app-icon-brand-preview.png` | 생성됨 |
+| Menu bar popover | 집중 시작 전 타이머 + 차단 요약 | 캡처 필요 |
+| Active session | 진행 링 + 차단 활성 상태 | 캡처 필요 |
+| Settings diagnostics | backup/import/diagnostic export controls | 캡처 필요 |
+| Paywall / subscription | StoreKit sandbox product metadata 반영 화면 | 캡처 필요 |
 
 ## 기술 스택
 

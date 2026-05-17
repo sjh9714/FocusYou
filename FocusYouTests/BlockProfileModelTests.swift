@@ -27,12 +27,24 @@ final class BlockProfileModelTests: XCTestCase {
 
         profile.timerMode = "free"
         XCTAssertEqual(profile.timerMode, "free")
+        XCTAssertEqual(profile.persistedTimerMode, .free)
 
         profile.timerMode = "pomodoro"
         XCTAssertEqual(profile.timerMode, "pomodoro")
+        XCTAssertEqual(profile.persistedTimerMode, .pomodoro)
 
         profile.timerMode = "flowmodoro"
         XCTAssertEqual(profile.timerMode, "flowmodoro")
+        XCTAssertEqual(profile.persistedTimerMode, .flowmodoro)
+    }
+
+    func testInvalidTimerModeFallsBackToFreeWithoutChangingStoredValue() {
+        let profile = BlockProfile(name: "Test")
+
+        profile.timerMode = "legacy-mode"
+
+        XCTAssertEqual(profile.timerMode, "legacy-mode")
+        XCTAssertEqual(profile.persistedTimerMode, .free)
     }
 
     func testBlockProfileCancelIntensityLevels() {
@@ -63,8 +75,19 @@ final class BlockProfileModelTests: XCTestCase {
         let profile = BlockProfile(name: "Test")
 
         XCTAssertEqual(profile.blocklistMode, "blocklist")
+        XCTAssertEqual(profile.persistedBlocklistMode, .blocklist)
 
         profile.blocklistMode = "allowlist"
         XCTAssertEqual(profile.blocklistMode, "allowlist")
+        XCTAssertEqual(profile.persistedBlocklistMode, .allowlist)
+    }
+
+    func testInvalidBlocklistModeFallsBackToBlocklistWithoutChangingStoredValue() {
+        let profile = BlockProfile(name: "Test")
+
+        profile.blocklistMode = "legacy-mode"
+
+        XCTAssertEqual(profile.blocklistMode, "legacy-mode")
+        XCTAssertEqual(profile.persistedBlocklistMode, .blocklist)
     }
 }

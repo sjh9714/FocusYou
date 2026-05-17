@@ -1,6 +1,26 @@
 import StoreKit
 import os
 
+actor SubscriptionProductLoadCoordinator<Element: Sendable> {
+    private var inFlightLoad: Task<[Element], Error>?
+
+    func load(
+        using loader: @Sendable @escaping () async throws -> [Element]
+    ) async throws -> [Element] {
+        if let inFlightLoad {
+            return try await inFlightLoad.value
+        }
+
+        let task = Task {
+            try await loader()
+        }
+        inFlightLoad = task
+        defer { inFlightLoad = nil }
+
+        return try await task.value
+    }
+}
+
 // MARK: - 구독 관리자 (v2.0)
 // StoreKit 2 API를 통한 인앱 구매/구독 관리
 
@@ -23,6 +43,8 @@ actor SubscriptionManager {
     /// 상품 로딩 중 여부
     private(set) var isLoading = false
 
+    private let productLoadCoordinator = SubscriptionProductLoadCoordinator<Product>()
+
     /// 트랜잭션 감시 Task
     private var updateListenerTask: Task<Void, Never>?
 
@@ -32,14 +54,13 @@ actor SubscriptionManager {
 
     /// App Store에서 상품 정보를 로드
     func loadProducts() async {
-        guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
 
         do {
-            let storeProducts = try await Product.products(
-                for: Constants.Subscription.allProductIDs
-            )
+            let storeProducts = try await productLoadCoordinator.load {
+                try await Product.products(for: Constants.Subscription.allProductIDs)
+            }
             // 월간 → 연간 → 평생 순서로 정렬
             products = storeProducts.sorted { lhs, rhs in
                 productSortOrder(lhs) < productSortOrder(rhs)

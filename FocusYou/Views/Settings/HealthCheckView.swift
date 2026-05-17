@@ -80,11 +80,21 @@ struct HealthCheckView: View {
                 Text("Network Extension 차단")
                     .font(.callout.weight(.medium))
 
-                Text(LocalizedStringKey(networkExtensionActive ? "활성 차단 중" : "비활성 (정상 대기)"))
+                Text(
+                    LocalizedStringKey(
+                        networkExtensionActive
+                            ? "상태: active"
+                            : "상태: needs approval"
+                    )
+                )
                     .font(.caption)
                     .foregroundStyle(networkExtensionActive ? themeManager.primary : .secondary)
 
-                Text(String(localized: "settings_blocking_appstore_ne_locked"))
+                Text(
+                    networkExtensionActive
+                        ? String(localized: "차단이 현재 활성화되어 있습니다.")
+                        : String(localized: "타이머만 세션은 바로 사용할 수 있고, 차단 세션은 첫 실행 전 macOS 승인이 필요합니다.")
+                )
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
@@ -154,9 +164,17 @@ struct HealthCheckView: View {
                 Text("hosts 파일 차단")
                     .font(.callout.weight(.medium))
 
-                Text(LocalizedStringKey(hostsBlockingActive ? "활성 차단 중" : "비활성 (정상 대기)"))
+                Text(LocalizedStringKey(hostsBlockingActive ? "상태: active" : "상태: ready"))
                     .font(.caption)
                     .foregroundStyle(hostsBlockingActive ? themeManager.primary : .secondary)
+
+                Text(
+                    hostsBlockingActive
+                        ? String(localized: "차단이 현재 활성화되어 있습니다.")
+                        : String(localized: "차단 대상이 없는 세션은 타이머만 실행됩니다.")
+                )
+                .font(.caption)
+                .foregroundStyle(.tertiary)
             }
 
             Spacer()
@@ -174,9 +192,13 @@ struct HealthCheckView: View {
                 Text("데이터 저장소")
                     .font(.callout.weight(.medium))
 
-                Text(dataStoreDiagnostics?.statusSummary ?? "진단 중...")
+                Text(LocalizedStringKey(dataStoreDiagnostics?.isHealthy == false ? "상태: error" : "상태: ready"))
                     .font(.caption)
                     .foregroundStyle(dataStoreDiagnostics?.isHealthy == false ? themeManager.stopButton : Color.secondary)
+
+                Text(dataStoreDiagnostics?.statusSummary ?? "진단 중...")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
 
                 if let status = dataToolState.status {
                     Divider()
@@ -321,7 +343,7 @@ struct HealthCheckView: View {
             )
             dataToolState.succeed(
                 .backup,
-                message: "백업 완료: \(result.backupDirectoryURL.path)",
+                message: "백업이 준비되었습니다.",
                 destinationURL: result.backupDirectoryURL
             )
             NSWorkspace.shared.activateFileViewerSelecting([result.backupDirectoryURL])
@@ -480,7 +502,7 @@ struct HealthCheckView: View {
             )
             dataToolState.succeed(
                 .supportDiagnostics,
-                message: "진단 로그 완료: \(result.bundleDirectoryURL.path)",
+                message: "진단 로그가 준비되었습니다.",
                 destinationURL: result.bundleDirectoryURL
             )
             NSWorkspace.shared.activateFileViewerSelecting([result.bundleDirectoryURL])

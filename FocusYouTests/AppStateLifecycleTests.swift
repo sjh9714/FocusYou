@@ -53,6 +53,55 @@ final class AppStateLifecycleTests: XCTestCase {
         XCTAssertEqual(counts.deactivate, 1)
     }
 
+    func testStartSessionWithEmptyAllowlistStillMarksBlockingActive() async throws {
+        let blockingCoordinator = MockBlockingCoordinator()
+        let appState = AppState(
+            blockingCoordinator: blockingCoordinator,
+            notificationService: MockNotificationService(),
+            shouldRequestNotificationPermission: false,
+            shouldRunStartupCleanup: false
+        )
+        let modelContext = try makeModelContext()
+
+        await appState.startFocusSession(
+            duration: 300,
+            sites: [],
+            apps: [],
+            modelContext: modelContext,
+            blocklistMode: "allowlist"
+        )
+
+        XCTAssertEqual(appState.focusState, .focusing)
+        XCTAssertTrue(appState.isBlockingActive)
+
+        let latestArguments = await blockingCoordinator.latestActivateArguments()
+        let latest = try XCTUnwrap(latestArguments)
+        XCTAssertEqual(latest.domains, [])
+        XCTAssertEqual(latest.appBundleIds, [])
+        XCTAssertEqual(latest.blocklistMode, "allowlist")
+    }
+
+    func testTerminationCleanupWaitsForBlockingAndFocusCleanupBeforeReturning() async {
+        let events = CleanupEvents()
+
+        let startedAt = Date()
+        await TerminationCleanupRunner.run(
+            timeoutNanoseconds: 500_000_000,
+            deactivateBlocking: {
+                await events.record(.blockingFinished)
+            },
+            deactivateFocusMode: {
+                try? await Task.sleep(nanoseconds: 60_000_000)
+                await events.record(.focusFinished)
+            }
+        )
+
+        let elapsed = Date().timeIntervalSince(startedAt)
+        let snapshot = await events.snapshot()
+        XCTAssertEqual(snapshot, [.blockingFinished, .focusFinished])
+        XCTAssertGreaterThanOrEqual(elapsed, 0.05)
+    }
+
     func testTimerCompletionTransitionsToCompletedAndCompletesSession() async throws {
         let blockingCoordinator = MockBlockingCoordinator()
         let notificationService = MockNotificationService()
@@ -356,6 +405,23 @@ final class AppStateLifecycleTests: XCTestCase {
     }
 }
 
+private actor CleanupEvents {
+    enum Event: Equatable {
+        case blockingFinished
+        case focusFinished
+    }
+
+    private var events: [Event] = []
+
+    func record(_ event: Event) {
+        events.append(event)
+    }
+
+    func snapshot() -> [Event] {
+        events
+    }
+}
+
 actor MockBlockingCoordinator: BlockingCoordinating {
     private(set) var state: BlockingCoordinator.State = .idle
     private(set) var activateCallCount = 0
@@ -367,17 +433,21 @@ actor MockBlockingCoordinator: BlockingCoordinating {
     private var emergencyCleanupResult: BlockingCoordinator.State = .idle
     private var lastActivateDomains: [String] = []
     private var lastActivateAppBundleIDs: [String] = []
+    private var lastActivateBlocklistMode = "blocklist"
 
     func activateBlocking(domains: [String], appBundleIds: [String], blocklistMode: String = "blocklist") async throws {
         activateCallCount += 1
         lastActivateDomains = domains
         lastActivateAppBundleIDs = appBundleIds.sorted()
+        lastActivateBlocklistMode = blocklistMode
         if let activateError {
             state = .error((activateError as? FocusYouError) ?? .hostsFileWriteFailed)
             throw activateError
         }
 
-        state = (domains.isEmpty && appBundleIds.isEmpty) ? .idle : .blocking
+        state = (domains.isEmpty && appBundleIds.isEmpty && blocklistMode != "allowlist")
+            ? .idle
+            : .blocking
     }
 
     func deactivateBlocking() async throws {
@@ -411,9 +481,13 @@ actor MockBlockingCoordinator: BlockingCoordinating {
         )
     }
 
-    func latestActivateArguments() -> (domains: [String], appBundleIds: [String])? {
+    func latestActivateArguments() -> (domains: [String], appBundleIds: [String], blocklistMode: String)? {
         guard activateCallCount > 0 else { return nil }
-        return (domains: lastActivateDomains, appBundleIds: lastActivateAppBundleIDs)
+        return (
+            domains: lastActivateDomains,
+            appBundleIds: lastActivateAppBundleIDs,
+            blocklistMode: lastActivateBlocklistMode
+        )
     }
 }
 

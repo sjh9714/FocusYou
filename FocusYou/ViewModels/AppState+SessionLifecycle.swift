@@ -37,7 +37,7 @@ extension AppState {
             logger.info("차단 대상: 사이트 \(targets.domains.count)개, 앱 \(targets.appBundleIds.count)개, 모드: \(targets.blocklistMode)")
 
             if !targets.hasBlockingTargets {
-                logger.warning("차단 목록이 비어있음 — 차단 없이 타이머만 시작")
+                logger.warning("차단 대상이 없어 차단 없이 타이머만 시작")
             }
 
             try await blockingCoordinator.activateBlocking(

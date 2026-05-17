@@ -94,6 +94,30 @@ struct DataToolActionStatus: Equatable, Identifiable {
         }
     }
 
+    var stateLabel: String {
+        switch phase {
+        case .running:
+            return String(localized: "상태: active")
+        case .success:
+            return String(localized: "상태: ready")
+        case .failure:
+            return String(localized: "상태: error")
+        }
+    }
+
+    var displayMessage: String {
+        guard let destinationPath,
+              message.contains(destinationPath) else {
+            return message
+        }
+
+        return String(localized: "작업이 완료되었습니다. 아래 버튼으로 위치를 열거나 경로를 복사하세요.")
+    }
+
+    var destinationDisplayName: String? {
+        destinationURL?.lastPathComponent
+    }
+
     static func running(_ action: Action) -> DataToolActionStatus {
         DataToolActionStatus(
             action: action,
@@ -180,13 +204,28 @@ struct DataToolActionStatusView: View {
                     .frame(width: 16)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(status.action.title)
-                        .font(.caption.weight(.medium))
+                    HStack(spacing: 6) {
+                        Text(status.action.title)
+                            .font(.caption.weight(.medium))
 
-                    Text(status.message)
+                        Text(status.stateLabel)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(status.tintColor)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(status.tintColor.opacity(0.1), in: Capsule())
+                    }
+
+                    Text(status.displayMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
+
+                    if let destinationDisplayName = status.destinationDisplayName {
+                        Label(destinationDisplayName, systemImage: "folder")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                    }
                 }
 
                 Spacer(minLength: 8)

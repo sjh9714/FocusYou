@@ -148,7 +148,6 @@
 		9FBA6B7F9999B5585AD53407 /* DisruptionTagPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF7C0621890D9B2BA1E1B867 /* DisruptionTagPicker.swift */; };
 		A003A7E88CA82606276028A1 /* OnboardingWelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8102D337C08B0D73BB98938B /* OnboardingWelcomeStepView.swift */; };
 		A059B2E892ECF9804A1AB69A /* BlockListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFB979A2095AD7B207769A /* BlockListViewModelTests.swift */; };
-		A127D2B5607C121F4EA6C38D /* FocusYou.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8BEC784CCCAF57AEECBF97ED /* FocusYou.storekit */; };
 		A1CD44CBCECD8B3786872211 /* SessionProgressEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445FEA587FB6FACC22488B2C /* SessionProgressEvaluator.swift */; };
 		A28F81171494CDC91C5E8071 /* DashboardRecentSessionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17EF1530A9E5E293E37F683F /* DashboardRecentSessionsView.swift */; };
 		A3E73C30EC933E3803D3588F /* TimePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F012D7DE692D155A9D7DD4 /* TimePickerView.swift */; };
@@ -423,7 +422,6 @@
 		8831925CD44138368484F680 /* BadgeGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeGalleryView.swift; sourceTree = "<group>"; };
 		899E6A3F5837C6A86AB39F80 /* ProfileBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBootstrapper.swift; sourceTree = "<group>"; };
 		8B18D5DD185752CC322ECABF /* FocusYouTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusYouTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		8BEC784CCCAF57AEECBF97ED /* FocusYou.storekit */ = {isa = PBXFileReference; path = FocusYou.storekit; sourceTree = "<group>"; };
 		8DB4C1B387452451633A4970 /* CancelIntensityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelIntensityTests.swift; sourceTree = "<group>"; };
 		91B73E45F668260BB9B96443 /* SharedDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataProvider.swift; sourceTree = "<group>"; };
 		923F7679B21AE4E12016F775 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
@@ -1064,7 +1062,6 @@
 			isa = PBXGroup;
 			children = (
 				9CAB90BC89992273FD36466F /* FocusYou.entitlements */,
-				8BEC784CCCAF57AEECBF97ED /* FocusYou.storekit */,
 				03355D227440BC47048DC646 /* FocusYouApp.swift */,
 				1977FE164F916B07EB54C8C8 /* FocusYouAppStore.entitlements */,
 				19EFD7C4D56E6CE75BDABEED /* Extensions */,
@@ -1262,7 +1259,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				65FBB5EEECD9E840423E5BEF /* Assets.xcassets in Resources */,
-				A127D2B5607C121F4EA6C38D /* FocusYou.storekit in Resources */,
 				30C0FF65BD1F205F44A5892A /* Localizable.strings in Resources */,
 				3680066DEF9CC6C18360208C /* Quotes.json in Resources */,
 				1BB0F58FE6391E2EBF22F1CD /* ThemeCatalog.json in Resources */,
@@ -1745,7 +1741,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;
@@ -1859,7 +1855,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;
@@ -1992,7 +1988,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_LANGUAGE = ko;
 				DEVELOPMENT_TEAM = 9VRNY5PMG3;

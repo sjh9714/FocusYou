@@ -62,7 +62,7 @@ struct OnboardingBlockStepView: View {
                 .font(.title2.bold())
                 .multilineTextAlignment(.center)
 
-            Text("집중을 방해하는 카테고리를 선택하면\n관련 웹사이트와 앱이 자동으로 추가됩니다")
+            Text("선택하면 차단 활성, 선택하지 않으면 타이머만 실행됩니다")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -201,9 +201,9 @@ struct OnboardingBlockStepView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             } else {
-                Text("카테고리를 선택하지 않아도 진행할 수 있습니다")
+                Label("타이머만 사용: 차단 대상이 없어도 진행할 수 있습니다", systemImage: "timer")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
         }
         .animation(.quickEase, value: sites.count)
@@ -221,13 +221,13 @@ struct OnboardingBlockStepView: View {
                 .secondaryActionStyle(color: .secondary)
 
                 Button(action: onNext) {
-                    Text(appliedCategories.isEmpty ? "건너뛰기" : "다음")
+                    Text(appliedCategories.isEmpty ? "타이머만 계속" : "다음")
                 }
                 .primaryActionStyle(color: themeManager.primary)
             }
 
             Button(action: onSkip) {
-                Text("건너뛰기")
+                Text("설정 건너뛰고 타이머만 사용")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

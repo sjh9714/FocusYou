@@ -3,7 +3,7 @@ import NetworkExtension
 import os
 
 // MARK: - 차단 통합 코디네이터
-// 웹사이트 차단 + 앱 차단을 통합 관리하는 중앙 오케스트레이터
+// 웹사이트 차단 + 앱 차단을 통합 관리하는 중앙 오케스트레이터입니다.
 
 protocol BlockingCoordinating: Sendable {
     var state: BlockingCoordinator.State { get async }
@@ -65,6 +65,8 @@ actor BlockingCoordinator {
         appBundleIds: [String],
         blocklistMode: String = "blocklist"
     ) async throws {
+        let mode = PersistedBlocklistMode(storedValue: blocklistMode)
+
         // idle 또는 error 상태에서만 활성화 허용 (error 복구 포함)
         switch state {
         case .idle, .error:
@@ -74,9 +76,9 @@ actor BlockingCoordinator {
             throw FocusYouError.blockingAlreadyActive
         }
 
-        logger.info("차단 활성화 시작: 사이트 \(domains.count)개, 앱 \(appBundleIds.count)개, 모드: \(blocklistMode)")
+        logger.info("차단 활성화 시작: 사이트 \(domains.count)개, 앱 \(appBundleIds.count)개, 모드: \(mode.rawValue)")
 
-        guard !domains.isEmpty || !appBundleIds.isEmpty else {
+        guard mode.hasBlockingTargets(domains: domains, appBundleIds: appBundleIds) else {
             logger.info("차단 대상이 없어 활성화 건너뜀")
             isWebsiteBlockingActive = false
             isAppBlockingActive = false
@@ -88,17 +90,15 @@ actor BlockingCoordinator {
         isAppBlockingActive = false
 
         // 웹사이트 차단
-        if !domains.isEmpty || blocklistMode == "allowlist" {
+        if !domains.isEmpty || mode == .allowlist {
             do {
-                if blocklistMode == "allowlist" {
-                    // 화이트리스트 모드: top-sites에서 허용 도메인 제외 후 나머지 차단
+                if mode == .allowlist {
+                    // Allowlist mode blocks known distracting sites except explicitly allowed domains.
                     let topSites = loadTopSites()
                     let allowedSet = Set(domains.map { $0.lowercased() })
                     let domainsToBlock = topSites.filter { !allowedSet.contains($0.lowercased()) }
-                    if !domainsToBlock.isEmpty {
-                        try await websiteBlocker.activate(domains: domainsToBlock)
-                        isWebsiteBlockingActive = true
-                    }
+                    try await websiteBlocker.activate(domains: domainsToBlock)
+                    isWebsiteBlockingActive = true
                 } else {
                     try await websiteBlocker.activate(domains: domains)
                     isWebsiteBlockingActive = true

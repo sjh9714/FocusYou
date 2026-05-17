@@ -28,6 +28,10 @@ struct DashboardActiveHeroView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Label(blockingActivityText, systemImage: appState.isBlockingActive ? "checkmark.shield.fill" : "timer")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(appState.isBlockingActive ? themeManager.primary : .secondary)
+
                 if let intention = appState.currentSession?.intention, !intention.isEmpty {
                     HStack(spacing: 4) {
                         Image(systemName: "target")
@@ -112,6 +116,12 @@ struct DashboardActiveHeroView: View {
         if settingsViewModel.showMotivationQuotes, let quote = focusQuote {
             quoteCard(quote)
         }
+    }
+
+    private var blockingActivityText: String {
+        appState.isBlockingActive
+            ? String(localized: "차단 활성")
+            : String(localized: "타이머만 실행 중")
     }
 
     // MARK: - 동기부여 명언

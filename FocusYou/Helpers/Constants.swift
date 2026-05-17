@@ -442,6 +442,10 @@ enum Constants {
 
         // Subscription Group
         static let subscriptionGroupID = "focusyou_pro"
+
+        // App Review required subscription links
+        static let privacyPolicyURL = "https://raw.githubusercontent.com/jinhyuk9714/FocusYou/main/docs/privacy-policy.md"
+        static let termsOfUseURL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
     }
 
     // MARK: - 카테고리

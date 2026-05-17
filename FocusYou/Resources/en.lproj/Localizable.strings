@@ -306,21 +306,54 @@
 
 "Focus You에 오신 걸\n환영합니다" = "Welcome to\nFocus You";
 "방해 요소를 차단하고\n집중에만 몰입하세요" = "Block distractions and\nimmerse yourself in focus";
+"25분 타이머로 바로 시작하고\n필요할 때 차단을 켜세요" = "Start with a 25-minute timer\nand turn on blocking when needed";
 "타이머 시작 = 차단 시작" = "Start timer = Start blocking";
+"타이머만 사용 가능" = "Timer only is available";
+"차단 대상을 고르지 않아도 세션을 시작할 수 있어요" = "You can start a session without choosing blocking targets";
 "원클릭으로 집중 모드 진입" = "One-click focus mode entry";
 "웹사이트 & 앱 차단" = "Block websites & apps";
 "SNS, 뉴스, 동영상을 한 번에 차단" = "Block SNS, news, videos all at once";
+"차단은 승인 후 활성화" = "Blocking activates after approval";
+"첫 차단 세션 전에 macOS에서 Network Extension 승인이 필요해요" = "macOS Network Extension approval is required before the first blocking session";
+"선택한 사이트와 앱이 있을 때만 차단이 활성화돼요" = "Blocking activates only when selected sites or apps exist";
 "집중 습관 추적" = "Track focus habits";
 "일일 통계와 연속 집중 기록" = "Daily stats and streak tracking";
 "시작하기" = "Get Started";
 "차단할 사이트/앱을\n선택하세요" = "Select sites/apps\nto block";
 "집중을 방해하는 카테고리를 선택하면\n관련 웹사이트와 앱이 자동으로 추가됩니다" = "Select categories that distract you\nRelated websites and apps will be added automatically";
+"선택하면 차단 활성, 선택하지 않으면 타이머만 실행됩니다" = "Select targets for active blocking, or skip them for timer only";
 "카테고리를 선택하지 않아도 진행할 수 있습니다" = "You can proceed without selecting categories";
+"타이머만 사용: 차단 대상이 없어도 진행할 수 있습니다" = "Timer only: you can continue without blocking targets";
+"타이머만 계속" = "Continue timer only";
+"설정 건너뛰고 타이머만 사용" = "Skip setup and use timer only";
 "준비 완료" = "Ready";
 "준비 완료!" = "All Set!";
 "첫 집중 세션을 시작해보세요" = "Start your first focus session";
+"대시보드에서 25분 집중을 바로 시작할 수 있어요" = "You can start a 25-minute focus session from the dashboard";
 "메뉴바 아이콘을 클릭하면 빠르게 타이머를 시작할 수 있어요" = "Click the menu bar icon to quickly start a timer";
+"차단 대상이 없으면 세션은 타이머만 실행됩니다" = "Without blocking targets, sessions run timer only";
+"차단을 쓰려면 첫 세션 전에 macOS Network Extension 승인이 필요해요" = "To use blocking, approve the macOS Network Extension before the first session";
 "차단 목록은 언제든 설정에서 수정할 수 있어요" = "You can modify the block list anytime in settings";
+
+// ============================================================
+// MARK: - 대시보드 첫 시작 (Dashboard First Start)
+// ============================================================
+
+"25분 집중" = "25-minute focus";
+"가장 빠른 시작입니다. 세부 모드와 시간은 커스터마이즈에서 바꿀 수 있어요." = "This is the fastest start. Change modes and duration in Customize.";
+"25분 집중 시작" = "Start 25-minute focus";
+"25분 타이머 시작" = "Start 25-minute timer";
+"차단 활성 준비" = "Blocking ready";
+"타이머만 실행" = "Timer only";
+"%d개 사이트 · %d개 앱" = "%d sites · %d apps";
+"차단 예정. 첫 차단 세션 전 macOS Network Extension 승인이 필요합니다." = "Blocking queued. macOS Network Extension approval is required before the first blocking session.";
+"차단 예정. 세션 시작 시 차단이 활성화됩니다." = "Blocking queued. Blocking activates when the session starts.";
+"허용 목록 모드입니다. 비어 있는 허용 목록은 알려진 방해 사이트를 차단합니다." = "Allowlist mode is on. An empty allowlist blocks known distracting sites.";
+"차단 대상이 없어서 세션은 기록과 타이머만 실행합니다." = "No blocking targets selected, so this session will run timer and tracking only.";
+"커스터마이즈" = "Customize";
+"고급 컨트롤" = "Advanced controls";
+"타이머만 실행 중" = "Timer only active";
+"차단 활성" = "Blocking active";
 
 // ============================================================
 // MARK: - Private Relay 경고
@@ -348,6 +381,33 @@
 "Pro로 업그레이드하면\n사용할 수 있습니다." = "Available with\nPro upgrade.";
 
 // Paywall reasons
+"paywall_reason_website_limit_format" = "Free version can block up to %d sites.";
+"paywall_reason_app_limit_format" = "Free version can block up to %d apps.";
+"paywall_reason_profile_limit_format" = "Free version supports %d profile.";
+"paywall_reason_timer_limit_format" = "Free version supports timers up to %d hours.";
+"paywall_reason_theme_limit_format" = "%d+ themes are available in Pro.";
+"paywall_reason_stats_limit" = "Monthly/yearly stats are available in Pro.";
+"paywall_reason_retrospect_limit" = "Detailed retrospect is available in Pro.";
+"paywall_feature_overflow" = "Overflow mode is a Pro feature.";
+"paywall_feature_schedule" = "Auto schedule is a Pro feature.";
+"paywall_feature_keyword_blocking" = "Keyword blocking is a Pro feature.";
+"paywall_feature_allowlist_mode" = "Allowlist mode is a Pro feature.";
+"paywall_feature_hardcore_mode" = "Hardcore mode is a Pro feature.";
+"paywall_feature_focus_mode" = "Focus Mode integration is a Pro feature.";
+"paywall_feature_shortcuts" = "Shortcuts automation is a Pro feature.";
+"paywall_feature_calendar_sync" = "Calendar sync is a Pro feature.";
+"paywall_feature_data_export" = "Data export is a Pro feature.";
+"paywall_feature_unlimited_blocks" = "Unlimited blocking is a Pro feature.";
+"paywall_feature_unlimited_timer" = "Unlimited timer is a Pro feature.";
+"paywall_feature_unlimited_profiles" = "Unlimited profiles are a Pro feature.";
+"paywall_feature_premium_themes" = "Premium themes are a Pro feature.";
+"paywall_feature_advanced_stats" = "Advanced stats are a Pro feature.";
+"paywall_feature_advanced_retrospect" = "Detailed retrospect is a Pro feature.";
+"paywall_feature_intention_input" = "Intention input is a Pro feature.";
+"paywall_feature_motivation_quotes" = "Motivational quotes are a Pro feature.";
+"paywall_feature_retrospect" = "Retrospect is a Pro feature.";
+"paywall_feature_burnout_warnings" = "Burnout prevention is a Pro feature.";
+"paywall_feature_network_extension" = "Network Extension blocking is a Pro feature.";
 "무료 버전은 최대 10개의 사이트를 차단할 수 있습니다." = "Free version can block up to 10 sites.";
 "무료 버전은 최대 5개의 앱을 차단할 수 있습니다." = "Free version can block up to 5 apps.";
 "무료 버전은 1개의 프로필을 사용할 수 있습니다." = "Free version supports 1 profile.";
@@ -627,11 +687,27 @@
 
 "settings_blocking_strategy" = "Blocking Method";
 "settings_blocking_hosts" = "hosts file (requires admin)";
-"settings_blocking_ne" = "Network Extension (no admin needed)";
+"settings_blocking_ne" = "Network Extension (macOS approval)";
 "settings_blocking_hosts_description" = "Blocks websites by modifying the /etc/hosts file. Requires administrator password.";
 "settings_blocking_ne_description" = "Blocks websites via macOS Network Extension. Requires approval in System Settings on first install.";
 "settings_blocking_appstore_ne_locked" = "App Store builds use Network Extension blocking only. System Settings approval is required the first time it is enabled.";
 "settings_blocking_ne_active_hint" = "Changes during a focus session take effect after the session ends.";
+"settings_blocking_timer_only_hint" = "Timer-only sessions work immediately; blocking starts only when a session has selected sites or apps.";
+
+// ============================================================
+// MARK: - Settings status copy
+// ============================================================
+
+"상태: active" = "Status: active";
+"상태: ready" = "Status: ready";
+"상태: needs approval" = "Status: needs approval";
+"상태: error" = "Status: error";
+"작업이 완료되었습니다. 아래 버튼으로 위치를 열거나 경로를 복사하세요." = "Done. Use the buttons below to reveal the location or copy the path.";
+"차단이 현재 활성화되어 있습니다." = "Blocking is currently active.";
+"타이머만 세션은 바로 사용할 수 있고, 차단 세션은 첫 실행 전 macOS 승인이 필요합니다." = "Timer-only sessions are available immediately; blocking sessions need macOS approval before the first run.";
+"차단 대상이 없는 세션은 타이머만 실행됩니다." = "Sessions without blocking targets run timer only.";
+"백업이 준비되었습니다." = "Backup is ready.";
+"진단 로그가 준비되었습니다." = "Diagnostics log is ready.";
 
 // ============================================================
 // MARK: - CalendarSyncService
@@ -819,6 +895,17 @@
 "subscription_restore" = "Restore Purchases";
 "subscription_restore_success" = "Purchases restored successfully.";
 "subscription_restore_no_purchases" = "No purchases to restore.";
+"subscription_loading_products" = "Loading purchase options...";
+"subscription_products_unavailable" = "Purchase options are not available yet. Please try again from the App Store build or use Restore Purchases.";
+"subscription_retry_loading" = "Retry";
+"subscription_buy_button %@" = "Buy for %@";
+"subscription_launch_discount_format" = "Launch offer: 50%% off (regular %@/year)";
+"subscription_monthly_disclosure" = "Renews monthly until canceled.";
+"subscription_annual_disclosure" = "Renews yearly until canceled.";
+"subscription_lifetime_disclosure" = "One-time purchase. No renewal.";
+"subscription_legal_notice" = "Monthly and annual subscriptions renew automatically until canceled. Lifetime is a one-time purchase. Payment and cancellation are handled by Apple.";
+"subscription_privacy_policy" = "Privacy Policy";
+"subscription_terms_of_use" = "Terms of Use (EULA)";
 "subscription_purchase_error %@" = "Purchase error: %@";
 "error_subscription_verification_failed" = "Purchase verification failed.";
 "error_subscription_product_not_found" = "Product not found.";
