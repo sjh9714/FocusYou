@@ -7,16 +7,21 @@ Focus You has two distribution paths:
 
 The App Store build must not use `/etc/hosts`, `/usr/local/bin/focusyou-helper`, sudo prompts, administrator AppleScript, or LaunchAgent recovery. Website blocking for App Store review must use the Network Extension/System Extension path only.
 
-## Current Review Blockers
+## Current Submission Status
 
-Resolve these before selecting a build for review:
+- App Store Connect app: `Focus You` (`6766774684`)
+- Uploaded build: `2.3.13` (`38`) for `MAC_OS`
+- Upload time: `2026-05-17 15:38 KST`
+- Upload result: `Upload succeeded`; App Store Connect reported the uploaded package as processing.
+- Build upload ID: `de235db9-e995-47be-8e13-89188135840a`
+- Team: `9VRNY5PMG3`
 
-- App Store Connect subscription products need complete metadata: product IDs, display names, durations, localized descriptions, pricing, subscription group, screenshot if requested, and review notes explaining the Pro gates.
-- StoreKit sandbox QA must cover purchase, restore, cancellation/expiration behavior, and unavailable product loading before review.
-- App Store screenshots must be captured from the signed App Store build, not the direct DMG build.
-- Public legal/support URLs must be reachable without authentication.
-- App Review notes must state that the App Store build does not modify `/etc/hosts`, install helpers, or request administrator privileges.
-- A signed archive/export must be inspected for sandbox, App Group, Network Extension, file access, and calendar entitlements.
+Before App Review submission, finish these App Store Connect UI tasks:
+
+- Wait for build `2.3.13 (38)` to finish processing and enable it for TestFlight.
+- Run the TestFlight smoke checklist below with a clean tester account.
+- Upload Korean and English screenshots captured from the App Store/TestFlight build.
+- Confirm App Store Connect subscription metadata and sandbox purchase/restore behavior for the submitted products.
 
 ## Build Modes
 
@@ -76,14 +81,33 @@ Keep the App Store Connect macOS version aligned with `MARKETING_VERSION` from `
 ## Required App Store Connect Metadata
 
 - App name: `Focus You`
-- Subtitle: `Block Distractions & Focus Timer`
+- Subtitle: `Focus Timer & Site Blocker`
 - Category: Productivity
 - Privacy policy URL: `https://github.com/jinhyuk9714/FocusYou/blob/main/docs/privacy-policy.md`
-- Support URL: public project support page or repository issues/contact page before submission
-- Copyright owner and age rating metadata
-- Screenshots from the App Store build for menu bar, active session, settings/diagnostics, and subscription flow
-- Subscription product IDs exactly matching `FocusYou/FocusYou.storekit` and App Store Connect
+- Support URL: `https://github.com/jinhyuk9714/FocusYou/issues`
+- Terms of Use (EULA): `https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+- Category: Productivity
+- Copyright owner and age rating metadata in App Store Connect account settings
+- Screenshots from the App Store/TestFlight build for onboarding, dashboard, active session, diagnostics/data tools, and subscription flow
+- Subscription product IDs exactly matching `FocusYou/FocusYou.storekit` and App Store Connect:
+  - `com.sungjh.focusyou.pro.monthly` — Focus You Pro Monthly — recurring monthly subscription
+  - `com.sungjh.focusyou.pro.annual` — Focus You Pro Annual — recurring annual subscription
+  - `com.sungjh.focusyou.pro.lifetime` — Focus You Pro Lifetime — non-consumable; hidden by the app unless App Store Connect returns the product
 - Review notes with Network Extension purpose, optional Calendar purpose, file access purpose, and subscription restore path
+
+Paste-ready Korean and English metadata is in `docs/app-store-metadata.md`.
+
+## Screenshot Set
+
+Use `2880x1800` PNG screenshots when possible. Capture each slot in Korean and English from the App Store/TestFlight build, not the direct DMG build.
+
+| Slot | Required view | Notes |
+| --- | --- | --- |
+| 1 | First launch / onboarding | Shows timer-only path and Network Extension approval expectation |
+| 2 | Dashboard idle | Shows primary 25-minute focus action and calm premium layout |
+| 3 | Active focus session | Shows timer ring, blocking status, pause/stop controls |
+| 4 | Settings > Diagnostics | Shows backup, preview/import, diagnostics export without helper/hosts UI |
+| 5 | Paywall | Shows monthly/annual plans, price/period disclosure, restore and legal links |
 
 ## App Review Notes Template
 
@@ -100,7 +124,11 @@ File access:
 User Selected File read/write is used only for explicit user actions in Settings > Diagnostics: data backup, diagnostic bundle export, backup preview, and selected backup import.
 
 Subscriptions:
-The app includes Pro subscription gates. The Restore Purchases control is available in the subscription/paywall flow. Subscription product IDs and durations are configured in App Store Connect and StoreKit sandbox before review.
+The app includes Pro subscription gates. The Restore Purchases control is available in the subscription/paywall flow. Submitted product IDs are:
+- com.sungjh.focusyou.pro.monthly: monthly auto-renewable subscription
+- com.sungjh.focusyou.pro.annual: annual auto-renewable subscription
+
+The lifetime product com.sungjh.focusyou.pro.lifetime is hidden unless App Store Connect returns the product, so unapproved lifetime metadata is not required for this review build.
 
 Review path:
 1. Launch Focus You.
@@ -114,7 +142,7 @@ Review path:
 9. Open the subscription flow, start a sandbox purchase, and verify Restore Purchases.
 ```
 
-Add sandbox tester details, temporary review credentials if any, and exact subscription product IDs before submission.
+No account is required to use the core timer. Add sandbox tester details only if App Review needs a dedicated purchase test account for the subscription flow.
 
 ## TestFlight And Sandbox QA Checklist
 
