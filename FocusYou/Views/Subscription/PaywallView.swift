@@ -13,6 +13,8 @@ struct PaywallView: View {
 
     @State private var products: [Product] = []
     @State private var isPurchasing = false
+    @State private var isLoadingProducts = false
+    @State private var didAttemptProductLoad = false
     @State private var selectedProduct: Product?
     @State private var errorMessage: String?
 
@@ -25,10 +27,18 @@ struct PaywallView: View {
                     selectedProduct: $selectedProduct
                 )
                 actionSection
+                legalSection
             }
             .padding(Constants.Design.spacingXL)
         }
-        .frame(minWidth: 360, maxWidth: 360, minHeight: 480, maxHeight: 600)
+        .frame(
+            minWidth: 380,
+            idealWidth: 420,
+            maxWidth: 520,
+            minHeight: 520,
+            idealHeight: 620,
+            maxHeight: 720
+        )
         .task {
             await loadProducts()
         }
@@ -42,21 +52,35 @@ struct PaywallView: View {
                 ProgressView()
                     .controlSize(.regular)
                     .padding(.vertical, Constants.Design.spacingSM)
+            } else if isLoadingProducts {
+                ProgressView(String(localized: "subscription_loading_products"))
+                    .controlSize(.regular)
+                    .padding(.vertical, Constants.Design.spacingSM)
+            } else if products.isEmpty {
+                Button {
+                    Task { await loadProducts() }
+                } label: {
+                    Label(
+                        String(localized: "subscription_retry_loading"),
+                        systemImage: "arrow.clockwise"
+                    )
+                }
+                .secondaryActionStyle(color: themeManager.primary)
             } else {
                 Button {
                     Task { await purchaseSelected() }
                 } label: {
                     if let selected = selectedProduct {
                         Label(
-                            String(localized: "subscription_purchase_button \(selected.displayPrice)"),
+                            purchaseButtonTitle(for: selected),
                             systemImage: "crown.fill"
                         )
                     } else {
-                        Label("Pro로 업그레이드", systemImage: "crown.fill")
+                        Label(String(localized: "Pro로 업그레이드"), systemImage: "crown.fill")
                     }
                 }
                 .primaryActionStyle(color: themeManager.primary)
-                .disabled(selectedProduct == nil)
+                .disabled(selectedProduct == nil || products.isEmpty)
             }
 
             Button {
@@ -73,7 +97,7 @@ struct PaywallView: View {
                     .multilineTextAlignment(.center)
             }
 
-            Button("닫기") {
+            Button(String(localized: "닫기")) {
                 dismiss()
             }
             .buttonStyle(.plain)
@@ -82,16 +106,65 @@ struct PaywallView: View {
         }
     }
 
+    private var legalSection: some View {
+        VStack(spacing: Constants.Design.spacingXS) {
+            Text(String(localized: "subscription_legal_notice"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            HStack(spacing: Constants.Design.spacingSM) {
+                if let privacyURL = URL(string: Constants.Subscription.privacyPolicyURL) {
+                    Link(
+                        String(localized: "subscription_privacy_policy"),
+                        destination: privacyURL
+                    )
+                }
+
+                Text("·")
+                    .foregroundStyle(.tertiary)
+
+                if let termsURL = URL(string: Constants.Subscription.termsOfUseURL) {
+                    Link(
+                        String(localized: "subscription_terms_of_use"),
+                        destination: termsURL
+                    )
+                }
+            }
+            .font(.caption)
+        }
+    }
+
     // MARK: - 헬퍼
 
     private func loadProducts() async {
+        isLoadingProducts = true
+        didAttemptProductLoad = true
+        errorMessage = nil
+
         await SubscriptionManager.shared.loadProducts()
         products = await SubscriptionManager.shared.products
-        selectedProduct = products.first { $0.id == Constants.Subscription.annualProductID }
+        selectedProduct = if products.isEmpty {
+            nil
+        } else {
+            products.first { $0.id == Constants.Subscription.annualProductID }
+                ?? products.first
+        }
+
+        if products.isEmpty {
+            errorMessage = String(localized: "subscription_products_unavailable")
+        }
+
+        isLoadingProducts = false
     }
 
     private func purchaseSelected() async {
-        guard let selected = selectedProduct else { return }
+        guard let selected = selectedProduct else {
+            errorMessage = didAttemptProductLoad
+                ? String(localized: "subscription_products_unavailable")
+                : String(localized: "subscription_loading_products")
+            return
+        }
         isPurchasing = true
         errorMessage = nil
 
@@ -125,6 +198,14 @@ struct PaywallView: View {
 
         isPurchasing = false
     }
+
+    private func purchaseButtonTitle(for product: Product) -> String {
+        if product.id == Constants.Subscription.lifetimeProductID {
+            return String(localized: "subscription_buy_button \(product.displayPrice)")
+        }
+
+        return String(localized: "subscription_purchase_button \(product.displayPrice)")
+    }
 }
 
 // MARK: - 페이월 트리거 이유
@@ -142,46 +223,65 @@ enum PaywallReason {
     var message: String {
         switch self {
         case .websiteLimit:
-            return "무료 버전은 최대 \(Constants.Subscription.freeWebsiteLimit)개의 사이트를 차단할 수 있습니다."
+            return Self.localizedFormat(
+                "paywall_reason_website_limit_format",
+                Constants.Subscription.freeWebsiteLimit
+            )
         case .appLimit:
-            return "무료 버전은 최대 \(Constants.Subscription.freeAppLimit)개의 앱을 차단할 수 있습니다."
+            return Self.localizedFormat(
+                "paywall_reason_app_limit_format",
+                Constants.Subscription.freeAppLimit
+            )
         case .profileLimit:
-            return "무료 버전은 \(Constants.Subscription.freeProfileLimit)개의 프로필을 사용할 수 있습니다."
+            return Self.localizedFormat(
+                "paywall_reason_profile_limit_format",
+                Constants.Subscription.freeProfileLimit
+            )
         case .timerLimit:
-            return "무료 버전은 최대 \(Constants.Subscription.freeTimerMaxMinutes / 60)시간 타이머를 사용할 수 있습니다."
+            return Self.localizedFormat(
+                "paywall_reason_timer_limit_format",
+                Constants.Subscription.freeTimerMaxMinutes / 60
+            )
         case .themeLimit:
-            return "\(Constants.Subscription.freeThemeLimit)개 이상의 테마는 Pro에서 사용할 수 있습니다."
+            return Self.localizedFormat(
+                "paywall_reason_theme_limit_format",
+                Constants.Subscription.freeThemeLimit
+            )
         case .statsLimit:
-            return "월간/연간 통계는 Pro에서 확인할 수 있습니다."
+            return String(localized: "paywall_reason_stats_limit")
         case .retrospectLimit:
-            return "상세 회고 기능은 Pro에서 사용할 수 있습니다."
+            return String(localized: "paywall_reason_retrospect_limit")
         case .proFeature(let feature):
             return proFeatureMessage(feature)
         }
     }
 
+    private static func localizedFormat(_ key: String, _ value: Int) -> String {
+        String(format: String(localized: String.LocalizationValue(key)), value)
+    }
+
     private func proFeatureMessage(_ feature: LicenseManager.ProFeature) -> String {
         switch feature {
-        case .overflow: return "Overflow 모드는 Pro 기능입니다."
-        case .schedule: return "자동 스케줄은 Pro 기능입니다."
-        case .keywordBlocking: return "키워드 차단은 Pro 기능입니다."
-        case .allowlistMode: return "화이트리스트 모드는 Pro 기능입니다."
-        case .hardcoreMode: return "하드코어 모드는 Pro 기능입니다."
-        case .focusModeIntegration: return "Focus Mode 연동은 Pro 기능입니다."
-        case .shortcuts: return "Shortcuts 자동화는 Pro 기능입니다."
-        case .calendarSync: return "캘린더 동기화는 Pro 기능입니다."
-        case .dataExport: return "데이터 내보내기는 Pro 기능입니다."
-        case .unlimitedBlocks: return "무제한 차단은 Pro 기능입니다."
-        case .unlimitedTimer: return "무제한 타이머는 Pro 기능입니다."
-        case .unlimitedProfiles: return "무제한 프로필은 Pro 기능입니다."
-        case .premiumThemes: return "프리미엄 테마는 Pro 기능입니다."
-        case .advancedStats: return "고급 통계는 Pro 기능입니다."
-        case .advancedRetrospect: return "상세 회고는 Pro 기능입니다."
-        case .intentionInput: return "의도 입력은 Pro 기능입니다."
-        case .motivationQuotes: return "동기부여 명언은 Pro 기능입니다."
-        case .retrospect: return "회고 기능은 Pro 기능입니다."
-        case .burnoutWarnings: return "번아웃 방지는 Pro 기능입니다."
-        case .networkExtension: return "Network Extension 차단은 Pro 기능입니다."
+        case .overflow: return String(localized: "paywall_feature_overflow")
+        case .schedule: return String(localized: "paywall_feature_schedule")
+        case .keywordBlocking: return String(localized: "paywall_feature_keyword_blocking")
+        case .allowlistMode: return String(localized: "paywall_feature_allowlist_mode")
+        case .hardcoreMode: return String(localized: "paywall_feature_hardcore_mode")
+        case .focusModeIntegration: return String(localized: "paywall_feature_focus_mode")
+        case .shortcuts: return String(localized: "paywall_feature_shortcuts")
+        case .calendarSync: return String(localized: "paywall_feature_calendar_sync")
+        case .dataExport: return String(localized: "paywall_feature_data_export")
+        case .unlimitedBlocks: return String(localized: "paywall_feature_unlimited_blocks")
+        case .unlimitedTimer: return String(localized: "paywall_feature_unlimited_timer")
+        case .unlimitedProfiles: return String(localized: "paywall_feature_unlimited_profiles")
+        case .premiumThemes: return String(localized: "paywall_feature_premium_themes")
+        case .advancedStats: return String(localized: "paywall_feature_advanced_stats")
+        case .advancedRetrospect: return String(localized: "paywall_feature_advanced_retrospect")
+        case .intentionInput: return String(localized: "paywall_feature_intention_input")
+        case .motivationQuotes: return String(localized: "paywall_feature_motivation_quotes")
+        case .retrospect: return String(localized: "paywall_feature_retrospect")
+        case .burnoutWarnings: return String(localized: "paywall_feature_burnout_warnings")
+        case .networkExtension: return String(localized: "paywall_feature_network_extension")
         }
     }
 }

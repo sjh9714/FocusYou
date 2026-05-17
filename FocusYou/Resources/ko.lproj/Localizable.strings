@@ -184,16 +184,65 @@
 "error_ne_deactivation_failed" = "Network Extension 비활성화에 실패했습니다.";
 
 // ============================================================
+// MARK: - 온보딩 / 대시보드 첫 시작
+// ============================================================
+
+"25분 타이머로 바로 시작하고\n필요할 때 차단을 켜세요" = "25분 타이머로 바로 시작하고\n필요할 때 차단을 켜세요";
+"타이머만 사용 가능" = "타이머만 사용 가능";
+"차단 대상을 고르지 않아도 세션을 시작할 수 있어요" = "차단 대상을 고르지 않아도 세션을 시작할 수 있어요";
+"차단은 승인 후 활성화" = "차단은 승인 후 활성화";
+"첫 차단 세션 전에 macOS에서 Network Extension 승인이 필요해요" = "첫 차단 세션 전에 macOS에서 Network Extension 승인이 필요해요";
+"선택한 사이트와 앱이 있을 때만 차단이 활성화돼요" = "선택한 사이트와 앱이 있을 때만 차단이 활성화돼요";
+"선택하면 차단 활성, 선택하지 않으면 타이머만 실행됩니다" = "선택하면 차단 활성, 선택하지 않으면 타이머만 실행됩니다";
+"타이머만 사용: 차단 대상이 없어도 진행할 수 있습니다" = "타이머만 사용: 차단 대상이 없어도 진행할 수 있습니다";
+"타이머만 계속" = "타이머만 계속";
+"설정 건너뛰고 타이머만 사용" = "설정 건너뛰고 타이머만 사용";
+"대시보드에서 25분 집중을 바로 시작할 수 있어요" = "대시보드에서 25분 집중을 바로 시작할 수 있어요";
+"차단 대상이 없으면 세션은 타이머만 실행됩니다" = "차단 대상이 없으면 세션은 타이머만 실행됩니다";
+"차단을 쓰려면 첫 세션 전에 macOS Network Extension 승인이 필요해요" = "차단을 쓰려면 첫 세션 전에 macOS Network Extension 승인이 필요해요";
+"25분 집중" = "25분 집중";
+"가장 빠른 시작입니다. 세부 모드와 시간은 커스터마이즈에서 바꿀 수 있어요." = "가장 빠른 시작입니다. 세부 모드와 시간은 커스터마이즈에서 바꿀 수 있어요.";
+"25분 집중 시작" = "25분 집중 시작";
+"25분 타이머 시작" = "25분 타이머 시작";
+"차단 활성 준비" = "차단 활성 준비";
+"타이머만 실행" = "타이머만 실행";
+"%d개 사이트 · %d개 앱" = "%d개 사이트 · %d개 앱";
+"차단 예정. 첫 차단 세션 전 macOS Network Extension 승인이 필요합니다." = "차단 예정. 첫 차단 세션 전 macOS Network Extension 승인이 필요합니다.";
+"차단 예정. 세션 시작 시 차단이 활성화됩니다." = "차단 예정. 세션 시작 시 차단이 활성화됩니다.";
+"허용 목록 모드입니다. 비어 있는 허용 목록은 알려진 방해 사이트를 차단합니다." = "허용 목록 모드입니다. 비어 있는 허용 목록은 알려진 방해 사이트를 차단합니다.";
+"차단 대상이 없어서 세션은 기록과 타이머만 실행합니다." = "차단 대상이 없어서 세션은 기록과 타이머만 실행합니다.";
+"커스터마이즈" = "커스터마이즈";
+"고급 컨트롤" = "고급 컨트롤";
+"타이머만 실행 중" = "타이머만 실행 중";
+"차단 활성" = "차단 활성";
+
+// ============================================================
 // MARK: - 차단 전략 설정 (v2.0)
 // ============================================================
 
 "settings_blocking_strategy" = "차단 방식";
 "settings_blocking_hosts" = "hosts 파일 (관리자 권한 필요)";
-"settings_blocking_ne" = "Network Extension (권한 불필요)";
+"settings_blocking_ne" = "Network Extension (macOS 승인 필요)";
 "settings_blocking_hosts_description" = "/etc/hosts 파일을 수정하여 웹사이트를 차단합니다. 관리자 비밀번호가 필요합니다.";
 "settings_blocking_ne_description" = "macOS Network Extension을 통해 웹사이트를 차단합니다. 최초 설치 시 시스템 설정에서 승인이 필요합니다.";
 "settings_blocking_appstore_ne_locked" = "App Store 빌드에서는 Network Extension 차단만 사용합니다. 최초 사용 시 시스템 설정 승인이 필요합니다.";
 "settings_blocking_ne_active_hint" = "집중 세션 중 변경 시 다음 세션부터 적용됩니다.";
+"settings_blocking_timer_only_hint" = "타이머만 세션은 바로 사용할 수 있고, 선택한 사이트나 앱이 있는 세션에서만 차단이 시작됩니다.";
+
+// ============================================================
+// MARK: - 설정 상태 문구
+// ============================================================
+
+"상태: active" = "상태: active";
+"상태: ready" = "상태: ready";
+"상태: needs approval" = "상태: needs approval";
+"상태: error" = "상태: error";
+"작업이 완료되었습니다. 아래 버튼으로 위치를 열거나 경로를 복사하세요." = "작업이 완료되었습니다. 아래 버튼으로 위치를 열거나 경로를 복사하세요.";
+"차단이 현재 활성화되어 있습니다." = "차단이 현재 활성화되어 있습니다.";
+"타이머만 세션은 바로 사용할 수 있고, 차단 세션은 첫 실행 전 macOS 승인이 필요합니다." = "타이머만 세션은 바로 사용할 수 있고, 차단 세션은 첫 실행 전 macOS 승인이 필요합니다.";
+"차단 대상이 없는 세션은 타이머만 실행됩니다." = "차단 대상이 없는 세션은 타이머만 실행됩니다.";
+"백업이 준비되었습니다." = "백업이 준비되었습니다.";
+"진단 로그가 준비되었습니다." = "진단 로그가 준비되었습니다.";
 
 // ============================================================
 // MARK: - CalendarSyncService
@@ -226,6 +275,44 @@
 "subscription_restore" = "구매 복원";
 "subscription_restore_success" = "구매가 복원되었습니다.";
 "subscription_restore_no_purchases" = "복원할 구매 내역이 없습니다.";
+"subscription_loading_products" = "구매 옵션을 불러오는 중...";
+"subscription_products_unavailable" = "아직 구매 옵션을 사용할 수 없습니다. App Store 빌드에서 다시 시도하거나 구매 복원을 사용해 주세요.";
+"subscription_retry_loading" = "다시 시도";
+"subscription_buy_button %@" = "%@에 구매하기";
+"subscription_launch_discount_format" = "출시 기념 50%% 할인 (정가 %@/년)";
+"subscription_monthly_disclosure" = "취소 전까지 매월 자동 갱신됩니다.";
+"subscription_annual_disclosure" = "취소 전까지 매년 자동 갱신됩니다.";
+"subscription_lifetime_disclosure" = "1회 구매이며 자동 갱신되지 않습니다.";
+"subscription_legal_notice" = "월간 및 연간 구독은 취소 전까지 자동 갱신됩니다. 평생 이용권은 1회 구매입니다. 결제와 취소는 Apple에서 처리합니다.";
+"subscription_privacy_policy" = "개인정보 처리방침";
+"subscription_terms_of_use" = "이용 약관(EULA)";
 "subscription_purchase_error %@" = "구매 오류: %@";
+"paywall_reason_website_limit_format" = "무료 버전은 최대 %d개의 사이트를 차단할 수 있습니다.";
+"paywall_reason_app_limit_format" = "무료 버전은 최대 %d개의 앱을 차단할 수 있습니다.";
+"paywall_reason_profile_limit_format" = "무료 버전은 %d개의 프로필을 사용할 수 있습니다.";
+"paywall_reason_timer_limit_format" = "무료 버전은 최대 %d시간 타이머를 사용할 수 있습니다.";
+"paywall_reason_theme_limit_format" = "%d개 이상의 테마는 Pro에서 사용할 수 있습니다.";
+"paywall_reason_stats_limit" = "월간/연간 통계는 Pro에서 확인할 수 있습니다.";
+"paywall_reason_retrospect_limit" = "상세 회고 기능은 Pro에서 사용할 수 있습니다.";
+"paywall_feature_overflow" = "Overflow 모드는 Pro 기능입니다.";
+"paywall_feature_schedule" = "자동 스케줄은 Pro 기능입니다.";
+"paywall_feature_keyword_blocking" = "키워드 차단은 Pro 기능입니다.";
+"paywall_feature_allowlist_mode" = "화이트리스트 모드는 Pro 기능입니다.";
+"paywall_feature_hardcore_mode" = "하드코어 모드는 Pro 기능입니다.";
+"paywall_feature_focus_mode" = "Focus Mode 연동은 Pro 기능입니다.";
+"paywall_feature_shortcuts" = "Shortcuts 자동화는 Pro 기능입니다.";
+"paywall_feature_calendar_sync" = "캘린더 동기화는 Pro 기능입니다.";
+"paywall_feature_data_export" = "데이터 내보내기는 Pro 기능입니다.";
+"paywall_feature_unlimited_blocks" = "무제한 차단은 Pro 기능입니다.";
+"paywall_feature_unlimited_timer" = "무제한 타이머는 Pro 기능입니다.";
+"paywall_feature_unlimited_profiles" = "무제한 프로필은 Pro 기능입니다.";
+"paywall_feature_premium_themes" = "프리미엄 테마는 Pro 기능입니다.";
+"paywall_feature_advanced_stats" = "고급 통계는 Pro 기능입니다.";
+"paywall_feature_advanced_retrospect" = "상세 회고는 Pro 기능입니다.";
+"paywall_feature_intention_input" = "의도 입력은 Pro 기능입니다.";
+"paywall_feature_motivation_quotes" = "동기부여 명언은 Pro 기능입니다.";
+"paywall_feature_retrospect" = "회고 기능은 Pro 기능입니다.";
+"paywall_feature_burnout_warnings" = "번아웃 방지는 Pro 기능입니다.";
+"paywall_feature_network_extension" = "Network Extension 차단은 Pro 기능입니다.";
 "error_subscription_verification_failed" = "구매 검증에 실패했습니다.";
 "error_subscription_product_not_found" = "상품을 찾을 수 없습니다.";

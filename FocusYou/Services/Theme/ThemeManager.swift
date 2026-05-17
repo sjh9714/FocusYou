@@ -2,7 +2,7 @@ import SwiftUI
 import os
 
 // MARK: - 테마 관리자
-// v0.5 테마 카탈로그 로드 + 사용자 선택 저장
+// 테마 카탈로그 로드 + 사용자 선택 저장
 
 @MainActor
 @Observable
@@ -124,12 +124,12 @@ final class ThemeManager {
         selectedThemeID = id
     }
 
-    /// Pro 제한 시 무료 테마만 반환 (v2.0)
+    /// Pro 제한 시 무료 테마만 반환
     var freeThemes: [AppTheme] {
         Array(availableThemes.prefix(Constants.Subscription.freeThemeLimit))
     }
 
-    /// 특정 테마가 무료인지 확인 (v2.0)
+    /// 특정 테마가 무료인지 확인
     func isThemeFree(_ theme: AppTheme) -> Bool {
         guard let index = availableThemes.firstIndex(where: { $0.id == theme.id }) else {
             return false
@@ -174,10 +174,11 @@ final class ThemeManager {
     private static let fallbackTheme = AppTheme(
         id: "crimson-focus",
         name: "Crimson Focus",
-        primaryHex: "#E63946",
-        secondaryHex: "#2D6A4F",
-        accentHex: "#457B9D",
-        stopHex: "#D62828",
-        backgroundHex: "#F7F9FC"
+        primaryHex: "#B91C2F",
+        secondaryHex: "#145C4A",
+        accentHex: "#1F5F85",
+        stopHex: "#A31621",
+        backgroundHex: "#F7FAFC",
+        backgroundDarkHex: "#111820"
     )
 }

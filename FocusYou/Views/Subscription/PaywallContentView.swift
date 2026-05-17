@@ -49,7 +49,7 @@ struct PaywallContentView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Constants.Design.cornerLG))
     }
 
-    private func featureRow(icon: String, text: String) -> some View {
+    private func featureRow(icon: String, text: LocalizedStringKey) -> some View {
         HStack(spacing: Constants.Design.spacingMD) {
             Image(systemName: icon)
                 .font(.system(size: Constants.Design.iconSM))
@@ -64,51 +64,52 @@ struct PaywallContentView: View {
     // MARK: - 가격
 
     private var pricingSection: some View {
-        VStack(spacing: Constants.Design.spacingXS) {
-            HStack(spacing: Constants.Design.spacingSM) {
-                if let annual = product(for: Constants.Subscription.annualProductID) {
-                    pricingBadge(
-                        product: annual,
-                        period: String(localized: "subscription_period_year"),
-                        highlight: selectedProduct?.id == annual.id
-                    )
-                    .onTapGesture { selectedProduct = annual }
-                } else {
-                    pricingBadgeFallback(
-                        price: Constants.Subscription.annualDiscountPrice,
-                        period: String(localized: "subscription_period_year"),
-                        highlight: true
-                    )
+        let visibleProductIDs = PaywallPlanPresentation.visibleProductIDs(
+            from: products.map(\.id)
+        )
+
+        return VStack(spacing: Constants.Design.spacingXS) {
+            if visibleProductIDs.isEmpty {
+                Text(String(localized: "subscription_products_unavailable"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, Constants.Design.spacingSM)
+            } else {
+                HStack(spacing: Constants.Design.spacingSM) {
+                    if let annual = product(for: Constants.Subscription.annualProductID) {
+                        pricingButton(
+                            product: annual,
+                            period: String(localized: "subscription_period_year")
+                        )
+                    }
+
+                    if let monthly = product(for: Constants.Subscription.monthlyProductID) {
+                        pricingButton(
+                            product: monthly,
+                            period: String(localized: "subscription_period_month")
+                        )
+                    }
                 }
 
-                if let monthly = product(for: Constants.Subscription.monthlyProductID) {
-                    pricingBadge(
-                        product: monthly,
-                        period: String(localized: "subscription_period_month"),
-                        highlight: selectedProduct?.id == monthly.id
-                    )
-                    .onTapGesture { selectedProduct = monthly }
-                } else {
-                    pricingBadgeFallback(
-                        price: Constants.Subscription.monthlyPrice,
-                        period: String(localized: "subscription_period_month"),
-                        highlight: false
+                if let lifetime = product(for: Constants.Subscription.lifetimeProductID) {
+                    pricingButton(
+                        product: lifetime,
+                        period: String(localized: "subscription_period_lifetime")
                     )
                 }
             }
 
-            if let lifetime = product(for: Constants.Subscription.lifetimeProductID) {
-                pricingBadge(
-                    product: lifetime,
-                    period: String(localized: "subscription_period_lifetime"),
-                    highlight: selectedProduct?.id == lifetime.id
+            if product(for: Constants.Subscription.annualProductID) != nil {
+                Text(
+                    String(
+                        format: String(localized: "subscription_launch_discount_format"),
+                        Constants.Subscription.annualPrice
+                    )
                 )
-                .onTapGesture { selectedProduct = lifetime }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-
-            Text("출시 기념 50% 할인 (정가 \(Constants.Subscription.annualPrice)/년)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
     }
 
@@ -118,16 +119,51 @@ struct PaywallContentView: View {
         products.first { $0.id == id }
     }
 
-    private func pricingBadge(product: Product, period: String, highlight: Bool) -> some View {
-        VStack(spacing: 2) {
+    private func pricingButton(product: Product, period: String) -> some View {
+        let disclosure = String(
+            localized: String.LocalizationValue(
+                PaywallPlanPresentation.renewalDisclosureKey(for: product.id)
+            )
+        )
+
+        return Button {
+            selectedProduct = product
+        } label: {
+            pricingBadge(
+                product: product,
+                period: period,
+                disclosure: disclosure,
+                highlight: selectedProduct?.id == product.id
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(product.displayName), \(product.displayPrice) \(period). \(disclosure)")
+    }
+
+    private func pricingBadge(
+        product: Product,
+        period: String,
+        disclosure: String,
+        highlight: Bool
+    ) -> some View {
+        VStack(spacing: 4) {
+            Text(product.displayName)
+                .font(.callout.bold())
+                .multilineTextAlignment(.center)
             Text(product.displayPrice)
                 .font(.title3.bold())
             Text(period)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Text(disclosure)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Constants.Design.spacingMD)
+        .padding(.horizontal, Constants.Design.spacingXS)
         .background(
             highlight
                 ? AnyShapeStyle(themeManager.primary.opacity(0.1))
@@ -142,30 +178,30 @@ struct PaywallContentView: View {
                 )
         )
     }
+}
 
-    private func pricingBadgeFallback(price: String, period: String, highlight: Bool) -> some View {
-        VStack(spacing: 2) {
-            Text(price)
-                .font(.title3.bold())
-            Text(period)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+enum PaywallPlanPresentation {
+    private static let displayOrder = [
+        Constants.Subscription.annualProductID,
+        Constants.Subscription.monthlyProductID,
+        Constants.Subscription.lifetimeProductID,
+    ]
+
+    static func visibleProductIDs<S: Sequence>(from productIDs: S) -> [String]
+    where S.Element == String {
+        let returnedProductIDs = Set(productIDs)
+        return displayOrder.filter { returnedProductIDs.contains($0) }
+    }
+
+    static func renewalDisclosureKey(for productID: String) -> String {
+        switch productID {
+        case Constants.Subscription.lifetimeProductID:
+            return "subscription_lifetime_disclosure"
+        case Constants.Subscription.annualProductID:
+            return "subscription_annual_disclosure"
+        default:
+            return "subscription_monthly_disclosure"
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Constants.Design.spacingMD)
-        .background(
-            highlight
-                ? AnyShapeStyle(themeManager.primary.opacity(0.1))
-                : AnyShapeStyle(Color.secondary.opacity(0.06)),
-            in: RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
-                .stroke(
-                    highlight ? themeManager.primary.opacity(0.3) : Color.clear,
-                    lineWidth: 1
-                )
-        )
     }
 }
 

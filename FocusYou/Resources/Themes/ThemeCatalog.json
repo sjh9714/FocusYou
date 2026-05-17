@@ -2,12 +2,12 @@
   {
     "id": "crimson-focus",
     "name": "Crimson Focus",
-    "primaryHex": "#E63946",
-    "secondaryHex": "#2D6A4F",
-    "accentHex": "#457B9D",
-    "stopHex": "#D62828",
-    "backgroundHex": "#F7F9FC",
-    "backgroundDarkHex": "#1C1C1E",
+    "primaryHex": "#B91C2F",
+    "secondaryHex": "#145C4A",
+    "accentHex": "#1F5F85",
+    "stopHex": "#A31621",
+    "backgroundHex": "#F7FAFC",
+    "backgroundDarkHex": "#111820",
     "category": "따뜻한"
   },
   {

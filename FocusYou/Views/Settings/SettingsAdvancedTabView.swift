@@ -49,6 +49,10 @@ struct SettingsAdvancedTabView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+            Label(String(localized: "settings_blocking_timer_only_hint"), systemImage: "timer")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
             Text(String(localized: "settings_blocking_ne_active_hint"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -87,11 +91,19 @@ struct SettingsAdvancedTabView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Label(String(localized: "settings_blocking_timer_only_hint"), systemImage: "timer")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 Text(String(localized: "settings_blocking_ne_active_hint"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
                 Text(String(localized: "settings_blocking_hosts_description"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Label(String(localized: "settings_blocking_timer_only_hint"), systemImage: "timer")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

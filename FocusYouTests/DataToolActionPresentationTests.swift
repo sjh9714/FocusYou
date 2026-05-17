@@ -59,4 +59,22 @@ struct DataToolActionPresentationTests {
         #expect(!failure.canOpenDestination)
         #expect(failure.destinationPath == nil)
     }
+
+    @Test("status phases expose plain-language state labels")
+    func statusPhasesExposePlainLanguageStateLabels() {
+        let running = DataToolActionStatus.running(.supportDiagnostics)
+        let success = DataToolActionStatus.success(
+            .backup,
+            message: "백업 완료",
+            destinationURL: URL(fileURLWithPath: "/tmp/FocusYouBackup")
+        )
+        let failure = DataToolActionStatus.failure(
+            .importSettings,
+            message: "백업 가져오기 실패"
+        )
+
+        #expect(running.stateLabel == String(localized: "상태: active"))
+        #expect(success.stateLabel == String(localized: "상태: ready"))
+        #expect(failure.stateLabel == String(localized: "상태: error"))
+    }
 }

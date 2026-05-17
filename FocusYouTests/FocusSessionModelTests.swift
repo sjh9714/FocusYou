@@ -24,7 +24,15 @@ final class FocusSessionModelTests: XCTestCase {
         let session = FocusSession(timerMode: "pomodoro", plannedDuration: 1500)
 
         XCTAssertEqual(session.timerMode, "pomodoro")
+        XCTAssertEqual(session.persistedTimerMode, .pomodoro)
         XCTAssertEqual(session.plannedDuration, 1500)
+    }
+
+    func testInvalidTimerModeFallsBackToFreeWithoutChangingStoredValue() {
+        let session = FocusSession(timerMode: "legacy-mode")
+
+        XCTAssertEqual(session.timerMode, "legacy-mode")
+        XCTAssertEqual(session.persistedTimerMode, .free)
     }
 
     func testCompleteMarksSessionAsCompleted() {

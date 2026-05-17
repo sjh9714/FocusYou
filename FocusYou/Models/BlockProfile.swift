@@ -2,8 +2,6 @@ import Foundation
 import SwiftData
 
 // MARK: - 차단 프로필 모델
-// v0.1에서는 기본 프로필 1개만 사용
-// v0.5에서 다중 프로필 지원 예정
 
 @Model
 final class BlockProfile {
@@ -45,9 +43,6 @@ final class BlockProfile {
     /// 생성 일시
     var createdAt: Date
 
-    // MARK: - v1.3 고급 차단 + 취소 강도
-    // Optional로 선언하여 기존 데이터 lightweight migration 지원
-
     /// 차단 모드: "blocklist" (기본) 또는 "allowlist"
     var blocklistMode: String?
 
@@ -60,6 +55,16 @@ final class BlockProfile {
     /// 연결된 스케줄 목록
     @Relationship(deleteRule: .cascade, inverse: \BlockSchedule.profile)
     var schedules: [BlockSchedule]
+
+    var persistedTimerMode: PersistedTimerMode {
+        get { PersistedTimerMode(storedValue: timerMode) }
+        set { timerMode = newValue.rawValue }
+    }
+
+    var persistedBlocklistMode: PersistedBlocklistMode {
+        get { PersistedBlocklistMode(storedValue: blocklistMode) }
+        set { blocklistMode = newValue.rawValue }
+    }
 
     init(
         name: String,
@@ -97,5 +102,33 @@ final class BlockProfile {
             profile.isDefault = false
         }
         self.isDefault = true
+    }
+}
+
+enum PersistedTimerMode: String, Sendable {
+    case free
+    case pomodoro
+    case flowmodoro
+
+    init(storedValue: String?) {
+        self = storedValue.flatMap(Self.init(rawValue:)) ?? .free
+    }
+}
+
+enum PersistedBlocklistMode: String, Sendable {
+    case blocklist
+    case allowlist
+
+    init(storedValue: String?) {
+        self = storedValue.flatMap(Self.init(rawValue:)) ?? .blocklist
+    }
+
+    func hasBlockingTargets(domains: [String], appBundleIds: [String]) -> Bool {
+        switch self {
+        case .blocklist:
+            return !domains.isEmpty || !appBundleIds.isEmpty
+        case .allowlist:
+            return true
+        }
     }
 }

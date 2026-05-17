@@ -26,6 +26,29 @@ final class BlockingCoordinatorTests: XCTestCase {
         XCTAssertTrue(snapshot.active)
     }
 
+    func testActivateBlockingWithEmptyAllowlistStillActivatesWebsiteBlocking() async throws {
+        let websiteBlocker = MockWebsiteBlocker()
+        let coordinator = BlockingCoordinator(
+            websiteBlocker: websiteBlocker,
+            managesSafetyNet: false
+        )
+
+        try await coordinator.activateBlocking(
+            domains: [],
+            appBundleIds: [],
+            blocklistMode: "allowlist"
+        )
+
+        let state = await coordinator.state
+        guard case .blocking = state else {
+            return XCTFail("Expected allowlist mode to enter blocking state even with no allowed domains")
+        }
+
+        let snapshot = await websiteBlocker.snapshot()
+        XCTAssertEqual(snapshot.activateCallDomains.count, 1)
+        XCTAssertTrue(snapshot.active)
+    }
+
     func testDeactivateBlockingReturnsIdleAfterWebsiteCleanup() async throws {
         let websiteBlocker = MockWebsiteBlocker()
         let coordinator = BlockingCoordinator(

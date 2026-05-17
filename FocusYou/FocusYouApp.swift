@@ -66,12 +66,12 @@ struct FocusYouApp: App {
                         modelContext: modelContainer.mainContext
                     )
 
-                    // StoreKit 2 초기화 (v2.0)
+                    // StoreKit entitlements and product metadata are loaded once at bootstrap.
                     await SubscriptionManager.shared.refreshEntitlements()
                     await SubscriptionManager.shared.loadProducts()
                     await SubscriptionManager.shared.listenForTransactionUpdates()
 
-                    // 스케줄 매니저 설정 + 모니터링 시작 (v1.3)
+                    // Schedule monitoring must share the app's main model context.
                     ScheduleManager.shared.configure(
                         modelContext: modelContainer.mainContext,
                         appState: appState
@@ -316,28 +316,59 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Constants.App.terminationCleanupTimeoutSeconds * 1_000_000_000
         )
 
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask {
+        await TerminationCleanupRunner.run(
+            timeoutNanoseconds: timeoutNanoseconds,
+            deactivateBlocking: {
                 do {
                     try await BlockingCoordinator.shared.deactivateBlocking()
                 } catch {
                     logger.error("앱 종료 시 차단 정리 실패: \(error.localizedDescription)")
                 }
-            }
-
-            group.addTask {
+            },
+            deactivateFocusMode: {
                 await FocusModeController.shared.deactivateDND()
             }
-
-            group.addTask {
-                try? await Task.sleep(nanoseconds: timeoutNanoseconds)
-            }
-
-            _ = await group.next()
-            group.cancelAll()
-        }
+        )
 
         isTerminationCleanupInProgress = false
         NSApp.reply(toApplicationShouldTerminate: true)
+    }
+}
+
+enum TerminationCleanupRunner {
+    static func run(
+        timeoutNanoseconds: UInt64,
+        deactivateBlocking: @escaping @Sendable () async -> Void,
+        deactivateFocusMode: @escaping @Sendable () async -> Void
+    ) async {
+        let cleanupTask = Task {
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    await deactivateBlocking()
+                }
+                group.addTask {
+                    await deactivateFocusMode()
+                }
+                await group.waitForAll()
+            }
+        }
+
+        let timeoutTask = Task {
+            try? await Task.sleep(nanoseconds: timeoutNanoseconds)
+        }
+
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await cleanupTask.value
+            }
+            group.addTask {
+                await timeoutTask.value
+            }
+
+            _ = await group.next()
+            cleanupTask.cancel()
+            timeoutTask.cancel()
+            group.cancelAll()
+        }
     }
 }

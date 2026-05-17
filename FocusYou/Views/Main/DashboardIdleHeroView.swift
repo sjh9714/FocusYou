@@ -25,7 +25,15 @@ struct DashboardIdleHeroView: View {
     @State private var showIntentionInput = false
     @State private var intentionText = ""
     @State private var showPaywall = false
+    @State private var showCustomize = false
+    @State private var showAdvancedControls = false
+    @State private var pendingStartAction: PendingStartAction = .primary25
     @Namespace private var modeNamespace
+
+    private enum PendingStartAction {
+        case primary25
+        case custom
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Constants.Design.spacingLG) {
@@ -33,58 +41,158 @@ struct DashboardIdleHeroView: View {
                 scheduleRejoinBanner(rejoinInfo)
             }
 
-            HStack(spacing: Constants.Design.spacingSM) {
-                IconBadge(systemName: "bolt.fill", color: themeManager.primary, size: 36)
-                Text("새 세션 시작")
-                    .font(.headline)
-            }
-
-            profilePicker
-
-            modePicker
-
-            switch quickStartMode {
-            case .free:
-                freeTimerConfig
-            case .pomodoro:
-                pomodoroTimerConfig
-            case .flowmodoro:
-                flowmodoroConfig
-            }
-
-            HStack(spacing: Constants.Design.spacingMD) {
-                Label("\(activeSites.count)개 사이트", systemImage: "globe")
-                Label("\(activeApps.count)개 앱", systemImage: "app.fill")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity)
-
-            cancelIntensityPicker
+            primaryStartSection
+            blockingReadinessRow
+            customizationSection
 
             if showIntentionInput {
                 intentionInputSection
-            } else {
-                Button {
-                    if settingsViewModel.showIntentionInput {
-                        showIntentionInput = true
-                    } else {
-                        startSession(intention: nil)
-                    }
-                } label: {
-                    Label(startButtonTitle, systemImage: "bolt.fill")
-                }
-                .primaryActionStyle(color: themeManager.startButton)
-                .disabled(isSessionActionInFlight || activeProfile == nil)
             }
         }
         .frostedCard()
         .animation(.mediumEase, value: showIntentionInput)
+        .animation(.mediumEase, value: showCustomize)
+        .animation(.mediumEase, value: showAdvancedControls)
         .onAppear { loadProfileTimerSettings() }
         .onChange(of: appState.activeProfileID) { _, _ in loadProfileTimerSettings() }
         .sheet(isPresented: $showPaywall) {
             PaywallView(reason: .timerLimit)
                 .environment(themeManager)
+        }
+    }
+
+    // MARK: - 25분 기본 시작
+
+    private var primaryStartSection: some View {
+        HStack(alignment: .center, spacing: Constants.Design.spacingXL) {
+            VStack(alignment: .leading, spacing: Constants.Design.spacingSM) {
+                HStack(spacing: Constants.Design.spacingSM) {
+                    IconBadge(systemName: "bolt.fill", color: themeManager.primary, size: 36)
+                    Text("25분 집중")
+                        .font(.headline)
+                }
+
+                Text("가장 빠른 시작입니다. 세부 모드와 시간은 커스터마이즈에서 바꿀 수 있어요.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Text(TimeInterval(25 * 60).formattedAsTimer)
+                .font(.system(size: 42, weight: .ultraLight, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(themeManager.primary)
+
+            Button {
+                beginStart(.primary25)
+            } label: {
+                Label(primaryStartButtonTitle, systemImage: "play.fill")
+            }
+            .primaryActionStyle(color: themeManager.startButton)
+            .disabled(isSessionActionInFlight || activeProfile == nil)
+            .frame(width: 190)
+        }
+    }
+
+    private var primaryStartButtonTitle: String {
+        hasBlockingTargets ? String(localized: "25분 집중 시작") : String(localized: "25분 타이머 시작")
+    }
+
+    // MARK: - 차단 준비 상태
+
+    private var blockingReadinessRow: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingXS) {
+            Label(blockingReadinessTitle, systemImage: hasBlockingTargets ? "checkmark.shield.fill" : "timer")
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(hasBlockingTargets ? themeManager.primary : .secondary)
+
+            Text(blockingReadinessDetail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(Constants.Design.spacingMD)
+        .background(
+            (hasBlockingTargets ? themeManager.primary : Color.secondary).opacity(0.06),
+            in: RoundedRectangle(cornerRadius: Constants.Design.cornerMD)
+        )
+    }
+
+    private var blockingReadinessTitle: String {
+        hasBlockingTargets
+            ? String(localized: "차단 활성 준비")
+            : String(localized: "타이머만 실행")
+    }
+
+    private var blockingReadinessDetail: String {
+        if hasBlockingTargets {
+            if PersistedBlocklistMode(storedValue: blocklistMode) == .allowlist,
+               activeSites.isEmpty,
+               activeApps.isEmpty {
+                return String(localized: "허용 목록 모드입니다. 비어 있는 허용 목록은 알려진 방해 사이트를 차단합니다.")
+            }
+
+            let countText = String(
+                format: String(localized: "%d개 사이트 · %d개 앱"),
+                activeSites.count,
+                activeApps.count
+            )
+            if Constants.Distribution.isAppStoreBuild {
+                return countText + " " + String(localized: "차단 예정. 첫 차단 세션 전 macOS Network Extension 승인이 필요합니다.")
+            }
+            return countText + " " + String(localized: "차단 예정. 세션 시작 시 차단이 활성화됩니다.")
+        }
+
+        return String(localized: "차단 대상이 없어서 세션은 기록과 타이머만 실행합니다.")
+    }
+
+    private var hasBlockingTargets: Bool {
+        PersistedBlocklistMode(storedValue: blocklistMode).hasBlockingTargets(
+            domains: activeSites.map(\.domain),
+            appBundleIds: activeApps.map(\.bundleId)
+        )
+    }
+
+    // MARK: - 커스터마이즈
+
+    private var customizationSection: some View {
+        VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
+            DisclosureGroup(isExpanded: $showCustomize) {
+                VStack(alignment: .leading, spacing: Constants.Design.spacingMD) {
+                    profilePicker
+                    modePicker
+
+                    switch quickStartMode {
+                    case .free:
+                        freeTimerConfig
+                    case .pomodoro:
+                        pomodoroTimerConfig
+                    case .flowmodoro:
+                        flowmodoroConfig
+                    }
+
+                    if !showIntentionInput {
+                        Button {
+                            beginStart(.custom)
+                        } label: {
+                            Label(startButtonTitle, systemImage: "bolt.fill")
+                        }
+                        .secondaryActionStyle(color: themeManager.startButton)
+                        .disabled(isSessionActionInFlight || activeProfile == nil)
+                    }
+
+                    DisclosureGroup(isExpanded: $showAdvancedControls) {
+                        cancelIntensityPicker
+                    } label: {
+                        Label("고급 컨트롤", systemImage: "slider.horizontal.3")
+                            .font(.caption.weight(.semibold))
+                    }
+                }
+                .padding(.top, Constants.Design.spacingSM)
+            } label: {
+                Label("커스터마이즈", systemImage: "slider.horizontal.2.square")
+                    .font(.callout.weight(.semibold))
+            }
         }
     }
 
@@ -109,12 +217,12 @@ struct DashboardIdleHeroView: View {
                 )
                 .onSubmit {
                     let trimmed = intentionText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    startSession(intention: trimmed.isEmpty ? nil : trimmed)
+                    startSession(intention: trimmed.isEmpty ? nil : trimmed, action: pendingStartAction)
                 }
 
             Button {
                 let trimmed = intentionText.trimmingCharacters(in: .whitespacesAndNewlines)
-                startSession(intention: trimmed.isEmpty ? nil : trimmed)
+                startSession(intention: trimmed.isEmpty ? nil : trimmed, action: pendingStartAction)
             } label: {
                 Label("집중 시작", systemImage: "bolt.fill")
             }
@@ -429,18 +537,39 @@ struct DashboardIdleHeroView: View {
 
     // MARK: - 세션 시작
 
-    private func startSession(intention: String? = nil) {
+    private func beginStart(_ action: PendingStartAction) {
+        pendingStartAction = action
+        if settingsViewModel.showIntentionInput {
+            showIntentionInput = true
+        } else {
+            startSession(intention: nil, action: action)
+        }
+    }
+
+    private func startSession(intention: String? = nil, action: PendingStartAction) {
         guard !isSessionActionInFlight else { return }
         isSessionActionInFlight = true
 
         let selectedDuration: TimeInterval
-        switch quickStartMode {
-        case .free:
-            selectedDuration = TimeInterval(selectedDurationMinutes * 60)
-        case .pomodoro:
-            selectedDuration = TimeInterval(pomodoroConfiguration.focusMinutes * 60)
-        case .flowmodoro:
-            selectedDuration = Constants.Timer.flowmodoroMaxDuration
+        let selectedMode: AppState.TimerMode
+        let selectedPomodoroConfiguration: PomodoroConfiguration
+
+        switch action {
+        case .primary25:
+            selectedDuration = TimeInterval(25 * 60)
+            selectedMode = .free
+            selectedPomodoroConfiguration = .default
+        case .custom:
+            selectedMode = quickStartMode
+            selectedPomodoroConfiguration = pomodoroConfiguration
+            switch quickStartMode {
+            case .free:
+                selectedDuration = TimeInterval(selectedDurationMinutes * 60)
+            case .pomodoro:
+                selectedDuration = TimeInterval(pomodoroConfiguration.focusMinutes * 60)
+            case .flowmodoro:
+                selectedDuration = Constants.Timer.flowmodoroMaxDuration
+            }
         }
 
         Task { @MainActor in
@@ -449,8 +578,8 @@ struct DashboardIdleHeroView: View {
                 sites: activeSites,
                 apps: activeApps,
                 modelContext: modelContext,
-                mode: quickStartMode,
-                pomodoroConfiguration: pomodoroConfiguration,
+                mode: selectedMode,
+                pomodoroConfiguration: selectedPomodoroConfiguration,
                 intention: intention,
                 blocklistMode: blocklistMode,
                 cancelIntensity: cancelIntensity,

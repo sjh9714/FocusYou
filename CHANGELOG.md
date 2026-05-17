@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - Mac App Store 제출 준비를 위해 sandboxed `AppStore` build configuration, App Store 전용 entitlements, App Store archive/export 스크립트와 심사 준비 문서를 추가.
+- App Store 심사 대응과 제품 리브랜딩을 위해 Network Extension 승인 온보딩, 25분 빠른 시작 중심 대시보드, support/data tools 중심 진단 안내를 추가.
+- 새 macOS 앱 아이콘과 README 브랜드 미디어를 추가하고, 기본 테마/앱 accent를 차분한 프리미엄 톤으로 정리.
 
 ### Changed
 - App Store 빌드에서는 웹 차단 방식을 Network Extension 전용으로 고정하고 hosts/helper 관련 설정 및 진단 UI를 직접 배포판 전용으로 분리.
@@ -13,6 +15,12 @@ All notable changes to this project are documented in this file.
 - App Store Connect 업로드 검증에 맞춰 System Extension 번들명을 bundle id 기반으로 정리하고 Widget extension point metadata를 명시.
 - App Store Connect에서 빌드 선택이 막히지 않도록 generated Info.plist에 비면제 암호화 미사용 선언을 추가.
 - App Store 심사 후속 제출을 위해 `2.3.13` App Store build number를 `37`로 갱신.
+- App Store 심사 반려 대응으로 구독 구매 화면에 개인정보 처리방침/EULA 링크를 추가하고, StoreKit 상품 선택/구매 버튼 상태를 명확한 Button 기반 흐름으로 정리.
+- App Store 재제출용 `2.3.13` build number를 `38`로 갱신.
+- StoreKit 상품 로딩을 단일 in-flight 요청으로 coalesce해 launch 직후 paywall의 구매 버튼 dead-end를 방지.
+- 구독 플랜 카드에 상품명, 가격, 기간, 갱신/평생 구매 문구를 명확히 표시하고 StoreKit에서 반환되지 않은 lifetime 상품은 표시하지 않도록 정리.
+- 종료 시 차단 cleanup과 Focus/DND cleanup을 함께 기다리도록 정리하고, 빈 allowlist도 차단 정책으로 일관되게 처리.
+- SwiftData 저장 문자열은 유지하면서 타이머/차단 모드 raw value 접근을 typed wrapper로 보강.
 
 ## [2.3.13] - 2026-05-06
 

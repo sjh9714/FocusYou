@@ -2,7 +2,6 @@ import Foundation
 import SwiftData
 
 // MARK: - 집중 세션 기록 모델
-// 모든 타이머 모드(free, pomodoro, flowmodoro)에서 공통으로 사용
 
 @Model
 final class FocusSession {
@@ -24,7 +23,7 @@ final class FocusSession {
     /// 실제 집중 시간 (초)
     var actualDuration: Int
 
-    /// 오버플로우 시간 (초, v0.3+)
+    /// 타이머 완료 후 초과 집중한 시간 (초)
     var overflowDuration: Int
 
     /// 세션 종류 ("focus", "break", "longBreak")
@@ -33,7 +32,7 @@ final class FocusSession {
     /// 정상 완료 여부
     var wasCompleted: Bool
 
-    // MARK: - v1.x 확장 필드 (nullable)
+    // MARK: - Optional Session Metadata
 
     /// 의도 입력 텍스트
     var intention: String?
@@ -47,8 +46,13 @@ final class FocusSession {
     /// 회고 만족도 (1~5)
     var retrospectRating: Int?
 
-    /// Apple Calendar 이벤트 ID (v1.3 캘린더 동기화)
+    /// Apple Calendar 이벤트 ID
     var calendarEventID: String?
+
+    var persistedTimerMode: PersistedTimerMode {
+        get { PersistedTimerMode(storedValue: timerMode) }
+        set { timerMode = newValue.rawValue }
+    }
 
     init(
         timerMode: String = "free",

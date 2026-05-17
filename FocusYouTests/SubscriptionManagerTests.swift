@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import Focus_You
 
-// MARK: - 구독 관련 테스트 (v2.0)
+// MARK: - 구독 관련 테스트
 
 @Suite("Subscription")
 @MainActor
@@ -29,6 +29,82 @@ struct SubscriptionManagerTests {
     @Test("Subscription Group ID 확인")
     func testSubscriptionGroupID() {
         #expect(Constants.Subscription.subscriptionGroupID == "focusyou_pro")
+    }
+
+    @Test("concurrent product load coordinator calls share one request")
+    func concurrentProductLoadCoordinatorCallsShareOneRequest() async throws {
+        let counter = LockedCounter()
+        let coordinator = SubscriptionProductLoadCoordinator<String>()
+
+        async let first = coordinator.load {
+            counter.increment()
+            try await Task.sleep(nanoseconds: 50_000_000)
+            return ["loaded"]
+        }
+
+        async let second = coordinator.load {
+            counter.increment()
+            try await Task.sleep(nanoseconds: 50_000_000)
+            return ["loaded"]
+        }
+
+        let values = try await first + second
+
+        #expect(values == ["loaded", "loaded"])
+        #expect(counter.value == 1)
+    }
+
+    @Test("concurrent product loads await the same in-flight request")
+    func testProductLoadCoordinatorCoalescesConcurrentLoads() async throws {
+        let coordinator = SubscriptionProductLoadCoordinator<Int>()
+        let counter = ProductLoadCallCounter()
+
+        let loader: @Sendable () async throws -> [Int] = {
+            await counter.increment()
+            try await Task.sleep(nanoseconds: 100_000_000)
+            return [1, 2, 3]
+        }
+
+        async let firstLoad = coordinator.load(using: loader)
+        async let secondLoad = coordinator.load(using: loader)
+
+        let (firstProducts, secondProducts) = try await (firstLoad, secondLoad)
+
+        #expect(firstProducts == [1, 2, 3])
+        #expect(secondProducts == [1, 2, 3])
+        #expect(await counter.count == 1)
+    }
+
+    @Test("paywall presents no purchasable plans when StoreKit returns no products")
+    func testPaywallPlansEmptyWhenProductsUnavailable() {
+        let visibleIDs = PaywallPlanPresentation.visibleProductIDs(from: [])
+
+        #expect(visibleIDs.isEmpty)
+    }
+
+    @Test("paywall hides lifetime unless StoreKit returns the lifetime product")
+    func testPaywallHidesLifetimeWhenProductMissing() {
+        let visibleIDs = PaywallPlanPresentation.visibleProductIDs(
+            from: [
+                Constants.Subscription.monthlyProductID,
+                Constants.Subscription.annualProductID,
+            ]
+        )
+
+        #expect(visibleIDs == [
+            Constants.Subscription.annualProductID,
+            Constants.Subscription.monthlyProductID,
+        ])
+        #expect(!visibleIDs.contains(Constants.Subscription.lifetimeProductID))
+    }
+
+    @Test("lifetime disclosure uses non-renewing wording")
+    func testLifetimeDisclosureIsNotRenewing() {
+        #expect(
+            PaywallPlanPresentation.renewalDisclosureKey(
+                for: Constants.Subscription.lifetimeProductID
+            ) == "subscription_lifetime_disclosure"
+        )
     }
 
     // MARK: - LicenseManager.updateProStatus
@@ -137,5 +213,28 @@ struct SubscriptionManagerTests {
         #expect(manager.canUseTimerDuration(minutes: 999) == true)
 
         defaults.removeSuite(named: suiteName)
+    }
+}
+
+private final class LockedCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var rawValue = 0
+
+    var value: Int {
+        lock.withLock { rawValue }
+    }
+
+    func increment() {
+        lock.withLock {
+            rawValue += 1
+        }
+    }
+}
+
+private actor ProductLoadCallCounter {
+    private(set) var count = 0
+
+    func increment() {
+        count += 1
     }
 }

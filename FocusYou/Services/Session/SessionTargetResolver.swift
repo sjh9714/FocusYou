@@ -6,7 +6,10 @@ struct SessionBlockingTargets: Equatable {
     let blocklistMode: String
 
     var hasBlockingTargets: Bool {
-        !domains.isEmpty || !appBundleIds.isEmpty
+        PersistedBlocklistMode(storedValue: blocklistMode).hasBlockingTargets(
+            domains: domains,
+            appBundleIds: appBundleIds
+        )
     }
 }
 
@@ -30,7 +33,7 @@ struct SessionTargetResolver {
         return SessionBlockingTargets(
             domains: enabledDomains,
             appBundleIds: effectiveBundleIds,
-            blocklistMode: blocklistMode
+            blocklistMode: PersistedBlocklistMode(storedValue: blocklistMode).rawValue
         )
     }
 }

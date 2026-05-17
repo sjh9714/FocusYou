@@ -68,7 +68,7 @@ struct OnboardingReadyStepView: View {
                 Text("준비 완료!")
                     .font(.title.bold())
 
-                Text("첫 집중 세션을 시작해보세요")
+                Text("대시보드에서 25분 집중을 바로 시작할 수 있어요")
                     .font(.title3)
                     .foregroundStyle(.secondary)
             }
@@ -87,8 +87,14 @@ struct OnboardingReadyStepView: View {
                     text: "메뉴바 아이콘을 클릭하면 빠르게 타이머를 시작할 수 있어요"
                 )
                 tipRow(
-                    icon: "hand.raised.fill",
-                    text: "차단 목록은 언제든 설정에서 수정할 수 있어요"
+                    icon: "timer",
+                    text: "차단 대상이 없으면 세션은 타이머만 실행됩니다"
+                )
+                tipRow(
+                    icon: "checkmark.shield.fill",
+                    text: Constants.Distribution.isAppStoreBuild
+                        ? "차단을 쓰려면 첫 세션 전에 macOS Network Extension 승인이 필요해요"
+                        : "차단 목록은 언제든 설정에서 수정할 수 있어요"
                 )
             }
             .transition(.move(edge: .bottom).combined(with: .opacity))

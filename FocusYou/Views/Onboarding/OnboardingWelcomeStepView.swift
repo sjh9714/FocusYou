@@ -59,7 +59,7 @@ struct OnboardingWelcomeStepView: View {
                     .font(.title.bold())
                     .multilineTextAlignment(.center)
 
-                Text("방해 요소를 차단하고\n집중에만 몰입하세요")
+                Text("25분 타이머로 바로 시작하고\n필요할 때 차단을 켜세요")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -77,14 +77,16 @@ struct OnboardingWelcomeStepView: View {
                 propositionRow(
                     icon: "timer",
                     color: themeManager.primary,
-                    title: "타이머 시작 = 차단 시작",
-                    subtitle: "원클릭으로 집중 모드 진입"
+                    title: "타이머만 사용 가능",
+                    subtitle: "차단 대상을 고르지 않아도 세션을 시작할 수 있어요"
                 )
                 propositionRow(
-                    icon: "globe",
+                    icon: "checkmark.shield.fill",
                     color: themeManager.secondary,
-                    title: "웹사이트 & 앱 차단",
-                    subtitle: "SNS, 뉴스, 동영상을 한 번에 차단"
+                    title: "차단은 승인 후 활성화",
+                    subtitle: Constants.Distribution.isAppStoreBuild
+                        ? "첫 차단 세션 전에 macOS에서 Network Extension 승인이 필요해요"
+                        : "선택한 사이트와 앱이 있을 때만 차단이 활성화돼요"
                 )
                 propositionRow(
                     icon: "chart.bar.fill",
